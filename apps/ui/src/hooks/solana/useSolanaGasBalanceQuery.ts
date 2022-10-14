@@ -9,14 +9,15 @@ import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 // Returns user's Solana balance in SOL.
-export const useSolBalanceQuery = (
+export const useSolanaGasBalanceQuery = (
   options?: UseQueryOptions<Decimal, Error>,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
   const solanaClient = useSolanaClient();
   const { address: walletAddress } = useSolanaWallet();
+
   return useQuery<Decimal, Error>(
-    [env, "solBalance", walletAddress],
+    [env, "solanaGasBalance", walletAddress],
     async () => {
       if (!walletAddress) {
         return new Decimal(0);

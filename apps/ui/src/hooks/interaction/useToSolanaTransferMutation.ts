@@ -26,10 +26,10 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 export const useToSolanaTransferMutation = () => {
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const { chains, wormhole } = useEnvironment(selectConfig, shallow);
   const getEvmClient = useGetEvmClient();
   const solanaClient = useSolanaClient();

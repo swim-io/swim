@@ -14,7 +14,7 @@ import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
@@ -42,10 +42,12 @@ const getSignedVaaWithRetryMock = mockOf(getSignedVaaWithRetry);
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaClient: jest.fn(),
-  useSplTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
 }));
 const useSolanaClientMock = mockOf(useSolanaClient);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 
 describe("useToSolanaTransferMutation", () => {
   beforeEach(() => {
@@ -60,7 +62,7 @@ describe("useToSolanaTransferMutation", () => {
   });
 
   it("should handle the transfer and patch interactionState with txIds", async () => {
-    useSplTokenAccountsQueryMock.mockReturnValue({
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
       data: [
         {
           mint: new PublicKey("9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr"),

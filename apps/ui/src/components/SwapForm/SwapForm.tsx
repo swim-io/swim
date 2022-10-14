@@ -24,12 +24,12 @@ import {
   useIsLargeSwap,
   usePoolMaths,
   usePools,
-  useSplTokenAccountsQuery,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
   useSwapTokensContext,
   useUserBalanceAmount,
   useUserNativeBalances,
+  useUserSolanaTokenAccountsQuery,
 } from "../../hooks";
 import {
   useHasActiveInteraction,
@@ -59,7 +59,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const { t } = useTranslation();
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = null } = useUserSolanaTokenAccountsQuery();
   const startNewInteraction = useStartNewInteraction(() => {
     setFormInputAmount("");
   });

@@ -17,7 +17,7 @@ import {
 import { Amount, InteractionType } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaWallet, useUserSolanaTokenAccountsQuery } from "../solana";
 import { usePoolMathByPoolIds } from "../swim";
 
 import { useCreateInteractionState } from "./useCreateInteractionState";
@@ -37,7 +37,7 @@ jest.mock("../crossEcosystem", () => ({
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaWallet: jest.fn(),
-  useSplTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
 }));
 
 jest.mock("../swim", () => ({
@@ -48,7 +48,9 @@ jest.mock("../swim", () => ({
 // Make typescript happy with jest
 const useSolanaWalletMock = mockOf(useSolanaWallet);
 const usePoolMathByPoolIdsMock = mockOf(usePoolMathByPoolIds);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 const useWalletsMock = mockOf(useWallets);
 
 describe("useCreateInteractionState", () => {
@@ -64,7 +66,9 @@ describe("useCreateInteractionState", () => {
       address: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     });
     usePoolMathByPoolIdsMock.mockReturnValue(MOCK_POOL_MATHS_BY_ID);
-    useSplTokenAccountsQueryMock.mockReturnValue({ data: MOCK_TOKEN_ACCOUNTS });
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
+      data: MOCK_TOKEN_ACCOUNTS,
+    });
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
   });
 
@@ -105,7 +109,7 @@ describe("useCreateInteractionState", () => {
   });
 
   it("create state from SOLANA USDC to ETHEREUM USDC", () => {
-    useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionState(),
     );
@@ -142,7 +146,7 @@ describe("useCreateInteractionState", () => {
   });
 
   it("create state from BNB USDT to ETHEREUM USDC", () => {
-    useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionState(),
     );

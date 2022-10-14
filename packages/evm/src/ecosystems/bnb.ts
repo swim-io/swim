@@ -188,7 +188,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
       id: "testnet-bnb-lp-busd-usdt",
       projectId: TokenProjectId.SwimLpBnbBusdUsdt,
       nativeDetails: {

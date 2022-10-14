@@ -119,7 +119,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
       id: "testnet-polygon-lp-usdc-usdt",
       projectId: TokenProjectId.SwimLpPolygonUsdcUsdt,
       nativeDetails: {

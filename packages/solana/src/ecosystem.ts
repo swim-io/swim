@@ -197,7 +197,6 @@ const mainnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
       id: "mainnet-solana-lp-meta-aurora-usn",
       projectId: TokenProjectId.SwimAuroraUsnLp,
       nativeDetails: {
@@ -216,7 +215,6 @@ const mainnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
       id: "mainnet-solana-lp-meta-karura-ausd",
       projectId: TokenProjectId.SwimKaruraAusdLp,
       nativeDetails: {
@@ -235,7 +233,6 @@ const mainnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_ACALA,
       id: "mainnet-solana-lp-meta-acala-ausd",
       projectId: TokenProjectId.SwimAcalaAusdLp,
       nativeDetails: {
@@ -245,7 +242,6 @@ const mainnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: true,
       id: "mainnet-solana-swim",
       projectId: TokenProjectId.Swim,
       nativeDetails: {
@@ -255,7 +251,6 @@ const mainnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: true,
       id: "mainnet-solana-lp-swimlake",
       projectId: TokenProjectId.XSwim,
       nativeDetails: {
@@ -435,7 +430,6 @@ const testnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
       id: "testnet-solana-lp-meta-aurora-usn",
       projectId: TokenProjectId.SwimAuroraUsnLp,
       nativeDetails: {
@@ -472,7 +466,6 @@ const testnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_ACALA,
       id: "testnet-solana-lp-meta-acala-ausd",
       projectId: TokenProjectId.SwimAcalaAusdLp,
       nativeDetails: {

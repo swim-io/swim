@@ -33,7 +33,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Karura> = {
   routingContractAddress: "", // TODO: add when deployed
   tokens: [
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
       id: "mainnet-karura-ausd",
       projectId: TokenProjectId.Ausd,
       nativeDetails: {
@@ -120,7 +119,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Karura> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
       id: "testnet-karura-lp-usdt",
       projectId: TokenProjectId.SwimLpKaruraUsdt,
       nativeDetails: {
@@ -130,9 +128,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Karura> = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled:
-        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
-        !process.env.REACT_APP_ENABLE_KARURA_AUSD,
       id: "testnet-karura-lp-ausd",
       projectId: TokenProjectId.SwimLpKaruraAusd,
       nativeDetails: {

@@ -15,7 +15,6 @@ export interface TokenConfig {
   /** The ID of the token project to which this token belongs */
   readonly projectId: TokenProjectId;
   readonly nativeDetails: TokenDetails;
-  readonly isDisabled?: boolean;
   /** A map from ecosystem ID to token details for a Wormhole-wrapped version of the token */
   readonly wrappedDetails: ReadonlyMap<string, TokenDetails>;
 }

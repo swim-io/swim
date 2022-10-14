@@ -33,7 +33,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Acala> = {
   routingContractAddress: "", // TODO: add when deployed
   tokens: [
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_ACALA,
       id: "mainnet-acala-ausd",
       projectId: TokenProjectId.Ausd,
       nativeDetails: {
@@ -69,7 +68,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
   routingContractAddress: "", // TODO: add when deployed
   tokens: [
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_ACALA,
       id: "testnet-acala-ausd",
       projectId: TokenProjectId.Ausd,
       nativeDetails: {
@@ -87,9 +85,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
       ]),
     },
     {
-      isDisabled:
-        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
-        !process.env.REACT_APP_ENABLE_ACALA,
       id: "testnet-acala-lp-ausd",
       projectId: TokenProjectId.SwimLpAcalaAusd,
       nativeDetails: {

@@ -119,7 +119,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
       id: "testnet-avalanche-lp-usdc-usdt",
       projectId: TokenProjectId.SwimLpAvalancheUsdcUsdt,
       nativeDetails: {

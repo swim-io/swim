@@ -85,7 +85,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
       id: "testnet-fantom-lp-usdc",
       projectId: TokenProjectId.SwimLpFantomUsdc,
       nativeDetails: {

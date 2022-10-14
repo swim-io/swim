@@ -67,7 +67,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
       id: "mainnet-aurora-usn",
       projectId: TokenProjectId.Usn,
       nativeDetails: {
@@ -137,7 +136,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
       id: "testnet-aurora-usn",
       projectId: TokenProjectId.Usn,
       nativeDetails: {
@@ -155,7 +153,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
       id: "testnet-aurora-lp-usdc-usdt",
       projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
       nativeDetails: {
@@ -165,9 +162,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      isDisabled:
-        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
-        !process.env.REACT_APP_ENABLE_AURORA_USN,
       id: "testnet-aurora-lp-usn",
       projectId: TokenProjectId.SwimLpAuroraUsn,
       nativeDetails: {

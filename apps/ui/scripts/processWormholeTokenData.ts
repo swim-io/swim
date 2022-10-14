@@ -191,11 +191,11 @@ const main = async () => {
     }
   }
 
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     fs.writeFile(
       `${__dirname}/../src/config/wormholeTokens.json`,
       JSON.stringify(processedRecords),
-      resolve,
+      (err) => (err ? reject(err) : resolve()),
     );
   });
 };

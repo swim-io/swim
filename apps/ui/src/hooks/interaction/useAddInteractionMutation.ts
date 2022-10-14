@@ -17,7 +17,7 @@ import {
 import type { AddInteractionState } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 export const useAddInteractionMutation = () => {
   const queryClient = useQueryClient();
@@ -26,7 +26,8 @@ export const useAddInteractionMutation = () => {
   const wallets = useWallets();
   const solanaClient = useSolanaClient();
   const getEvmClient = useGetEvmClient();
-  const { data: existingSplTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: existingSplTokenAccounts = [] } =
+    useUserSolanaTokenAccountsQuery();
   const { updateInteractionState } = useInteractionStateV2();
 
   const tokensByPoolId = getTokensByPool(config);

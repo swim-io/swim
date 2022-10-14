@@ -24,13 +24,13 @@ import { useEvmWallet, useGetEvmClient } from "../evm";
 import {
   useSolanaClient,
   useSolanaWallet,
-  useSplTokenAccountsQuery,
+  useUserSolanaTokenAccountsQuery,
 } from "../solana";
 
 export const useReloadInteractionStateMutation = () => {
   const queryClient = useQueryClient();
   const getEvmClient = useGetEvmClient();
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const solanaClient = useSolanaClient();
   const { address: solanaAddress } = useSolanaWallet();
   const { address: evmAddress } = useEvmWallet();

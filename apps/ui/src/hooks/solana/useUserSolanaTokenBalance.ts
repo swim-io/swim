@@ -2,9 +2,9 @@ import { findTokenAccountForMint } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
 import { useSolanaWallet } from "./useSolanaWallet";
-import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
+import { useUserSolanaTokenAccountsQuery } from "./useUserSolanaTokenAccountsQuery";
 
-export const useSplUserBalance = (
+export const useUserSolanaTokenBalance = (
   mintAddress: string | null,
   {
     enabled = true,
@@ -16,7 +16,7 @@ export const useSplUserBalance = (
   } = {},
 ): Decimal | null => {
   const { address: walletAddress } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery(
+  const { data: splTokenAccounts = null } = useUserSolanaTokenAccountsQuery(
     undefined,
     { enabled },
   );

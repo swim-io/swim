@@ -13,14 +13,14 @@ import {
 import {
   useSolanaClient,
   useSolanaWallet,
-  useSplTokenAccountsQuery,
+  useUserSolanaTokenAccountsQuery,
 } from "../solana";
 
 export const useSolanaPoolOperationsMutation = () => {
   const { env } = useEnvironment();
   const config = useEnvironment(selectConfig, shallow);
   const { pools } = config;
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const solanaClient = useSolanaClient();
   const { wallet, address: solanaWalletAddress } = useSolanaWallet();
   const tokensByPoolId = getTokensByPool(config);

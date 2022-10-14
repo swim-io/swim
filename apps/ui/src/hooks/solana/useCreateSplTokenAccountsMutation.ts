@@ -8,9 +8,9 @@ import { findOrCreateSplTokenAccount } from "../../models";
 import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 import {
-  getSplTokenAccountsQueryKey,
-  useSplTokenAccountsQuery,
-} from "./useSplTokenAccountsQuery";
+  getUserSolanaTokenAccountsQueryKey,
+  useUserSolanaTokenAccountsQuery,
+} from "./useUserSolanaTokenAccountsQuery";
 
 export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   readonly TokenAccount[],
@@ -21,7 +21,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   const queryClient = useQueryClient();
   const solanaClient = useSolanaClient();
   const { wallet, address } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = null } = useUserSolanaTokenAccountsQuery();
 
   return useMutation<readonly TokenAccount[], Error, readonly string[]>(
     async (mints: readonly string[]): Promise<readonly TokenAccount[]> => {
@@ -46,7 +46,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
         ),
       );
       await queryClient.invalidateQueries(
-        getSplTokenAccountsQueryKey(env, address),
+        getUserSolanaTokenAccountsQueryKey(env, address),
       );
       return tokenAccountData.map((data) => data.tokenAccount);
     },

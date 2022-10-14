@@ -25,7 +25,7 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 const getPopulatedTxForEvmRemoveInteraction = (
   interaction:
@@ -90,7 +90,8 @@ export const useRemoveInteractionMutation = () => {
   const wallets = useWallets();
   const solanaClient = useSolanaClient();
   const getEvmClient = useGetEvmClient();
-  const { data: existingSplTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: existingSplTokenAccounts = [] } =
+    useUserSolanaTokenAccountsQuery();
   const { updateInteractionState } = useInteractionStateV2();
 
   const tokensByPoolId = getTokensByPool(config);

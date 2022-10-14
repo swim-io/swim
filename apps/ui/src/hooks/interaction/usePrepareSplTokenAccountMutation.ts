@@ -4,10 +4,10 @@ import { useMutation, useQueryClient } from "react-query";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import {
-  getSplTokenAccountsQueryKey,
+  getUserSolanaTokenAccountsQueryKey,
   useSolanaClient,
   useSolanaWallet,
-  useSplTokenAccountsQuery,
+  useUserSolanaTokenAccountsQuery,
 } from "../solana";
 
 export const usePrepareSplTokenAccountMutation = () => {
@@ -18,7 +18,7 @@ export const usePrepareSplTokenAccountMutation = () => {
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
   const queryClient = useQueryClient();
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
 
   return useMutation(async (interactionId: string) => {
     if (wallet === null) {
@@ -56,7 +56,7 @@ export const usePrepareSplTokenAccountMutation = () => {
     );
 
     if (missingAccountMints.length > 0) {
-      const splTokenAccountsQueryKey = getSplTokenAccountsQueryKey(
+      const splTokenAccountsQueryKey = getUserSolanaTokenAccountsQueryKey(
         interaction.env,
         solanaAddress,
       );

@@ -17,7 +17,7 @@ import {
 } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useEvmWallet } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaWallet, useUserSolanaTokenAccountsQuery } from "../solana";
 
 import { useReloadInteractionStateMutation } from "./useReloadInteractionStateMutation";
 
@@ -33,10 +33,12 @@ const useEvmWalletMock = mockOf(useEvmWallet);
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaWallet: jest.fn(),
-  useSplTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
 }));
 const useSolanaWalletMock = mockOf(useSolanaWallet);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 
 jest.mock("../../models", () => ({
   ...jest.requireActual("../../models"),
@@ -68,7 +70,7 @@ describe("useReloadInteractionStateMutation", () => {
   });
 
   it("should reload recent tx and recover interaction state", async () => {
-    useSplTokenAccountsQueryMock.mockReturnValue({
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
       data: [
         {
           mint: new PublicKey("7Lf95y8NuCU5RRC95oUtbBtckPAtbr9ubTgrCiyZ1kEf"),

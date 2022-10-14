@@ -10,7 +10,7 @@ import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
 import { useAptosTokenBalancesQuery } from "../aptos";
 import { useErc20BalancesQuery } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaWallet, useUserSolanaTokenAccountsQuery } from "../solana";
 
 const getContractAddressesByEcosystem = (
   tokenConfigs: readonly TokenConfig[],
@@ -136,7 +136,7 @@ export const useMultipleUserBalances = (
     acala,
   } = getContractAddressesByEcosystem(tokenConfigs);
   const { address: solanaWalletAddress } = useSolanaWallet();
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const solanaTokenAccounts = solana.map((tokenContractAddress) =>
     solanaWalletAddress !== null
       ? findTokenAccountForMint(

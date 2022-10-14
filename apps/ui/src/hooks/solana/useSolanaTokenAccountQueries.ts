@@ -11,7 +11,7 @@ import { useSolanaAccountChangeListener } from "./useSolanaConnectionListener";
 
 type ResultData = readonly (TokenAccount | null)[];
 
-export const useSolanaLiquidityQueries = (
+export const useSolanaTokenAccountQueries = (
   tokenAccountAddresses: readonly (readonly string[])[],
 ): readonly UseQueryResult<ResultData, Error>[] => {
   const { env } = useEnvironment();
@@ -25,7 +25,7 @@ export const useSolanaLiquidityQueries = (
         if (!addresses.includes(updatedAddress)) continue;
 
         queryClient.setQueryData<ResultData>(
-          [env, "liquidity", addresses.join()],
+          [env, "solanaTokenAccounts", addresses.join()],
           (prevQueryData) => {
             if (!prevQueryData) return [];
 
@@ -48,7 +48,7 @@ export const useSolanaLiquidityQueries = (
 
   return useQueries(
     tokenAccountAddresses.map((addresses) => ({
-      queryKey: [env, "liquidity", addresses.join()],
+      queryKey: [env, "solanaTokenAccounts", addresses.join()],
       queryFn: async (): Promise<ResultData> => {
         if (addresses.length === 0) {
           return [];

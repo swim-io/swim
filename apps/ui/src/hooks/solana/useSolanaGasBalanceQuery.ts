@@ -14,7 +14,7 @@ const lamportsToSol = (balance: Decimal.Value): Decimal => {
 };
 
 // Returns user's Solana balance in SOL.
-export const useSolBalanceQuery = (
+export const useSolanaGasBalanceQuery = (
   options?: Omit<UseQueryOptions<Decimal, Error>, "staleTime">,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
@@ -26,14 +26,14 @@ export const useSolBalanceQuery = (
     [{ key: walletAddress, enabled: options?.enabled }],
     (key, accountInfo) => {
       queryClient.setQueryData(
-        [env, "solBalance", key],
+        [env, "solanaGasBalance", key],
         lamportsToSol(accountInfo.lamports),
       );
     },
   );
 
   return useQuery<Decimal, Error>(
-    [env, "solBalance", walletAddress],
+    [env, "solanaGasBalance", walletAddress],
     async () => {
       if (!walletAddress) {
         return new Decimal(0);

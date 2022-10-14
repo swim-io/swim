@@ -40,9 +40,9 @@ import {
   usePoolMath,
   useRemoveFeesEstimationQuery,
   useRemoveFeesEstimationQueryV2,
-  useSplTokenAccountsQuery,
   useUserLpBalances,
   useUserNativeBalances,
+  useUserSolanaTokenAccountsQuery,
   useWallets,
 } from "../hooks";
 import {
@@ -93,7 +93,7 @@ export const RemoveForm = ({
     state: poolState,
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = null } = useUserSolanaTokenAccountsQuery();
   const startNewInteractionV1 = useStartNewInteraction(() => {
     if (method === RemoveMethod.ExactOutput) {
       setFormOutputAmounts(formOutputAmounts.map(() => "0"));

@@ -13,14 +13,14 @@ import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaAccountChangeListener } from "./useSolanaConnectionListener";
 import { useSolanaWallet } from "./useSolanaWallet";
 
-export const getSplTokenAccountsQueryKey = (
+export const getUserSolanaTokenAccountsQueryKey = (
   env: Env,
   address: string | null,
-) => [env, "tokenAccounts", address];
+) => [env, "userSolanaTokenAccounts", address];
 
 type ResultData = readonly TokenAccount[];
 
-export const useSplTokenAccountsQuery = (
+export const useUserSolanaTokenAccountsQuery = (
   owner?: string,
   options?: Omit<UseQueryOptions<ResultData, Error>, "staleTime">,
 ): UseQueryResult<ResultData, Error> => {
@@ -53,7 +53,7 @@ export const useSplTokenAccountsQuery = (
 
       for (const [ownerAddress] of updatedEntries) {
         queryClient.setQueryData<ResultData>(
-          getSplTokenAccountsQueryKey(env, ownerAddress),
+          getUserSolanaTokenAccountsQueryKey(env, ownerAddress),
           (prevQueryData) => {
             if (!prevQueryData) return [];
 
@@ -72,7 +72,7 @@ export const useSplTokenAccountsQuery = (
     },
   );
 
-  const queryKey = getSplTokenAccountsQueryKey(env, address);
+  const queryKey = getUserSolanaTokenAccountsQueryKey(env, address);
   return useQuery<ResultData, Error>(
     queryKey,
     async () => {

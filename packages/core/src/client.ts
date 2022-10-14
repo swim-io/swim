@@ -45,10 +45,8 @@ export abstract class Client<
     this.chainConfig = chainConfig;
   }
 
-  public abstract getTx(id: string): Promise<T | null>;
-  public abstract getTxs(
-    ids: readonly string[],
-  ): Promise<readonly (T | null)[]>;
+  public abstract getTx(id: string): Promise<T>;
+  public abstract getTxs(ids: readonly string[]): Promise<readonly T[]>;
   /** Gas balance as a human decimal */
   public abstract getGasBalance(address: string): Promise<Decimal>;
   /** Token balance as a human decimal */

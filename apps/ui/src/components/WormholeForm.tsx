@@ -149,14 +149,14 @@ export const WormholeForm = (): ReactElement => {
       </table>
       {txResults.length > 0 && (
         <>
-          <h2>Tx results</h2>
+          <h2>{"Tx results"}</h2>
           <table>
             <tr>
-              <th>Chain ID</th>
-              <th>Tx ID</th>
+              <th>{"Chain ID"}</th>
+              <th>{"Tx ID"}</th>
             </tr>
             {txResults.map(({ chainId, txId }) => (
-              <tr>
+              <tr key={txId}>
                 <td>{chainId}</td>
                 <td>{txId}</td>
               </tr>

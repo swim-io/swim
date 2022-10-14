@@ -1,5 +1,7 @@
-import { CHAINS, ChainId, isEVMChain } from "@certusone/wormhole-sdk";
 import fs from "fs";
+
+import type { ChainId } from "@certusone/wormhole-sdk";
+import { CHAINS, isEVMChain } from "@certusone/wormhole-sdk";
 import { parse } from "csv-parse";
 
 type Source =
@@ -166,7 +168,6 @@ const processRecord = ({
 });
 
 const main = async () => {
-  const processedRecords: WormholeToken[] = [];
   const parser = fs
     .createReadStream(`${__dirname}/../tmp/wormholeTokenData.csv`)
     .pipe(
@@ -176,13 +177,16 @@ const main = async () => {
       }),
     );
 
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const processedRecords: WormholeToken[] = [];
   for await (const record of parser) {
-    const processedRecord = processRecord(record);
+    const processedRecord = processRecord(record as CsvRecord);
     const supportedChains = [
       processedRecord.nativeDetails,
       ...processedRecord.wrappedDetails,
     ].filter((details) => isChainSupported(details.chainId));
     if (supportedChains.length >= 2) {
+      // eslint-disable-next-line functional/immutable-data
       processedRecords.push(processedRecord);
     }
   }

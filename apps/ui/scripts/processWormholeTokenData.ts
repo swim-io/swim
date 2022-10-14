@@ -1,4 +1,4 @@
-import { CHAINS, ChainId } from "@certusone/wormhole-sdk";
+import { CHAINS, ChainId, isEVMChain } from "@certusone/wormhole-sdk";
 import fs from "fs";
 import { parse } from "csv-parse";
 
@@ -103,10 +103,26 @@ const sourceToChainId: Record<Source, ChainId> = {
   terra2: CHAINS.terra2,
 };
 
+const isChainSupported = (chainId: ChainId): boolean =>
+  chainId === CHAINS.solana || isEVMChain(chainId);
+
+const supportedSourceToChainId = Object.entries(sourceToChainId).reduce<
+  Partial<Record<Source, ChainId>>
+>(
+  (accumulator, [source, chainId]) =>
+    isChainSupported(chainId)
+      ? {
+          ...accumulator,
+          [source]: chainId,
+        }
+      : accumulator,
+  {},
+);
+
 const processWrappedDetails = (
   wrappedDetails: WrappedDetails,
 ): readonly WormholeTokenDetails[] =>
-  Object.entries(sourceToChainId).reduce(
+  Object.entries(supportedSourceToChainId).reduce(
     (accumulator: readonly WormholeTokenDetails[], [source, chainId]) => {
       const address: string =
         wrappedDetails[`${source}Address` as keyof WrappedDetails];
@@ -162,7 +178,11 @@ const main = async () => {
 
   for await (const record of parser) {
     const processedRecord = processRecord(record);
-    if (Object.keys(processedRecord.wrappedDetails).length > 0) {
+    const supportedChains = [
+      processedRecord.nativeDetails,
+      ...processedRecord.wrappedDetails,
+    ].filter((details) => isChainSupported(details.chainId));
+    if (supportedChains.length >= 2) {
       processedRecords.push(processedRecord);
     }
   }

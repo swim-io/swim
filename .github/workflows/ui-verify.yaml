@@ -12,7 +12,7 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     # Allow only one concurrent deployment
     concurrency:
@@ -48,7 +48,7 @@ jobs:
           MNEMONIC: "test test test test test test test test test test test junk"
           ETHERSCAN_API_KEY: "XRJNAJSHABY3I6GUJYGHIVTSGCQ2S2Y75J"
         # CI=false to skip errors for missing optional dependencies which we don't use (@walletconnect/web3-provider, @web3auth/web3auth, magic-sdk)
-        run: CI=false NODE_OPTIONS="--max_old_space_size=4096" DISABLE_ESLINT_PLUGIN=true yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/ui run build
+        run: CI=false NODE_OPTIONS="--max_old_space_size=6144" DISABLE_ESLINT_PLUGIN=true yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/ui run build
       - name: Check types
         run: yarn typecheck
       - name: Check lint
@@ -60,7 +60,7 @@ jobs:
 
   storybook:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     # Allow only one concurrent deployment
     concurrency:

@@ -31,25 +31,19 @@ const getRequiredSwimUsdInputAmount = (
   if (isSwimUsd(toToken)) {
     return outputAmount;
   }
-  if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && !isSwimUsd(toToken)) {
+  const outputAmounts = poolTokens.tokens.map((token) =>
+    token.id === toToken.id ? outputAmount : ZERO,
+  );
+  if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID) {
     // Remove
-    const outputIndex = poolTokens.tokens.findIndex(
-      (token) => token.id === toToken.id,
-    );
-    const { stableOutputAmount } = poolMath.removeExactBurn(
-      outputAmount,
-      outputIndex,
-    );
-    return stableOutputAmount;
+    const { lpInputAmount } = poolMath.removeExactOutput(outputAmounts);
+    return lpInputAmount;
   }
   // Swap
   const swimUsdIndex = poolTokens.tokens.findIndex(isSwimUsd);
   if (swimUsdIndex === -1) {
     throw new Error("SwimUsd not found");
   }
-  const outputAmounts = poolTokens.tokens.map((token) =>
-    token.id === toToken.id ? outputAmount : ZERO,
-  );
   const { stableInputAmount } = poolMath.swapExactOutput(
     swimUsdIndex,
     outputAmounts,

@@ -101,7 +101,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           wallet,
           spenderAddress: fromChainConfig.routingContractAddress,
         });
-        const approvalReceiptes = await Promise.all(
+        const approvalReceipts = await Promise.all(
           approvalResponses.map((response) =>
             fromEvmClient.getTxReceiptOrThrow(response),
           ),
@@ -113,7 +113,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           ) {
             throw new Error("Interaction type mismatch");
           }
-          draft.approvalTxIds = approvalReceiptes.map((a) => a.transactionHash);
+          draft.approvalTxIds = approvalReceipts.map((a) => a.transactionHash);
         });
         const crossChainInitiateRequest = await fromRouting.populateTransaction[
           "crossChainInitiate(address,uint256,uint256,uint16,bytes32,bytes16)"

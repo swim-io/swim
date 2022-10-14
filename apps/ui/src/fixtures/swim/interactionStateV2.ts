@@ -44,6 +44,7 @@ export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("101"),
     },
+    firstMinimumOutputAmount: null,
   },
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["testnet-solana-usdc-usdt"],
@@ -138,6 +139,7 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("101"),
     },
+    firstMinimumOutputAmount: null,
   },
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["testnet-ethereum-usdc-usdt"],
@@ -196,6 +198,7 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
+    firstMinimumOutputAmount: new Decimal("100.5"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["testnet-ethereum-usdc-usdt", "testnet-bnb-busd-usdt"],
@@ -222,24 +225,24 @@ export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainEvmToEvmSwap
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.CrossChainEvmToEvm,
     approvalTxIds: [],
-    swapAndTransferTxId: null,
-    receiveAndSwapTxId: null,
+    crossChainInitiateTxId: null,
+    crossChainCompleteTxId: null,
   };
 
 export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: CrossChainEvmToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
-    swapAndTransferTxId:
+    crossChainInitiateTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
-    receiveAndSwapTxId: null,
+    crossChainCompleteTxId: null,
   };
 
 export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
-    swapAndTransferTxId:
+    crossChainInitiateTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
-    receiveAndSwapTxId:
+    crossChainCompleteTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7ca2",
   };
 
@@ -265,6 +268,7 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
+    firstMinimumOutputAmount: new Decimal("100.5"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["testnet-solana-usdc-usdt", "testnet-bnb-busd-usdt"],
@@ -293,7 +297,7 @@ export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainSo
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
     swapToSwimUsdTxId: null,
     transferSwimUsdToEvmTxId: null,
-    receiveAndSwapTxId: null,
+    crossChainCompleteTxId: null,
   };
 
 export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS: CrossChainSolanaToEvmSwapInteractionState =
@@ -320,7 +324,7 @@ export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossCh
     ...CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
     swapToSwimUsdTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
-    receiveAndSwapTxId:
+    crossChainCompleteTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7cab",
   };
 
@@ -337,6 +341,7 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
+    firstMinimumOutputAmount: new Decimal("100.5"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["testnet-solana-usdc-usdt", "testnet-bnb-busd-usdt"],
@@ -364,7 +369,7 @@ export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT: CrossChainEv
     swapType: SwapType.CrossChainEvmToSolana,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
     approvalTxIds: [],
-    swapAndTransferTxId: null,
+    crossChainInitiateTxId: null,
     signatureSetAddress: null,
     postVaaOnSolanaTxIds: [],
     claimTokenOnSolanaTxId: null,
@@ -386,7 +391,7 @@ export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_
 export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED: CrossChainEvmToSolanaSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
-    swapAndTransferTxId:
+    crossChainInitiateTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
   };
 
@@ -745,6 +750,7 @@ export const MOCK_SERIALIZED_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
         tokenId: "testnet-solana-usdt",
         value: "101",
       },
+      firstMinimumOutputAmount: undefined,
     },
     poolIds: ["testnet-solana-usdc-usdt"],
     submittedAt: 1653624596234,

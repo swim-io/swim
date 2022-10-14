@@ -43,12 +43,12 @@ export const useGetSwapFormErrors = (
   return (allowLargeSwap: boolean) => {
     let errors: readonly string[] = [];
 
-    requiredEcosystems.forEach((ecosystemId) => {
-      errors = [
-        ...errors,
-        t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
-      ];
-    });
+    // requiredEcosystems.forEach((ecosystemId) => {
+    //   errors = [
+    //     ...errors,
+    //     t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
+    //   ];
+    // });
 
     // Require connected Solana wallet
     if (!wallets.solana.connected) {

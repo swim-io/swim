@@ -15,6 +15,7 @@ export const useIsLargeSwapV2 = (
   fromTokenOption: TokenOption,
   toTokenOption: TokenOption,
   inputAmount: Decimal,
+  maxSlippageFraction: Decimal | null,
 ) => {
   const config = useEnvironment(selectConfig, shallow);
   const requiredPools = getRequiredPoolsForSwapV2(
@@ -23,11 +24,12 @@ export const useIsLargeSwapV2 = (
     toTokenOption,
   );
   const poolBalances = usePoolBalances(requiredPools);
-  const outputAmount = useSwapOutputAmountEstimateV2(
+  const { minimumOutputAmount } = useSwapOutputAmountEstimateV2({
     fromTokenOption,
     toTokenOption,
     inputAmount,
-  );
+    maxSlippageFraction,
+  });
   if (requiredPools.length === 0) {
     return false;
   }
@@ -39,7 +41,7 @@ export const useIsLargeSwapV2 = (
       inputAmount.gt(inputBalance.mul(0.1))) ||
     (TOKEN_PROJECTS_BY_ID[toTokenOption.tokenConfig.projectId].isStablecoin &&
       outputBalance !== null &&
-      outputAmount !== null &&
-      outputAmount.gt(outputBalance.mul(0.1)))
+      minimumOutputAmount !== null &&
+      minimumOutputAmount.gt(outputBalance.mul(0.1)))
   );
 };

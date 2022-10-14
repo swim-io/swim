@@ -232,7 +232,7 @@ const buildSwapAndTransferStep = (
     interaction: {
       params: { fromTokenData, toTokenData },
     },
-    swapAndTransferTxId,
+    crossChainInitiateTxId,
   } = interactionState;
 
   const fromEcosystemId = fromTokenData.ecosystemId;
@@ -270,7 +270,7 @@ const buildSwapAndTransferStep = (
           from={fromEcosystemId}
           to={toEcosystemId}
           isLoading={status === "loading"}
-          txId={swapAndTransferTxId}
+          txId={crossChainInitiateTxId}
         />
       </>
     ),
@@ -287,7 +287,7 @@ const buildReceiveAndSwapStep = (
     interaction: {
       params: { toTokenData },
     },
-    receiveAndSwapTxId,
+    crossChainCompleteTxId,
   } = interactionState;
   const toEcosystemId = toTokenData.ecosystemId;
   const status = getEuiStepStatus(
@@ -303,7 +303,7 @@ const buildReceiveAndSwapStep = (
         ecosystemId={toEcosystemId}
         toToken={toTokenData.tokenConfig}
         isLoading={status === "loading"}
-        txId={receiveAndSwapTxId}
+        txId={crossChainCompleteTxId}
       />
     ),
   };

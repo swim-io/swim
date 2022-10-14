@@ -49,8 +49,8 @@ export interface CrossChainEvmToEvmSwapInteractionState {
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainEvmToEvm;
   readonly approvalTxIds: readonly EvmTx["id"][];
-  readonly swapAndTransferTxId: EvmTx["id"] | null;
-  readonly receiveAndSwapTxId: EvmTx["id"] | null;
+  readonly crossChainInitiateTxId: EvmTx["id"] | null;
+  readonly crossChainCompleteTxId: EvmTx["id"] | null;
 }
 
 export interface CrossChainSolanaToEvmSwapInteractionState {
@@ -61,7 +61,7 @@ export interface CrossChainSolanaToEvmSwapInteractionState {
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly swapToSwimUsdTxId: SolanaTx["id"] | null;
   readonly transferSwimUsdToEvmTxId: SolanaTx["id"] | null;
-  readonly receiveAndSwapTxId: EvmTx["id"] | null;
+  readonly crossChainCompleteTxId: EvmTx["id"] | null;
 }
 
 export interface CrossChainEvmToSolanaSwapInteractionState {
@@ -71,7 +71,7 @@ export interface CrossChainEvmToSolanaSwapInteractionState {
   readonly swapType: SwapType.CrossChainEvmToSolana;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly approvalTxIds: readonly EvmTx["id"][];
-  readonly swapAndTransferTxId: EvmTx["id"] | null;
+  readonly crossChainInitiateTxId: EvmTx["id"] | null;
   readonly signatureSetAddress: string | null;
   readonly postVaaOnSolanaTxIds: readonly SolanaTx["id"][];
   readonly claimTokenOnSolanaTxId: SolanaTx["id"] | null;
@@ -159,7 +159,7 @@ export const isSourceChainOperationCompleted = (
       return state.onChainSwapTxId !== null;
     case SwapType.CrossChainEvmToEvm:
     case SwapType.CrossChainEvmToSolana:
-      return state.swapAndTransferTxId !== null;
+      return state.crossChainInitiateTxId !== null;
     case SwapType.CrossChainSolanaToEvm:
       return state.transferSwimUsdToEvmTxId !== null;
   }
@@ -174,7 +174,7 @@ export const isTargetChainOperationCompleted = (
       return state.onChainSwapTxId !== null;
     case SwapType.CrossChainEvmToEvm:
     case SwapType.CrossChainSolanaToEvm:
-      return state.receiveAndSwapTxId !== null;
+      return state.crossChainCompleteTxId !== null;
     case SwapType.CrossChainEvmToSolana: {
       if (isSwimUsd(state.interaction.params.toTokenData.tokenConfig)) {
         return state.claimTokenOnSolanaTxId !== null;

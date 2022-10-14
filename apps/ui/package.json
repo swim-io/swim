@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "scrape-wormhole-tokens": "./scripts/scrapeWormholeTokenData.sh",
     "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
     "build": "SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build",
     "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/ui run build",

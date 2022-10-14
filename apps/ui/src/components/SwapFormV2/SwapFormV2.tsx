@@ -106,6 +106,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     fromTokenOption,
     toTokenOption,
     inputAmount,
+    maxSlippageFraction,
   );
   const isSmallEthSwap =
     TOKEN_PROJECTS_BY_ID[fromTokenConfig.projectId].isStablecoin &&
@@ -121,11 +122,13 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   );
   const isInputAmountPositive =
     !inputAmount.isNegative() && !inputAmount.isZero();
-  const outputAmount = useSwapOutputAmountEstimateV2(
-    fromTokenOption,
-    toTokenOption,
-    inputAmount,
-  );
+  const { swimUsdMinimumOutputAmount, minimumOutputAmount } =
+    useSwapOutputAmountEstimateV2({
+      fromTokenOption,
+      toTokenOption,
+      inputAmount,
+      maxSlippageFraction,
+    });
   const fromTokenBalance = useUserBalanceAmount(
     fromTokenConfig,
     fromTokenOption.ecosystemId,
@@ -135,8 +138,10 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     toTokenOption.ecosystemId,
   );
   const outputAmountString =
-    outputAmount !== null && outputEcosystemDetail
-      ? outputAmount.toDecimalPlaces(outputEcosystemDetail.decimals).toString()
+    minimumOutputAmount !== null && outputEcosystemDetail
+      ? minimumOutputAmount
+          .toDecimalPlaces(outputEcosystemDetail.decimals)
+          .toString()
       : "0";
 
   const handleInputAmountChange = (
@@ -219,7 +224,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
 
   const handleSwap = (): void => {
     // These are just for type safety and should in theory not happen
-    if (outputAmount === null || maxSlippageFraction === null) {
+    if (minimumOutputAmount === null) {
       notify(
         t("notify.unexpected_form_error_title"),
         t("notify.unexpected_form_error_description"),
@@ -228,9 +233,6 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
       return;
     }
 
-    const minimumOutputAmount = outputAmount.sub(
-      outputAmount.mul(maxSlippageFraction),
-    );
     startNewInteraction({
       type: InteractionType.SwapV2,
       params: {
@@ -242,6 +244,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
           ...toTokenOption,
           value: minimumOutputAmount,
         },
+        firstMinimumOutputAmount: swimUsdMinimumOutputAmount,
       },
     });
   };

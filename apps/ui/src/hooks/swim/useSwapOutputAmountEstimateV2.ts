@@ -21,14 +21,44 @@ interface PoolTokens {
 
 const ZERO = new Decimal(0);
 
+const getRequiredSwimUsdInputAmount = (
+  toToken: TokenConfig,
+  outputAmount: Decimal,
+  poolSpec: PoolSpec,
+  poolMath: PoolMath,
+  poolTokens: PoolTokens,
+): Decimal => {
+  if (isSwimUsd(toToken)) {
+    return outputAmount;
+  }
+  const outputAmounts = poolTokens.tokens.map((token) =>
+    token.id === toToken.id ? outputAmount : ZERO,
+  );
+  if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID) {
+    // Remove
+    const { lpInputAmount } = poolMath.removeExactOutput(outputAmounts);
+    return lpInputAmount;
+  }
+  // Swap
+  const swimUsdIndex = poolTokens.tokens.findIndex(isSwimUsd);
+  if (swimUsdIndex === -1) {
+    throw new Error("SwimUsd not found");
+  }
+  const { stableInputAmount } = poolMath.swapExactOutput(
+    swimUsdIndex,
+    outputAmounts,
+  );
+  return stableInputAmount;
+};
+
 const getOutputAmount = (
   fromToken: TokenConfig,
   toToken: TokenConfig,
   inputAmount: Decimal,
   poolSpec: PoolSpec,
   poolMath: PoolMath,
-  poolToken: PoolTokens,
-) => {
+  poolTokens: PoolTokens,
+): Decimal => {
   if (inputAmount.isZero()) {
     return inputAmount;
   }
@@ -38,7 +68,7 @@ const getOutputAmount = (
   }
   if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && isSwimUsd(toToken)) {
     // Add
-    const inputAmounts = poolToken.tokens.map((token) =>
+    const inputAmounts = poolTokens.tokens.map((token) =>
       token.id === fromToken.id ? inputAmount : ZERO,
     );
     const { lpOutputAmount } = poolMath.add(inputAmounts);
@@ -46,7 +76,7 @@ const getOutputAmount = (
   }
   if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && isSwimUsd(fromToken)) {
     // Remove
-    const outputIndex = poolToken.tokens.findIndex(
+    const outputIndex = poolTokens.tokens.findIndex(
       (token) => token.id === toToken.id,
     );
     const { stableOutputAmount } = poolMath.removeExactBurn(
@@ -56,10 +86,10 @@ const getOutputAmount = (
     return stableOutputAmount;
   }
   // Swap
-  const inputAmounts = poolToken.tokens.map((token) =>
+  const inputAmounts = poolTokens.tokens.map((token) =>
     token.id === fromToken.id ? inputAmount : ZERO,
   );
-  const outputIndex = poolToken.tokens.findIndex(
+  const outputIndex = poolTokens.tokens.findIndex(
     (token) => token.id === toToken.id,
   );
   if (outputIndex === -1) {
@@ -72,11 +102,20 @@ const getOutputAmount = (
   return stableOutputAmount;
 };
 
-export const useSwapOutputAmountEstimateV2 = (
-  fromTokenOption: TokenOption,
-  toTokenOption: TokenOption,
-  inputAmount: Decimal,
-): Decimal | null => {
+export const useSwapOutputAmountEstimateV2 = ({
+  fromTokenOption,
+  toTokenOption,
+  inputAmount,
+  maxSlippageFraction,
+}: {
+  readonly fromTokenOption: TokenOption;
+  readonly toTokenOption: TokenOption;
+  readonly inputAmount: Decimal;
+  readonly maxSlippageFraction: Decimal | null;
+}): {
+  readonly swimUsdMinimumOutputAmount: Decimal | null;
+  readonly minimumOutputAmount: Decimal | null;
+} => {
   const config = useEnvironment(selectConfig, shallow);
   const tokensByPool = getTokensByPool(config);
   const requiredPools = getRequiredPoolsForSwapV2(
@@ -90,18 +129,21 @@ export const useSwapOutputAmountEstimateV2 = (
   const toToken = toTokenOption.tokenConfig;
   const swimUsdSpec = useSwimUsd();
 
-  if (!isEachNotNull(poolMaths) || swimUsdSpec === null) {
-    return null;
-  }
-
-  if (requiredPools.length === 0) {
-    return inputAmount;
+  if (
+    !isEachNotNull(poolMaths) ||
+    swimUsdSpec === null ||
+    maxSlippageFraction === null
+  ) {
+    return {
+      swimUsdMinimumOutputAmount: null,
+      minimumOutputAmount: null,
+    };
   }
 
   if (requiredPools.length === 1) {
     const poolSpec = requiredPools[0];
     const poolMath = poolMaths[0];
-    return getOutputAmount(
+    const outputAmount = getOutputAmount(
       fromToken,
       toToken,
       inputAmount,
@@ -109,6 +151,12 @@ export const useSwapOutputAmountEstimateV2 = (
       poolMath,
       tokensByPool[poolSpec.id],
     );
+    return {
+      swimUsdMinimumOutputAmount: null,
+      minimumOutputAmount: outputAmount.sub(
+        outputAmount.mul(maxSlippageFraction),
+      ),
+    };
   }
 
   if (requiredPools.length > 2) {
@@ -119,7 +167,7 @@ export const useSwapOutputAmountEstimateV2 = (
   const outputPool = requiredPools[1];
   const outputPoolMath = poolMaths[1];
 
-  const swimUsdAmount = getOutputAmount(
+  const firstOutputAmount = getOutputAmount(
     fromToken,
     swimUsdSpec,
     inputAmount,
@@ -127,12 +175,26 @@ export const useSwapOutputAmountEstimateV2 = (
     inputPoolMath,
     tokensByPool[inputPool.id],
   );
-  return getOutputAmount(
+  const finalOutputAmount = getOutputAmount(
     swimUsdSpec,
     toToken,
-    swimUsdAmount,
+    firstOutputAmount,
     outputPool,
     outputPoolMath,
     tokensByPool[outputPool.id],
   );
+  const minimumOutputAmount = finalOutputAmount.sub(
+    finalOutputAmount.mul(maxSlippageFraction),
+  );
+  const swimUsdMinimumOutputAmount = getRequiredSwimUsdInputAmount(
+    toToken,
+    minimumOutputAmount,
+    outputPool,
+    outputPoolMath,
+    tokensByPool[outputPool.id],
+  );
+  return {
+    swimUsdMinimumOutputAmount,
+    minimumOutputAmount,
+  };
 };

@@ -141,6 +141,7 @@ export interface SwapInteractionSpecV2 extends BaseInteractionSpec {
   readonly params: {
     readonly fromTokenData: TokenTransferData;
     readonly toTokenData: TokenTransferData;
+    readonly firstMinimumOutputAmount: Decimal | null;
   };
 }
 

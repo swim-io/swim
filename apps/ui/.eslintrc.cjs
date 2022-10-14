@@ -8,7 +8,7 @@ module.exports = {
       extends: ["@swim-io/eslint-config"],
     },
     {
-      files: ["**/*.{cts,mts,ts,tsx}"],
+      files: ["src/**/*.{cts,mts,ts,tsx}"],
       extends: ["@swim-io/eslint-config/react"],
       parserOptions: {
         // Make sure correct `tsconfig.json` is found in monorepo
@@ -84,6 +84,14 @@ module.exports = {
           },
         },
       ],
+    },
+    {
+      files: ["scripts/*.{cts,mts,ts,tsx}"],
+      extends: ["@swim-io/eslint-config"],
+      parserOptions: {
+        // Make sure correct `tsconfig.json` is found in monorepo
+        tsconfigRootDir: `${__dirname}/scripts`,
+      },
     },
   ],
 };

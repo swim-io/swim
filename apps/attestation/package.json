@@ -20,10 +20,10 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "verify": "yarn typecheck && yarn format:check && yarn lint",
     "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
-    "attestFromSolanaToAptos": "ts-node -r dotenv/config src/attestFromSolanaToAptos.ts"
+    "attestFromSolanaToAptos": "ts-node -r dotenv/config src/aptos/attestFromSolanaToAptos.ts"
   },
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.6.5",
+    "@certusone/wormhole-sdk": "0.7.5",
     "@project-serum/borsh": "^0.2.5",
     "@solana/spl-token": "^0.3.5",
     "@solana/web3.js": "^1.63.1",

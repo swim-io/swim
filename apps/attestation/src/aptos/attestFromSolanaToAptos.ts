@@ -6,6 +6,10 @@ import {
   parseSequenceFromLogSolana,
   setDefaultWasm,
 } from "@certusone/wormhole-sdk";
+import {
+  createWrappedCoin,
+  createWrappedCoinType,
+} from "@certusone/wormhole-sdk/lib/cjs/aptos/index.js"; // TODO import these from root when published
 import { Connection, Keypair, clusterApiUrl } from "@solana/web3.js";
 import { aptos } from "@swim-io/aptos";
 import { Env, wormholeConfigs } from "@swim-io/core";
@@ -16,7 +20,7 @@ import { derivePath } from "ed25519-hd-key";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers"; // eslint-disable-line import/extensions
 
-import { createWrappedCoin } from "./attestAptos";
+import { AptosClientWrapper } from "./AptosClientWrapper";
 
 import "dotenv/config"; // eslint-disable-line import/extensions
 
@@ -121,18 +125,32 @@ async function main() {
     new Uint8Array(Buffer.from(aptosPrivateKey, "hex")),
   );
 
-  // TODO switch to the SDK method when it gets published
-  // See https://github.com/wormhole-foundation/wormhole/blob/65ce4cd2dbda4aeb6bbc9ab1ca5a085815f11387/sdk/js/src/aptos/api/tokenBridge.ts#L111
-  const wrappedCoinTx = await createWrappedCoin({
-    sender,
-    nodeUrl: aptosRpcUrl,
-    tokenChain: CHAINS.solana,
-    tokenAddress: toHex(mintAddress),
-    tokenBridgeAddress: aptosChainConfig.wormhole.bridge,
-    vaa: vaaBytes,
-  });
+  const clientWrapper = new AptosClientWrapper(aptosRpcUrl);
 
-  console.info("wrappedCoinTx", wrappedCoinTx);
+  const createWrappedCoinTypePayload = createWrappedCoinType(
+    aptosChainConfig.wormhole.bridge,
+    vaaBytes,
+  );
+  console.info("createWrappedCoinTypePayload", createWrappedCoinTypePayload);
+  const createWrappedCoinTypeTx = await clientWrapper.executeEntryFunction(
+    sender,
+    createWrappedCoinTypePayload,
+  );
+  console.info("createWrappedCoinTypeTx", createWrappedCoinTypeTx);
+
+  const createWrappedCoinPayload = createWrappedCoin(
+    aptosChainConfig.wormhole.bridge,
+    vaaBytes,
+  );
+  console.info("createWrappedCoinPayload", createWrappedCoinPayload);
+  console.info(
+    `The address of the attested token is ${createWrappedCoinPayload.type_arguments[0]}`,
+  );
+  const createWrappedCoinTx = await clientWrapper.executeEntryFunction(
+    sender,
+    createWrappedCoinPayload,
+  );
+  console.info("createWrappedCoinTx", createWrappedCoinTx);
 }
 
 main()
@@ -152,12 +170,4 @@ async function parseCliOptions() {
     })
     .help()
     .parse();
-}
-
-function toHex(str: string) {
-  let result = "";
-  for (let i = 0; i < str.length; i++) {
-    result += str.charCodeAt(i).toString(16);
-  }
-  return result;
 }

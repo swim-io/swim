@@ -1,3 +1,4 @@
+import { findTokenAccountForMint } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -114,11 +115,6 @@ export const useReloadInteractionStateMutation = () => {
         }
       }
 
-      const splTokenAccountAddress = findOrThrow(
-        splTokenAccounts,
-        ({ mint }) => mint.toBase58() === getSolanaTokenDetails(token).address,
-      ).address.toBase58();
-
       if (txIds.postVaaOnSolana.length === 0) {
         const match = solanaTxs.filter((solanaTx) =>
           isPostVaaSolanaTx(
@@ -136,12 +132,17 @@ export const useReloadInteractionStateMutation = () => {
         }
       }
 
-      if (txIds.claimTokenOnSolana === null) {
+      const splTokenAccount = findTokenAccountForMint(
+        getSolanaTokenDetails(token).address,
+        solanaAddress,
+        splTokenAccounts,
+      );
+      if (txIds.claimTokenOnSolana === null && splTokenAccount !== null) {
         const match = solanaTxs.find((solanaTx) =>
           isRedeemOnSolanaTx(
             solanaWormhole,
             token,
-            splTokenAccountAddress,
+            splTokenAccount.address.toBase58(),
             solanaTx,
           ),
         );
@@ -188,14 +189,20 @@ export const useReloadInteractionStateMutation = () => {
         transfer,
         interaction,
       );
-      const splTokenAccountAddress = findOrThrow(
-        splTokenAccounts,
-        ({ mint }) => mint.toBase58() === getSolanaTokenDetails(token).address,
-      ).address.toBase58();
 
-      if (txIds.transferSplToken === null) {
+      const splTokenAccount = findTokenAccountForMint(
+        getSolanaTokenDetails(token).address,
+        solanaAddress,
+        splTokenAccounts,
+      );
+      if (txIds.transferSplToken === null && splTokenAccount !== null) {
         const match = solanaTxs.find((solanaTx) =>
-          isLockSplTx(solanaWormhole, splTokenAccountAddress, token, solanaTx),
+          isLockSplTx(
+            solanaWormhole,
+            splTokenAccount.address.toBase58(),
+            token,
+            solanaTx,
+          ),
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {

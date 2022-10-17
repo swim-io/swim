@@ -3,7 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 import { useMutation } from "react-query";
@@ -41,7 +41,7 @@ export const useToSolanaTransferMutation = () => {
   const getInteractionState = useInteractionState(selectGetInteractionState);
 
   return useMutation(async (interactionId: string) => {
-    if (!solanaWallet) {
+    if (solanaWallet === null || solanaWallet.address === null) {
       throw new Error("No Solana wallet");
     }
     if (!wormhole) {
@@ -83,10 +83,15 @@ export const useToSolanaTransferMutation = () => {
       if (!evmWallet) {
         throw new Error("No EVM wallet");
       }
-      const splTokenAccountAddress = findOrThrow(
+
+      const splTokenAccount = findTokenAccountForMint(
+        getSolanaTokenDetails(token).address,
+        solanaWallet.address,
         splTokenAccounts,
-        ({ mint }) => mint.toBase58() === getSolanaTokenDetails(token).address,
-      ).address.toBase58();
+      );
+      if (splTokenAccount === null) {
+        throw new Error("Spl token account not found");
+      }
 
       // Process transfer if transfer txId does not exist
       const { approvalResponses, transferResponse } = await evmClients[
@@ -96,7 +101,7 @@ export const useToSolanaTransferMutation = () => {
         interactionId,
         targetAddress: formatWormholeAddress(
           Protocol.Solana,
-          splTokenAccountAddress,
+          splTokenAccount.address.toBase58(),
         ),
         targetChainId: WormholeChainId.Solana,
         tokenProjectId: token.projectId,

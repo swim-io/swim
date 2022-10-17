@@ -13,17 +13,20 @@ const testnet: AptosChainConfig = {
   name: "Aptos Testnet",
   chainId: AptosChainId.Testnet,
   wormhole: {
-    // from https://book.wormhole.com/reference/contracts.html
+    // Usually listed in https://book.wormhole.com/reference/contracts.html
+    // For now https://github.com/kcsongor provided these addresses:
+    // https://github.com/wormhole-foundation/wormhole/blob/a93d8d65296410e5d6d8d214edd7ce6cb454fa76/clients/js/main.ts#L82-L85
+    // and told us that the same addresses will be used in production.
     bridge:
-      "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08",
+      "0x7041d0a5ae46a24fd5f1df67c54bf1a2e0fe7668ae9402e30e58f3ad452f9d52",
     portal:
-      "0x1b1752e26b65fc24971ee5ec9718d2ccdd36bf20486a10b2973ea6dedc6cd197",
+      "0x799c8d35a610b6fa8ed33432e31c686c97b4ce4205fce88c13577615372e99a3",
   },
   publicRpcUrls: ["https://testnet.aptoslabs.com/v1"],
   swimUsdDetails: {
     address:
-      "0xcadb45f34eff49d40875c4160880b6944de8261b955b42f6f084e771859f12a7::coin::T", // TODO: add when deployed,
-    decimals: 8, // TODO: confirm when deployed
+      "0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T",
+    decimals: 6,
   },
   routingContractAddress: "", // TODO: add when deployed
   tokens: [],

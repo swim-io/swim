@@ -5658,8 +5658,8 @@ __metadata:
   linkType: hard
 
 "@solana/web3.js@npm:^1.63.1":
-  version: 1.65.0
-  resolution: "@solana/web3.js@npm:1.65.0"
+  version: 1.66.1
+  resolution: "@solana/web3.js@npm:1.66.1"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@noble/ed25519": ^1.7.0
@@ -5676,7 +5676,7 @@ __metadata:
     node-fetch: 2
     rpc-websockets: ^7.5.0
     superstruct: ^0.14.2
-  checksum: f4d7d0c2df4135f25f67f289aacc39b626d942679ffda215b75f5b159f5493e30f90cef138967fc1dbecbf6791cb940c8aac6c08af65c9429f8fc3e0d9fa4f63
+  checksum: 8ca786b352362382dca02cb2624bb420aad1aef7e30950d459e86cdf1bd9a09332849f42e5034594e0da4bcaa8ee7434bdab83cb0c940008c69a31624b2d9866
   languageName: node
   linkType: hard
 
@@ -7133,6 +7133,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@swim-io/core@npm:^0.38.0":
+  version: 0.38.0
+  resolution: "@swim-io/core@npm:0.38.0"
+  dependencies:
+    "@swim-io/token-projects": ^0.38.0
+    "@swim-io/utils": ^0.38.0
+  peerDependencies:
+    "@certusone/wormhole-sdk": ^0.6.2
+  checksum: 1ba301eb66fedde78a64bc26461c928605c5b5a668032fd64e9ad50d522a0b2ef73f430241c1c87bcba1debf24c2da1288eff619c67982a82b84ee08b095703a
+  languageName: node
+  linkType: hard
+
 "@swim-io/core@workspace:^, @swim-io/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@swim-io/core@workspace:packages/core"
@@ -7616,6 +7628,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@swim-io/solana@npm:^0.39.0":
   version: 0.39.0
   resolution: "@swim-io/solana@npm:0.39.0"
@@ -7638,6 +7651,8 @@ __metadata:
   languageName: node
   linkType: hard
 
+=======
+>>>>>>> 5d119bc7 (fix: yarn.lock conflicts)
 "@swim-io/solana@npm:^0.37.0":
   version: 0.37.0
   resolution: "@swim-io/solana@npm:0.37.0"
@@ -7657,6 +7672,28 @@ __metadata:
     decimal.js: ^10.3.1
     ethers: ^5.7.0
   checksum: 3a9c546bb27184ff950996327eb119df1372c6ef368c0dae16a372805b34522718e7111a9f2a58744f5be9aacd398b432d2b23a22a10d0755248a080d343f06e
+  languageName: node
+  linkType: hard
+
+"@swim-io/solana@npm:^0.38.0":
+  version: 0.38.0
+  resolution: "@swim-io/solana@npm:0.38.0"
+  dependencies:
+    "@ledgerhq/hw-transport": ^6.27.1
+    "@ledgerhq/hw-transport-webusb": ^6.0.2
+    "@project-serum/sol-wallet-adapter": 0.2.2
+    "@swim-io/core": ^0.38.0
+    "@swim-io/token-projects": ^0.38.0
+    "@swim-io/utils": ^0.38.0
+  peerDependencies:
+    "@certusone/wormhole-sdk": ^0.6.2
+    "@project-serum/borsh": ^0.2.5
+    "@solana/spl-token": ^0.3.4
+    "@solana/web3.js": ^1.62.0
+    bn.js: ^5.2.1
+    decimal.js: ^10.3.1
+    ethers: ^5.7.0
+  checksum: 97d9095a66ea60ebab5c7580a06cc1166e018337ee20b276c2a8bf33046c41f77c2ec706f88d0252310813339ce4ebbea737e8e92b31b51a91d055d7b184f008
   languageName: node
   linkType: hard
 
@@ -7741,6 +7778,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@swim-io/token-projects@npm:^0.39.0":
   version: 0.39.0
   resolution: "@swim-io/token-projects@npm:0.39.0"
@@ -7750,12 +7788,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+=======
+>>>>>>> 5d119bc7 (fix: yarn.lock conflicts)
 "@swim-io/token-projects@npm:^0.37.0":
   version: 0.37.0
   resolution: "@swim-io/token-projects@npm:0.37.0"
   dependencies:
     "@swim-io/utils": ^0.37.0
   checksum: 7c54e06859aa62fc875703bf328e40fb928da34a1afc0fd5cb40439e3271284009544fe4e1d92df1aefdf49fc1159f3d67cfe0ba13eb8af7a730075a62081f9a
+  languageName: node
+  linkType: hard
+
+"@swim-io/token-projects@npm:^0.38.0":
+  version: 0.38.0
+  resolution: "@swim-io/token-projects@npm:0.38.0"
+  dependencies:
+    "@swim-io/utils": ^0.38.0
+  checksum: f57d400f1e2c057d0f9343546c7d160c497ec30d5beaf6f25240c51efd2680c49b10c68eebea5ad82c027f23328f93f113e3a3a7948b50cd9af5a10c7385e172
   languageName: node
   linkType: hard
 
@@ -7900,6 +7949,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@swim-io/utils@npm:^0.39.0":
   version: 0.39.0
   resolution: "@swim-io/utils@npm:0.39.0"
@@ -7909,12 +7959,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+=======
+>>>>>>> 5d119bc7 (fix: yarn.lock conflicts)
 "@swim-io/utils@npm:^0.37.0":
   version: 0.37.0
   resolution: "@swim-io/utils@npm:0.37.0"
   peerDependencies:
     decimal.js: ^10.3.1
   checksum: ac04a9dc0c0f17b04aec70fc4a18516fd4e777f70c4fd379fdc185456fe8c3ac47394ecb6f9e4c93277ec3ce88ba4832be9ff694b6878a8623d32f7bc4c8501d
+  languageName: node
+  linkType: hard
+
+"@swim-io/utils@npm:^0.38.0":
+  version: 0.38.0
+  resolution: "@swim-io/utils@npm:0.38.0"
+  peerDependencies:
+    decimal.js: ^10.3.1
+  checksum: d2bc110ef9e89999ef9beeb12302a9d114d2a0e4b640effa5764fda88ab961c7d67c41a637f6b0ddc0f01d626268861a94481180ad856af2571c57efbd645eb6
   languageName: node
   linkType: hard
 
@@ -8779,9 +8840,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.8.5":
-  version: 18.8.5
-  resolution: "@types/node@npm:18.8.5"
-  checksum: f7d896f54743178e64c534c6da16f582505acf18904ecd0ee8541cb4bc1d429ba514e7ecfd5145221b71adbd6ae1ff72df082f667e56d056fcd1a719df948e08
+  version: 18.11.0
+  resolution: "@types/node@npm:18.11.0"
+  checksum: f27f899ab428e5732f04fadadc9203f44bdf3abf56474540ee27da90e4f2ba133faf87263cada4d2271955f92ee6a142bd50683c86290fe5070c19aac44fd654
   languageName: node
   linkType: hard
 

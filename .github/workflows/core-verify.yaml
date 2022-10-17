@@ -2,8 +2,9 @@ name: "Verify core build"
 on:
   pull_request:
     paths:
-      - "packages/core/**.ts"
-      - "packages/core/**.json"
+      - "packages/core/**/*.{ts,json}"
+      - ".github/workflows/core-verify.yaml"
+      - ".github/workflows/verify.yaml"
       - "yarn.lock"
   push:
     branches:

@@ -2,11 +2,10 @@ name: "Verify aptos build"
 on:
   pull_request:
     paths:
-      - "packages/aptos/**.ts"
-      - "packages/aptos/**.json"
-      - "yarn.lock"
+      - "packages/aptos/**/*.{ts,json}"
       - ".github/workflows/aptos-verify.yaml"
       - ".github/workflows/verify.yaml"
+      - "yarn.lock"
   push:
     branches:
       - master

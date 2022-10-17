@@ -2,9 +2,8 @@ name: "Verify solana-contracts build"
 on:
   pull_request:
     paths:
-      - "packages/solana-contracts/**.ts"
-      - "packages/solana-contracts/**.json"
-      - "packages/solana-contracts/*.rs"
+      - "packages/solana-contracts/**/*.{ts,json,rs}"
+      - ".github/workflows/solana-contracts-verify.yaml"
       - "yarn.lock"
   push:
     branches:

@@ -2,8 +2,9 @@ name: "Verify wormhole build"
 on:
   pull_request:
     paths:
-      - "packages/wormhole/**.ts"
-      - "packages/wormhole/**.json"
+      - "packages/wormhole/**/*.{ts,json}'"
+      - ".github/workflows/wormhole-verify.yaml"
+      - ".github/workflows/verify.yaml"
       - "yarn.lock"
   push:
     branches:

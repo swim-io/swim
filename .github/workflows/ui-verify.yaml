@@ -2,7 +2,7 @@ name: "Verify UI build"
 on:
   pull_request:
     paths:
-      - "apps/ui/**.{js,cjs,mts,ts,tsx,json,scss}"
+      - "apps/ui/**/*.{js,cjs,mts,ts,tsx,json,scss}"
       - "yarn.lock"
       - ".github/workflows/ui-verify.yaml"
   push:

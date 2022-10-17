@@ -2,8 +2,9 @@ name: "Verify pool-math build"
 on:
   pull_request:
     paths:
-      - "packages/pool-math/**.ts"
-      - "packages/pool-math/**.json"
+      - "packages/pool-math/**/*.{ts,json}"
+      - ".github/workflows/pool-math-verify.yaml"
+      - ".github/workflows/verify.yaml"
       - "yarn.lock"
   push:
     branches:

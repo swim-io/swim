@@ -2,7 +2,10 @@ name: "Verify tsconfig build"
 on:
   pull_request:
     paths:
-      - "packages/tsconfig/**.json"
+      - "packages/tsconfig/**/*.json"
+      - ".github/workflows/tsconfig-verify.yaml"
+      - ".github/workflows/verify.yaml"
+      - "yarn.lock"
   push:
     branches:
       - master

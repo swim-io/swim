@@ -4,7 +4,7 @@ import type Decimal from "decimal.js";
 import { useTranslation } from "react-i18next";
 
 import type { TokenConfig } from "../../config";
-import { ECOSYSTEMS } from "../../config";
+import { DISABLED_ECOSYSTEMS, ECOSYSTEMS } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
 import {
@@ -43,12 +43,14 @@ export const useGetSwapFormErrors = (
   return (allowLargeSwap: boolean) => {
     let errors: readonly string[] = [];
 
-    // requiredEcosystems.forEach((ecosystemId) => {
-    //   errors = [
-    //     ...errors,
-    //     t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
-    //   ];
-    // });
+    requiredEcosystems.forEach((ecosystemId) => {
+      if (DISABLED_ECOSYSTEMS.includes(ecosystemId)) {
+        errors = [
+          ...errors,
+          t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
+        ];
+      }
+    });
 
     // Require connected Solana wallet
     if (!wallets.solana.connected) {

@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
-import { ECOSYSTEMS } from "../config";
+import { DISABLED_ECOSYSTEMS, ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -474,12 +474,14 @@ export const RemoveForm = ({
         : [poolSpec.ecosystem],
     );
 
-    // requiredEcosystems.forEach((ecosystemId) => {
-    //   errors = [
-    //     ...errors,
-    //     t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
-    //   ];
-    // });
+    requiredEcosystems.forEach((ecosystemId) => {
+      if (DISABLED_ECOSYSTEMS.includes(ecosystemId)) {
+        errors = [
+          ...errors,
+          t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
+        ];
+      }
+    });
 
     // Require connected wallets
     requiredEcosystems.forEach((ecosystem) => {

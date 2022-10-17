@@ -15,4 +15,5 @@ jobs:
     uses: ./.github/workflows/verify.yaml
     with:
       workingDirectory: ./apps/attestation
+      skipTest: true
       buildDependenciesForPackage: "@swim-io/attestation" # TODO remove this once @swim-io/aptos updates are published

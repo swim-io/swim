@@ -46,6 +46,7 @@ export const createWrappedCoin = async ({
     tokenChain,
     tokenAddress,
   );
+  console.info("assetType (aptos address)", assetType);
 
   const createWrappedCoinPayload = {
     function: `${tokenBridgeAddress}::wrapped::create_wrapped_coin`,
@@ -117,7 +118,7 @@ class AptosClientWrapper {
     // rest of defaults are defined here: https://aptos-labs.github.io/ts-sdk-doc/classes/AptosClient.html#generateTransaction
     const customOpts = Object.assign(
       {
-        max_gas_amount: "10000",
+        // max_gas_amount: "200000",
       },
       opts,
     );

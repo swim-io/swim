@@ -10,12 +10,6 @@ import { Connection, Keypair, clusterApiUrl } from "@solana/web3.js";
 import { aptos } from "@swim-io/aptos";
 import { Env, wormholeConfigs } from "@swim-io/core";
 import { solana } from "@swim-io/solana";
-// using an older version of @swim-io/solana which doesn't include wallet adapters due to this error (es6 code in a commonjs module)
-// import statement inside a commonjs module?
-// Users/nico/Code/swim/swim/apps/attestation/node_modules/@swim-io/solana/node_modules/@project-serum/sol-wallet-adapter/dist/cjs/index.js:79
-// import EventEmitter from 'eventemitter3';
-// ^^^^^^
-// SyntaxError: Cannot use import statement outside a module
 import { AptosAccount } from "aptos";
 import * as bip39 from "bip39";
 import { derivePath } from "ed25519-hd-key";
@@ -32,15 +26,14 @@ async function main() {
   const args = await parseCliOptions();
   const mintAddress = args.mintAddress;
   const env = Env.Testnet;
-  const oldEnvForSolanaPackage = "Devnet"; // TODO remove this
   const solanaNetwork = "devnet";
   const solanaRpcUrl = clusterApiUrl(solanaNetwork); // TODO we probably need to pass our own provider here
-  const aptosRpcUrl = "https://fullnode.devnet.aptoslabs.com/v1";
+  const aptosChainConfig = aptos.chains[env];
+  const aptosRpcUrl = aptosChainConfig.publicRpcUrls[0];
 
   console.table({
     mintAddress,
     env,
-    oldEnvForSolanaPackage,
     solanaNetwork,
     solanaRpcUrl,
     aptosRpcUrl,
@@ -48,13 +41,8 @@ async function main() {
 
   const solanaMnemonic = process.env.WALLET_SOLANA_MNEMONIC_PHRASE;
   const aptosPrivateKey = process.env.APTOS_ACCOUNT_PRIVATE_KEY;
-  // @ts-ignore TODO FIXME
-  const solanaChainConfig = solana.chains.get(oldEnvForSolanaPackage);
-  const aptosChainConfig = aptos.chains[env];
+  const solanaChainConfig = solana.chains[env];
   const wormholeConfig = wormholeConfigs.get(env);
-
-  if (!solanaChainConfig)
-    throw new Error(`No SolanaChainConfig found for env: ${env}`);
 
   if (!wormholeConfig)
     throw new Error(`No WormholeConfig found for env: ${env}`);
@@ -102,6 +90,7 @@ async function main() {
   // eslint-disable-next-line deprecation/deprecation
   const info = await connection.getTransaction(txId, {
     commitment: "confirmed",
+    // maxSupportedTransactionVersion: ?,
   });
 
   if (!info)

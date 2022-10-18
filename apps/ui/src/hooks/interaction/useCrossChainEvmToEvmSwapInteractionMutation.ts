@@ -5,6 +5,7 @@ import {
 import { getTokenDetails } from "@swim-io/core";
 import {
   EVM_ECOSYSTEMS,
+  EvmTxType,
   evmAddressToWormhole,
   isEvmEcosystemId,
 } from "@swim-io/evm";
@@ -95,22 +96,23 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           fromTokenData.tokenConfig,
           fromTokenData.ecosystemId,
         );
-        const approvalResponses = await fromEvmClient.approveTokenAmount({
+        const approvalTxGenerator = fromEvmClient.generateErc20ApproveTxs({
           atomicAmount,
           mintAddress: fromTokenDetails.address,
           wallet,
           spenderAddress: fromChainConfig.routingContractAddress,
         });
-        const approvalTxs = await fromEvmClient.getTxs(approvalResponses);
-        updateInteractionState(interaction.id, (draft) => {
-          if (
-            draft.interactionType !== InteractionType.SwapV2 ||
-            draft.swapType !== SwapType.CrossChainEvmToEvm
-          ) {
-            throw new Error("Interaction type mismatch");
-          }
-          draft.approvalTxIds = approvalTxs.map((tx) => tx.id);
-        });
+        for await (const result of approvalTxGenerator) {
+          updateInteractionState(interaction.id, (draft) => {
+            if (
+              draft.interactionType !== InteractionType.SwapV2 ||
+              draft.swapType !== SwapType.CrossChainEvmToEvm
+            ) {
+              throw new Error("Interaction type mismatch");
+            }
+            draft.approvalTxIds.push(result.tx.id);
+          });
+        }
         const crossChainInitiateRequest = await fromRouting.populateTransaction[
           "crossChainInitiate(address,uint256,uint256,uint16,bytes32,bytes16)"
         ](
@@ -144,7 +146,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
         crossChainInitiateTxId,
       );
       const wormholeSequence = parseSequenceFromLogEth(
-        crossChainInitiateTx.receipt,
+        crossChainInitiateTx.original,
         fromChainConfig.wormhole.bridge,
       );
       const { wormholeChainId: emitterChainId } = ECOSYSTEMS[fromEcosystem];

@@ -40,7 +40,7 @@ const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 
 jest.mock("../../models", () => ({
   ...jest.requireActual("../../models"),
-  fetchEvmTxForInteractionId: jest.fn(),
+  fetchEvmTxsForInteractionId: jest.fn(),
   fetchSolanaTxsForInteractionId: jest.fn(),
   EvmConnection: jest.fn(),
 }));

@@ -170,7 +170,7 @@ export const useReloadInteractionStateMutation = () => {
         const match = solanaTxs.find(
           (solanaTx) =>
             isPoolTx(poolSpec.contract, solanaTx) &&
-            solanaTx.parsedTx.transaction.message.accountKeys.some(
+            solanaTx.original.transaction.message.accountKeys.some(
               (key) => key.pubkey.toBase58() === poolSpec.address,
             ),
         );

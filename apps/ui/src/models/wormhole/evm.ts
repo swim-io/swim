@@ -14,11 +14,11 @@ export const isLockEvmTx = (
     return false;
   }
   if (
-    tx.receipt.to.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
+    tx.original.to.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
   ) {
     return false;
   }
-  return tx.receipt.logs.some(
+  return tx.original.logs.some(
     (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
@@ -33,11 +33,11 @@ export const isUnlockEvmTx = (
     return false;
   }
   if (
-    tx.receipt.to.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
+    tx.original.to.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
   ) {
     return false;
   }
-  return tx.receipt.logs.some(
+  return tx.original.logs.some(
     (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };

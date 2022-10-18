@@ -3,7 +3,6 @@ import {
   attestFromSolana,
   getEmitterAddressSolana,
   getSignedVAAWithRetry,
-  parseSequenceFromLogSolana,
   setDefaultWasm,
 } from "@certusone/wormhole-sdk";
 import {
@@ -13,7 +12,7 @@ import {
 import { Connection, Keypair, clusterApiUrl } from "@solana/web3.js";
 import { aptos } from "@swim-io/aptos";
 import { Env, wormholeConfigs } from "@swim-io/core";
-import { solana } from "@swim-io/solana";
+import { parseSequenceFromLogSolana, solana } from "@swim-io/solana";
 import type { Types } from "aptos";
 import { AptosAccount, AptosClient } from "aptos";
 import * as bip39 from "bip39";
@@ -90,10 +89,9 @@ async function main() {
   });
 
   // Get the sequence number and emitter address required to fetch the signedVAA of our message
-  // Using the deprecated signature due to `parseSequenceFromLogSolana` arg type.
-  // eslint-disable-next-line deprecation/deprecation
   const info = await connection.getTransaction(txId, {
     commitment: "confirmed",
+    maxSupportedTransactionVersion: 0,
   });
 
   if (!info)

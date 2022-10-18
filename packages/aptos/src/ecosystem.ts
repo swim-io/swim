@@ -6,7 +6,9 @@ import type { AptosChainConfig, AptosEcosystemConfig } from "./protocol";
 import { APTOS_ECOSYSTEM_ID, APTOS_PROTOCOL } from "./protocol";
 
 export enum AptosChainId {
-  Testnet = 31, // TODO verify this, not sure if we need it?
+  Mainnet = 1,
+  Testnet = 2,
+  Devnet = 34,
 }
 
 const testnet: AptosChainConfig = {

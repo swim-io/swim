@@ -2,8 +2,9 @@ name: "Verify token-projects build"
 on:
   pull_request:
     paths:
-      - "packages/token-projects/**.ts"
-      - "packages/token-projects/**.json"
+      - "packages/token-projects/**/*.{ts,json}"
+      - ".github/workflows/token-projects-verify.yaml"
+      - ".github/workflows/verify.yaml"
       - "yarn.lock"
   push:
     branches:

@@ -2,8 +2,10 @@ name: "Verify swim build"
 on:
   pull_request:
     paths:
-      - "packages/swim/**.ts"
-      - "packages/swim/**.json"
+      - "packages/swim/**/*.{ts,json}"
+      - ".github/workflows/swim-verify.yaml"
+      - ".github/workflows/verify.yaml"
+      - "yarn.lock"
   push:
     branches:
       - master

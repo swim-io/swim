@@ -27,9 +27,10 @@ export interface AptosEcosystemConfig extends EcosystemConfig {
   readonly chains: Partial<ReadonlyRecord<Env, AptosChainConfig>>;
 }
 
-export interface AptosTx extends Tx {
-  readonly ecosystemId: AptosEcosystemId;
-}
+// TODO: Make an enum
+export type AptosTxType = string;
 
-export const isAptosTx = (tx: Tx): tx is AptosTx =>
+export type AptosTx = Tx<any, AptosEcosystemId>;
+
+export const isAptosTx = (tx: Tx<any>): tx is AptosTx =>
   tx.ecosystemId === APTOS_ECOSYSTEM_ID;

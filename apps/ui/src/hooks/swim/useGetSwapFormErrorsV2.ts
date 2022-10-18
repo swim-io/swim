@@ -1,8 +1,9 @@
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
+import { useTranslation } from "react-i18next";
 
-import { ECOSYSTEMS } from "../../config";
+import { DISABLED_ECOSYSTEMS, ECOSYSTEMS } from "../../config";
 import type { TokenOption } from "../../models";
 import { isValidSlippageFraction } from "../../models";
 import {
@@ -17,6 +18,7 @@ export const useGetSwapFormErrorsV2 = (
   inputAmount: Decimal,
   maxSlippageFraction: Decimal | null,
 ) => {
+  const { t } = useTranslation();
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
   const fromToken = fromTokenOption.tokenConfig;
@@ -49,6 +51,13 @@ export const useGetSwapFormErrorsV2 = (
         errors = [
           ...errors,
           `Empty balance in ${ECOSYSTEMS[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
+        ];
+      }
+
+      if (DISABLED_ECOSYSTEMS.includes(ecosystem)) {
+        errors = [
+          ...errors,
+          t("general.ecosystem.disabled", { ecosystemName: ecosystem }),
         ];
       }
     });

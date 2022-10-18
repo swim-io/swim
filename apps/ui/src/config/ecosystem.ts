@@ -1,10 +1,10 @@
 import type { AptosEcosystemId } from "@swim-io/aptos";
 import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
-import { EvmEcosystemId } from "@swim-io/evm";
+import { EVM_ECOSYSTEMS, EvmEcosystemId, isEvmEcosystemId } from "@swim-io/evm";
 import type { SolanaEcosystemId } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import { filterMap } from "@swim-io/utils";
+import { filterMap, getRecordKeys } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 
 import ACALA_SVG from "../images/ecosystems/acala.svg";
@@ -31,6 +31,27 @@ export const PROTOCOL_NAMES: Record<Protocol, string> = {
 };
 
 export type EcosystemId = SolanaEcosystemId | EvmEcosystemId | AptosEcosystemId;
+
+const isEcosystemId = (ecosystemId: string): ecosystemId is EcosystemId => {
+  return (
+    ecosystemId === SOLANA_ECOSYSTEM_ID ||
+    ecosystemId === APTOS_ECOSYSTEM_ID ||
+    isEvmEcosystemId(ecosystemId)
+  );
+};
+
+const ALL_ECOSYSTEMS: readonly EcosystemId[] = [
+  APTOS_ECOSYSTEM_ID,
+  SOLANA_ECOSYSTEM_ID,
+  ...getRecordKeys(EVM_ECOSYSTEMS),
+];
+
+export const DISABLED_ECOSYSTEMS: readonly EcosystemId[] =
+  process.env.REACT_APP_DISABLE_ECOSYSTEMS === "*"
+    ? ALL_ECOSYSTEMS
+    : (process.env.REACT_APP_DISABLE_ECOSYSTEMS ?? "")
+        .split(",")
+        .filter(isEcosystemId);
 
 export const ECOSYSTEM_IDS: readonly EcosystemId[] = [
   SOLANA_ECOSYSTEM_ID,

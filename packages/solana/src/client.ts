@@ -1,7 +1,4 @@
-import {
-  createPostVaaInstructionSolana,
-  createVerifySignaturesInstructionsSolana,
-} from "@certusone/wormhole-sdk";
+import { createVerifySignaturesInstructionsSolana } from "@certusone/wormhole-sdk";
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
@@ -23,9 +20,10 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 import type {
-  CompleteWormholeTransferParams,
-  InitiateWormholeTransferParams,
+  CompletePortalTransferParams,
+  InitiatePortalTransferParams,
   TokenDetails,
+  TxGeneratorResult,
 } from "@swim-io/core";
 import { Client, getTokenDetails } from "@swim-io/core";
 import { atomicToHuman, chunks, sleep } from "@swim-io/utils";
@@ -36,12 +34,16 @@ import type {
   SolanaEcosystemId,
   SolanaTx,
 } from "./protocol";
-import { SOLANA_ECOSYSTEM_ID } from "./protocol";
+import { SOLANA_ECOSYSTEM_ID, SolanaTxType } from "./protocol";
 import type { TokenAccount } from "./serialization";
 import { deserializeTokenAccount } from "./serialization";
 import { createMemoIx, createTx } from "./utils";
 import type { SolanaWalletAdapter } from "./walletAdapters";
-import { createRedeemOnSolanaTx, createTransferFromSolanaTx } from "./wormhole";
+import {
+  createPostVaaTx,
+  createRedeemOnSolanaTx,
+  createTransferFromSolanaTx,
+} from "./wormhole";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
@@ -51,15 +53,14 @@ type WithOptionalAuxiliarySigner<T> = T & {
   readonly auxiliarySigner?: Keypair;
 };
 
-interface GeneratePostVaaTxIdsParams
-  extends Omit<
-    WithOptionalAuxiliarySigner<
-      CompleteWormholeTransferParams<SolanaWalletAdapter>
-    >,
-    "wallet"
-  > {
+type CompleteWormholeMessageParams =
+  CompletePortalTransferParams<SolanaWalletAdapter>;
+
+interface GenerateVerifySignaturesTxsParams
+  extends Omit<CompletePortalTransferParams<SolanaWalletAdapter>, "wallet"> {
   readonly signTx: (tx: Transaction) => Promise<Transaction>;
   readonly payerAddress: string;
+  readonly auxiliarySigner: Keypair;
 }
 
 export interface GetSolanaTransactionOptions {
@@ -84,14 +85,13 @@ export class CustomConnection extends Connection {
 }
 
 export const parsedTxToSolanaTx = (
-  txId: string,
   parsedTx: ParsedTransactionWithMeta,
 ): SolanaTx => ({
-  id: txId,
+  id: parsedTx.transaction.signatures[0],
   ecosystemId: SOLANA_ECOSYSTEM_ID,
   timestamp: parsedTx.blockTime ?? null,
   interactionId: null,
-  parsedTx,
+  original: parsedTx,
 });
 
 export interface SolanaClientOptions {
@@ -105,6 +105,8 @@ export interface SolanaClientOptions {
 export class SolanaClient extends Client<
   SolanaEcosystemId,
   SolanaChainConfig,
+  ParsedTransactionWithMeta,
+  SolanaTxType,
   SolanaTx,
   SolanaWalletAdapter
 > {
@@ -132,14 +134,12 @@ export class SolanaClient extends Client<
 
   public async getTx(txId: string): Promise<SolanaTx> {
     const parsedTx = await this.getParsedTx(txId);
-    return parsedTxToSolanaTx(txId, parsedTx);
+    return parsedTxToSolanaTx(parsedTx);
   }
 
   public async getTxs(txIds: readonly string[]): Promise<readonly SolanaTx[]> {
     const parsedTxs = await this.getParsedTxs(txIds);
-    return parsedTxs.map((parsedTx, i) =>
-      parsedTxToSolanaTx(txIds[i], parsedTx),
-    );
+    return parsedTxs.map((parsedTx) => parsedTxToSolanaTx(parsedTx));
   }
 
   public async getGasBalance(address: string): Promise<Decimal> {
@@ -175,7 +175,7 @@ export class SolanaClient extends Client<
     );
   }
 
-  public async initiateWormholeTransfer({
+  public async *generateInitiatePortalTransferTxs({
     atomicAmount,
     targetChainId,
     targetAddress,
@@ -185,8 +185,14 @@ export class SolanaClient extends Client<
     wrappedTokenInfo,
     auxiliarySigner = Keypair.generate(),
   }: WithOptionalAuxiliarySigner<
-    InitiateWormholeTransferParams<SolanaWalletAdapter>
-  >): Promise<string> {
+    InitiatePortalTransferParams<SolanaWalletAdapter>
+  >): AsyncGenerator<
+    TxGeneratorResult<
+      ParsedTransactionWithMeta,
+      SolanaTx,
+      SolanaTxType.PortalInitiateTransfer
+    >
+  > {
     const solanaWalletAddress = wallet.publicKey?.toBase58() ?? null;
     if (solanaWalletAddress === null) {
       throw new Error("No Solana wallet address");
@@ -198,7 +204,7 @@ export class SolanaClient extends Client<
       new PublicKey(mintAddress),
       new PublicKey(solanaWalletAddress),
     ).toBase58();
-    const tx = await createTransferFromSolanaTx({
+    const txRequest = await createTransferFromSolanaTx({
       interactionId,
       connection: this.connection,
       bridgeAddress: this.chainConfig.wormhole.bridge,
@@ -210,23 +216,31 @@ export class SolanaClient extends Client<
       amount: BigInt(atomicAmount),
       targetAddress,
       targetChainId,
-      originAddress: wrappedTokenInfo?.originAddress,
-      originChain: wrappedTokenInfo?.originChainId,
+      wrappedTokenInfo,
     });
-    return await this.sendAndConfirmTx(async (txToSign: Transaction) => {
+    const txId = await this.sendAndConfirmTx(async (txToSign: Transaction) => {
       txToSign.partialSign(auxiliarySigner);
       return wallet.signTransaction(txToSign);
-    }, tx);
+    }, txRequest);
+    const tx = await this.getTx(txId);
+    yield {
+      tx,
+      type: SolanaTxType.PortalInitiateTransfer,
+    };
   }
 
-  public async *generateCompleteWormholeTransferTxIds({
+  public async *generateCompleteWormholeMessageTxs({
     interactionId,
     vaa,
     wallet,
-    auxiliarySigner,
-  }: WithOptionalAuxiliarySigner<
-    CompleteWormholeTransferParams<SolanaWalletAdapter>
-  >): AsyncGenerator<string> {
+    auxiliarySigner = Keypair.generate(),
+  }: WithOptionalAuxiliarySigner<CompleteWormholeMessageParams>): AsyncGenerator<
+    TxGeneratorResult<
+      ParsedTransactionWithMeta,
+      SolanaTx,
+      SolanaTxType.WormholeVerifySignatures | SolanaTxType.WormholePostVaa
+    >
+  > {
     const walletAddress = wallet.publicKey?.toBase58();
     if (!walletAddress) {
       throw new Error("No Solana public key");
@@ -234,37 +248,80 @@ export class SolanaClient extends Client<
 
     const signTx = wallet.signTransaction.bind(wallet);
 
-    const postVaaSolanaTxIdsGenerator = this.generatePostVaaTxIds({
+    const verifySignaturesTxsGenerator = this.generateVerifySignaturesTxs({
       interactionId,
       signTx,
       payerAddress: walletAddress,
       vaa,
       auxiliarySigner,
     });
-    for await (const txId of postVaaSolanaTxIdsGenerator) {
-      yield txId;
+    for await (const verifyTxResult of verifySignaturesTxsGenerator) {
+      yield verifyTxResult;
     }
-    const redeemTx = await createRedeemOnSolanaTx({
+
+    const postVaaTxRequest = await createPostVaaTx({
+      interactionId,
+      bridgeAddress: this.chainConfig.wormhole.bridge,
+      payerAddress: walletAddress,
+      vaa,
+      auxiliarySigner,
+    });
+    const postVaaTxId = await this.sendAndConfirmTx(signTx, postVaaTxRequest);
+    const postVaaTx = await this.getTx(postVaaTxId);
+    yield {
+      tx: postVaaTx,
+      type: SolanaTxType.WormholePostVaa,
+    };
+  }
+
+  public async *generateCompletePortalTransferTxs({
+    interactionId,
+    vaa,
+    wallet,
+    auxiliarySigner = Keypair.generate(),
+  }: WithOptionalAuxiliarySigner<
+    CompletePortalTransferParams<SolanaWalletAdapter>
+  >): AsyncGenerator<
+    TxGeneratorResult<
+      ParsedTransactionWithMeta,
+      SolanaTx,
+      | SolanaTxType.WormholeVerifySignatures
+      | SolanaTxType.WormholePostVaa
+      | SolanaTxType.PortalRedeem
+    >
+  > {
+    const walletAddress = wallet.publicKey?.toBase58();
+    if (!walletAddress) {
+      throw new Error("No Solana public key");
+    }
+
+    const signTx = wallet.signTransaction.bind(wallet);
+
+    const completeWormholeTransferTxsGenerator =
+      this.generateCompleteWormholeMessageTxs({
+        interactionId,
+        vaa,
+        wallet,
+        auxiliarySigner,
+      });
+
+    for await (const result of completeWormholeTransferTxsGenerator) {
+      yield result;
+    }
+
+    const redeemTxRequest = await createRedeemOnSolanaTx({
       interactionId,
       bridgeAddress: this.chainConfig.wormhole.bridge,
       portalAddress: this.chainConfig.wormhole.portal,
       payerAddress: walletAddress,
       vaa,
     });
-    yield await this.sendAndConfirmTx(signTx, redeemTx);
-  }
-
-  public async completeWormholeTransfer(
-    params: WithOptionalAuxiliarySigner<
-      CompleteWormholeTransferParams<SolanaWalletAdapter>
-    >,
-  ): Promise<readonly string[]> {
-    let txIds: readonly string[] = [];
-    const generator = this.generateCompleteWormholeTransferTxIds(params);
-    for await (const txId of generator) {
-      txIds = [...txIds, txId];
-    }
-    return txIds;
+    const redeemTxId = await this.sendAndConfirmTx(signTx, redeemTxRequest);
+    const redeemTx = await this.getTx(redeemTxId);
+    yield {
+      tx: redeemTx,
+      type: SolanaTxType.PortalRedeem,
+    };
   }
 
   public async confirmTx(
@@ -567,24 +624,23 @@ export class SolanaClient extends Client<
     );
   }
 
-  private async *generatePostVaaTxIds({
+  private async *generateVerifySignaturesTxs({
     interactionId,
     payerAddress,
     vaa,
     signTx,
-    auxiliarySigner = Keypair.generate(),
-  }: GeneratePostVaaTxIdsParams): AsyncGenerator<string> {
+    auxiliarySigner,
+  }: GenerateVerifySignaturesTxsParams): AsyncGenerator<
+    TxGeneratorResult<
+      ParsedTransactionWithMeta,
+      SolanaTx,
+      SolanaTxType.WormholeVerifySignatures
+    >
+  > {
     const memoIx = createMemoIx(interactionId, []);
     const verifyIxs: readonly TransactionInstruction[] =
       await createVerifySignaturesInstructionsSolana(
         this.connection,
-        this.chainConfig.wormhole.bridge,
-        payerAddress,
-        Buffer.from(vaa),
-        auxiliarySigner,
-      );
-    const finalIx: TransactionInstruction =
-      await createPostVaaInstructionSolana(
         this.chainConfig.wormhole.bridge,
         payerAddress,
         Buffer.from(vaa),
@@ -595,12 +651,9 @@ export class SolanaClient extends Client<
     // reducing the total number of transactions
     const batchableChunks = chunks(verifyIxs, 2);
     const feePayer = new PublicKey(payerAddress);
-    const unsignedTxs = batchableChunks.map((chunk) =>
+    const verifyTxRequests = batchableChunks.map((chunk) =>
       createTx({ feePayer }).add(...chunk, memoIx),
     );
-    // The postVaa instruction can only execute after the verifySignature transactions have
-    // successfully completed
-    const finalTx = createTx({ feePayer }).add(finalIx, memoIx);
 
     // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed
     const partialSignWrapper = async (
@@ -610,9 +663,13 @@ export class SolanaClient extends Client<
       return signTx(tx);
     };
 
-    for (const tx of unsignedTxs) {
-      yield await this.sendAndConfirmTx(partialSignWrapper, tx);
+    for (const txRequest of verifyTxRequests) {
+      const txId = await this.sendAndConfirmTx(partialSignWrapper, txRequest);
+      const tx = await this.getTx(txId);
+      yield {
+        tx,
+        type: SolanaTxType.WormholeVerifySignatures,
+      };
     }
-    yield await this.sendAndConfirmTx(signTx, finalTx);
   }
 }

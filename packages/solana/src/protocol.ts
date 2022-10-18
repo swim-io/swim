@@ -37,10 +37,14 @@ export interface SolanaEcosystemConfig extends EcosystemConfig {
   readonly chains: Partial<ReadonlyRecord<Env, SolanaChainConfig>>;
 }
 
-export interface SolanaTx extends Tx {
-  readonly ecosystemId: SolanaEcosystemId;
-  readonly parsedTx: ParsedTransactionWithMeta;
+export enum SolanaTxType {
+  PortalInitiateTransfer = "portal:initiateTransfer",
+  PortalRedeem = "portal:redeem",
+  WormholeVerifySignatures = "wormhole:verifySignatures",
+  WormholePostVaa = "wormhole:postVaa",
 }
 
-export const isSolanaTx = (tx: Tx): tx is SolanaTx =>
+export type SolanaTx = Tx<ParsedTransactionWithMeta, SolanaEcosystemId>;
+
+export const isSolanaTx = (tx: Tx<any>): tx is SolanaTx =>
   tx.ecosystemId === SOLANA_ECOSYSTEM_ID;

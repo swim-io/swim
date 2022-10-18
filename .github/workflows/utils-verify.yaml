@@ -2,7 +2,7 @@ name: "Verify utils build"
 on:
   pull_request:
     paths:
-      - "packages/utils/**/*.{ts,json}"
+      - "packages/utils/**"
       - ".github/workflows/utils-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

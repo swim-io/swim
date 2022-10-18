@@ -2,7 +2,7 @@ name: "Verify aptos build"
 on:
   pull_request:
     paths:
-      - "packages/aptos/**/*.{ts,json}"
+      - "packages/aptos/**"
       - ".github/workflows/aptos-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

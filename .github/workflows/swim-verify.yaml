@@ -2,7 +2,7 @@ name: "Verify swim build"
 on:
   pull_request:
     paths:
-      - "packages/swim/**/*.{ts,json}"
+      - "packages/swim/**"
       - ".github/workflows/swim-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

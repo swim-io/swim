@@ -34,7 +34,7 @@ export const SolanaClientProvider = ({
   const [chainConfig] = chains[Protocol.Solana];
   const endpoints = useMemo(() => getSolanaEndpoints(env), [env]);
   const client = useMemo(
-    () => new SolanaClient(chainConfig, endpoints),
+    () => new SolanaClient(chainConfig, { endpoints }),
     [chainConfig, endpoints],
   );
 

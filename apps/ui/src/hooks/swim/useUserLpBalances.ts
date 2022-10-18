@@ -22,37 +22,27 @@ export const useUserLpBalances = (
     : null;
 
   // ethereum
-  const ethereumTokenContractAddress =
-    getTokenDetailsForEcosystem(lpTokenConfig, EvmEcosystemId.Ethereum)
-      ?.address ?? null;
-  const { data: userLpBalanceEthereumAtomic = null } = useErc20BalanceQuery(
+  const ethereumTokenDetails =
+    getTokenDetailsForEcosystem(lpTokenConfig, EvmEcosystemId.Ethereum) ?? null;
+  const { data: userLpBalanceEthereumHuman = null } = useErc20BalanceQuery(
     EvmEcosystemId.Ethereum,
-    ethereumTokenContractAddress,
+    ethereumTokenDetails,
   );
   const userLpBalanceEthereum =
-    ethereumTokenContractAddress && userLpBalanceEthereumAtomic
-      ? Amount.fromAtomic(
-          lpTokenConfig,
-          userLpBalanceEthereumAtomic,
-          EvmEcosystemId.Ethereum,
-        )
+    ethereumTokenDetails && userLpBalanceEthereumHuman
+      ? Amount.fromHuman(lpTokenConfig, userLpBalanceEthereumHuman)
       : null;
 
   // bnb
-  const bnbTokenContractAddress =
-    getTokenDetailsForEcosystem(lpTokenConfig, EvmEcosystemId.Bnb)?.address ??
-    null;
-  const { data: userLpBalanceBnbAtomic = null } = useErc20BalanceQuery(
+  const bnbTokenDetails =
+    getTokenDetailsForEcosystem(lpTokenConfig, EvmEcosystemId.Bnb) ?? null;
+  const { data: userLpBalanceBnbHuman = null } = useErc20BalanceQuery(
     EvmEcosystemId.Bnb,
-    bnbTokenContractAddress,
+    bnbTokenDetails,
   );
   const userLpBalanceBnb =
-    bnbTokenContractAddress && userLpBalanceBnbAtomic
-      ? Amount.fromAtomic(
-          lpTokenConfig,
-          userLpBalanceBnbAtomic,
-          EvmEcosystemId.Bnb,
-        )
+    bnbTokenDetails && userLpBalanceBnbHuman
+      ? Amount.fromHuman(lpTokenConfig, userLpBalanceBnbHuman)
       : null;
 
   return {

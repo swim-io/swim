@@ -20,7 +20,7 @@ import {
 import type { Config } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { InteractionState, Tx } from "../../models";
+import type { InteractionState } from "../../models";
 import {
   Amount,
   formatWormholeAddress,
@@ -43,24 +43,13 @@ const getTransferredAmountsByTokenId = async (
   config: Config,
 ) => {
   const tokensByPoolId = getTokensByPool(config);
-  const { interaction, solanaPoolOperations } = interactionState;
+  const { solanaPoolOperations } = interactionState;
   const outputOperation = solanaPoolOperations[solanaPoolOperations.length - 1];
   const {
     operation: { poolId },
   } = outputOperation;
   const { tokens, lpToken } = tokensByPoolId[poolId];
-  const txs: readonly Tx[] = await Promise.all(
-    txIds.map(async (id) => {
-      const parsedTx = await solanaClient.getParsedTx(id);
-      return {
-        id,
-        ecosystemId: SOLANA_ECOSYSTEM_ID,
-        timestamp: parsedTx.blockTime ?? null,
-        interactionId: interaction.id,
-        parsedTx,
-      };
-    }),
-  );
+  const txs = await solanaClient.getTxs(txIds);
   return getTransferredAmounts(
     solanaWalletAddress,
     splTokenAccounts,
@@ -210,8 +199,8 @@ export const useFromSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === toEcosystem,
       );
-      const parsedTx = await solanaClient.getParsedTx(transferSplTokenTxId);
-      const sequence = parseSequenceFromLogSolana(parsedTx);
+      const transferTx = await solanaClient.getTx(transferSplTokenTxId);
+      const sequence = parseSequenceFromLogSolana(transferTx.parsedTx);
       const emitterAddress = await getEmitterAddressSolana(
         solanaWormhole.portal,
       );
@@ -238,12 +227,10 @@ export const useFromSolanaTransferMutation = () => {
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmReceipt = await evmClient.getTxReceiptOrThrow(redeemResponse);
-      const claimTokenOnEvmTxId = evmReceipt.transactionHash;
       // Update transfer state with txId
       updateInteractionState(interactionId, (draft) => {
         draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm =
-          claimTokenOnEvmTxId;
+          redeemResponse.hash;
       });
     }
   });

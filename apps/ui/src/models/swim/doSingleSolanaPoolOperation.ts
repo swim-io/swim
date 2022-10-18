@@ -1,4 +1,3 @@
-import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import {
   SOLANA_ECOSYSTEM_ID,
@@ -8,6 +7,7 @@ import {
 } from "@swim-io/solana";
 import type {
   SolanaClient,
+  SolanaTx,
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
@@ -91,18 +91,18 @@ const getTransferredAmount = (
   mintAddress: string,
   walletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
-  tx: ParsedTransactionWithMeta,
+  tx: SolanaTx,
 ): Decimal =>
   inputOperationSpec.instruction === SwimDefiInstruction.Add
     ? getAmountMintedToAccountByMint(
         splTokenAccounts,
-        tx,
+        tx.parsedTx,
         mintAddress,
         walletAddress,
       )
     : getAmountTransferredToAccountByMint(
         splTokenAccounts,
-        tx,
+        tx.parsedTx,
         mintAddress,
         walletAddress,
       );
@@ -112,7 +112,7 @@ export const setOutputOperationInputAmount = (
   interaction: Interaction,
   inputOperationSpec: OperationSpec,
   outputOperationSpec: OperationSpec,
-  tx: ParsedTransactionWithMeta,
+  tx: SolanaTx,
 ): OperationSpec => {
   const walletAddress = interaction.connectedWallets[SOLANA_ECOSYSTEM_ID];
   if (walletAddress === null) {

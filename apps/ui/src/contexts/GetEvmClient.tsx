@@ -137,7 +137,7 @@ export const GetEvmClientProvider = ({
       (chain) => chain.ecosystem === ecosystemId,
     );
     const provider = getProvider(env, chainConfig, ecosystemId);
-    const newEvmClient = new EvmClient(provider, chainConfig);
+    const newEvmClient = new EvmClient(ecosystemId, chainConfig, { provider });
 
     const newState = new Map(evmConnections.current);
     newState.set(ecosystemId, newEvmClient);

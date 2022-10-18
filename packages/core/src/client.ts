@@ -1,5 +1,10 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
 import type { TokenProjectId } from "@swim-io/token-projects";
+import type Decimal from "decimal.js";
+
+import type { ChainConfig } from "./chain";
+import type { TokenDetails } from "./token";
+import type { Tx } from "./tx";
 
 export interface WrappedTokenInfo {
   readonly originChainId: ChainId;
@@ -26,12 +31,39 @@ export interface CompleteWormholeTransferParams<Wallet> {
   readonly wallet: Wallet;
 }
 
-export interface Client<Wallet> {
-  readonly initiateWormholeTransfer: (
-    params: InitiateWormholeTransferParams<Wallet>,
-  ) => Promise<any>;
+export abstract class Client<
+  EcosystemId extends string,
+  C extends ChainConfig,
+  T extends Tx,
+  Wallet,
+> {
+  public readonly ecosystemId: EcosystemId;
+  protected readonly chainConfig: C;
 
-  readonly completeWormholeTransfer: (
+  public constructor(ecosystemId: EcosystemId, chainConfig: C) {
+    this.ecosystemId = ecosystemId;
+    this.chainConfig = chainConfig;
+  }
+
+  public abstract getTx(id: string): Promise<T>;
+  public abstract getTxs(ids: readonly string[]): Promise<readonly T[]>;
+  /** Gas balance as a human decimal */
+  public abstract getGasBalance(address: string): Promise<Decimal>;
+  /** Token balance as a human decimal */
+  public abstract getTokenBalance(
+    owner: string,
+    tokenDetails: TokenDetails,
+  ): Promise<Decimal>;
+  /** Token balances as human decimals */
+  public abstract getTokenBalances(
+    owner: string,
+    tokenDetails: readonly TokenDetails[],
+  ): Promise<readonly Decimal[]>;
+  public abstract initiateWormholeTransfer(
+    params: InitiateWormholeTransferParams<Wallet>,
+  ): Promise<any>;
+
+  public abstract completeWormholeTransfer(
     params: CompleteWormholeTransferParams<Wallet>,
-  ) => Promise<any>;
+  ): Promise<any>;
 }

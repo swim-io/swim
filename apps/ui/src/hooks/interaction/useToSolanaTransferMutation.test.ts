@@ -104,9 +104,9 @@ describe("useToSolanaTransferMutation", () => {
     useGetEvmClientMock.mockReturnValue(() => {
       return {
         txReceiptCache: {},
-        getTxReceiptOrThrow: jest.fn(({ hash }) =>
+        getTx: jest.fn(({ hash }) =>
           Promise.resolve({
-            transactionHash: hash,
+            id: hash,
           }),
         ),
         initiateWormholeTransfer: jest.fn(() => {

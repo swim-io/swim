@@ -14,7 +14,7 @@ export const isLockEvmTx = (
     return false;
   }
   if (
-    tx.response.to?.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
+    tx.receipt.to.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
   ) {
     return false;
   }

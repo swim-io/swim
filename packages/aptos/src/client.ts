@@ -1,3 +1,6 @@
+import type { TokenDetails } from "@swim-io/core";
+import { Client } from "@swim-io/core";
+import { atomicToHuman } from "@swim-io/utils";
 import {
   APTOS_COIN,
   AptosAccount,
@@ -6,6 +9,10 @@ import {
 } from "aptos";
 import Decimal from "decimal.js";
 
+import type { AptosChainConfig, AptosEcosystemId, AptosTx } from "./protocol";
+import { APTOS_ECOSYSTEM_ID } from "./protocol";
+import type { AptosWalletAdapter } from "./walletAdapters";
+
 interface GasScheduleV2 {
   readonly entries: readonly {
     readonly key: string;
@@ -13,15 +20,28 @@ interface GasScheduleV2 {
   }[];
 }
 
-export class AptosClient {
+export interface AptosClientOptions {
+  readonly endpoint: string;
+}
+
+export class AptosClient extends Client<
+  AptosEcosystemId,
+  AptosChainConfig,
+  AptosTx,
+  AptosWalletAdapter
+> {
   private readonly sdkClient: SDKAptosClient;
 
-  public constructor(nodeUrl: string) {
-    this.sdkClient = new SDKAptosClient(nodeUrl);
+  public constructor(
+    chainConfig: AptosChainConfig,
+    { endpoint }: AptosClientOptions,
+  ) {
+    super(APTOS_ECOSYSTEM_ID, chainConfig);
+    this.sdkClient = new SDKAptosClient(endpoint);
   }
 
   public async getGasBalance(address: string): Promise<Decimal> {
-    return this.getTokenBalance(address, APTOS_COIN);
+    return this.getTokenBalance(address, { address: APTOS_COIN, decimals: 8 });
   }
 
   /**
@@ -31,14 +51,17 @@ export class AptosClient {
    */
   public async getTokenBalance(
     address: string,
-    mintAddress: string,
+    tokenDetails: TokenDetails,
   ): Promise<Decimal> {
     const account = new AptosAccount(undefined, address);
     const coinClient = new CoinClient(this.sdkClient);
     const balance = await coinClient.checkBalance(account, {
-      coinType: mintAddress,
+      coinType: tokenDetails.address,
     });
-    return new Decimal(balance.toString());
+    return atomicToHuman(
+      new Decimal(balance.toString()),
+      tokenDetails.decimals,
+    );
   }
 
   public async getGasPrice(): Promise<Decimal> {
@@ -65,5 +88,25 @@ export class AptosClient {
 
     if (!minimum) throw new Error(`No "txn.min_price_per_gas_unit" key found`);
     return new Decimal(minimum.value);
+  }
+
+  public getTx(): Promise<AptosTx> {
+    throw new Error("Not implemented");
+  }
+
+  public getTxs(): Promise<readonly AptosTx[]> {
+    throw new Error("Not implemented");
+  }
+
+  public getTokenBalances(): Promise<readonly Decimal[]> {
+    throw new Error("Not implemented");
+  }
+
+  public initiateWormholeTransfer(): Promise<void> {
+    throw new Error("Not implemented");
+  }
+
+  public completeWormholeTransfer(): Promise<void> {
+    throw new Error("Not implemented");
   }
 }

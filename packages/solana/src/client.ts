@@ -15,18 +15,28 @@ import type {
   SignatureResult,
   Transaction,
   TransactionInstruction,
-  VersionedTransactionResponse,
 } from "@solana/web3.js";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from "@solana/web3.js";
 import type {
-  Client,
   CompleteWormholeTransferParams,
   InitiateWormholeTransferParams,
+  TokenDetails,
 } from "@swim-io/core";
-import { getTokenDetails } from "@swim-io/core";
-import { chunks, sleep } from "@swim-io/utils";
+import { Client, getTokenDetails } from "@swim-io/core";
+import { atomicToHuman, chunks, sleep } from "@swim-io/utils";
+import Decimal from "decimal.js";
 
-import type { SolanaChainConfig } from "./protocol";
+import type {
+  SolanaChainConfig,
+  SolanaEcosystemId,
+  SolanaTx,
+} from "./protocol";
+import { SOLANA_ECOSYSTEM_ID } from "./protocol";
 import type { TokenAccount } from "./serialization";
 import { deserializeTokenAccount } from "./serialization";
 import { createMemoIx, createTx } from "./utils";
@@ -73,15 +83,32 @@ export class CustomConnection extends Connection {
   }
 }
 
+export const parsedTxToSolanaTx = (
+  txId: string,
+  parsedTx: ParsedTransactionWithMeta,
+): SolanaTx => ({
+  id: txId,
+  ecosystemId: SOLANA_ECOSYSTEM_ID,
+  timestamp: parsedTx.blockTime ?? null,
+  interactionId: null,
+  parsedTx,
+});
+
+export interface SolanaClientOptions {
+  readonly endpoints?: readonly string[];
+}
+
 /**
  * A wrapper class around Connection from @solana/web3.js
  * We want to use this for eg getting txs
  */
-export class SolanaClient implements Client<SolanaWalletAdapter> {
+export class SolanaClient extends Client<
+  SolanaEcosystemId,
+  SolanaChainConfig,
+  SolanaTx,
+  SolanaWalletAdapter
+> {
   public connection!: CustomConnection;
-  private readonly chainConfig: SolanaChainConfig;
-  // eslint-disable-next-line functional/prefer-readonly-type
-  private readonly txCache: Map<string, VersionedTransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex: number;
@@ -94,16 +121,58 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
 
   public constructor(
     chainConfig: SolanaChainConfig,
-    endpoints?: readonly string[],
+    { endpoints }: SolanaClientOptions,
   ) {
-    this.chainConfig = chainConfig;
+    super(SOLANA_ECOSYSTEM_ID, chainConfig);
     this.endpoints = endpoints ?? chainConfig.publicRpcUrls;
     this.rpcIndex = -1;
     this.incrementRpcProvider();
-
-    // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
-    this.txCache = new Map<string, VersionedTransactionResponse>();
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
+  }
+
+  public async getTx(txId: string): Promise<SolanaTx> {
+    const parsedTx = await this.getParsedTx(txId);
+    return parsedTxToSolanaTx(txId, parsedTx);
+  }
+
+  public async getTxs(txIds: readonly string[]): Promise<readonly SolanaTx[]> {
+    const parsedTxs = await this.getParsedTxs(txIds);
+    return parsedTxs.map((parsedTx, i) =>
+      parsedTxToSolanaTx(txIds[i], parsedTx),
+    );
+  }
+
+  public async getGasBalance(address: string): Promise<Decimal> {
+    const balance = await this.connection.getBalance(new PublicKey(address));
+    return new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
+  }
+
+  public async getTokenBalance(
+    owner: string,
+    { address, decimals }: TokenDetails,
+  ): Promise<Decimal> {
+    const tokenAccount = await this.getTokenAccountWithRetry(address, owner);
+    return atomicToHuman(new Decimal(tokenAccount.amount.toString()), decimals);
+  }
+
+  public async getTokenBalances(
+    owner: string,
+    tokenDetails: readonly TokenDetails[],
+  ): Promise<readonly Decimal[]> {
+    const tokenAccountPubkeys = await Promise.all(
+      tokenDetails.map(({ address }) =>
+        getAssociatedTokenAddress(new PublicKey(address), new PublicKey(owner)),
+      ),
+    );
+    const tokenAccounts = await this.getMultipleTokenAccounts(
+      tokenAccountPubkeys.map((pubkey) => pubkey.toBase58()),
+    );
+    return tokenAccounts.map((tokenAccount, i) =>
+      atomicToHuman(
+        new Decimal(tokenAccount?.amount.toString() ?? new Decimal(0)),
+        tokenDetails[i].decimals,
+      ),
+    );
   }
 
   public async initiateWormholeTransfer({
@@ -209,14 +278,14 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
     // call getSignature() beforehand to circumvent.
     // TODO: Remove signature code once issue is addressed.
     // https://github.com/solana-labs/solana/issues/25955
-    const signatureStatus = await this.getSigStatusToSigResult(txId);
-    if (signatureStatus) {
-      return signatureStatus;
+    const signatureResult = await this.getSignatureResult(txId);
+    if (signatureResult) {
+      return signatureResult;
     }
     return this.callWithRetry(async () => {
       const latestBlock = await this.connection.getLatestBlockhash();
       // If the Solana network is busy this can time out
-      const signatureResult = await this.connection.confirmTransaction(
+      const response = await this.connection.confirmTransaction(
         {
           signature: txId,
           blockhash: latestBlock.blockhash,
@@ -224,11 +293,11 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
         },
         commitmentLevel,
       );
-      if (!signatureResult.value.err) {
-        return signatureResult;
+      if (!response.value.err) {
+        return response;
       }
       throw new Error(
-        `Transaction with ID ${txId} did not confirm: ${signatureResult.value.err.toString()}`,
+        `Transaction with ID ${txId} did not confirm: ${response.value.err.toString()}`,
       );
     }, maxRetries);
   }
@@ -267,108 +336,30 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
     return txIds;
   }
 
-  public async getTx(
-    txId: string,
-    {
-      maxRetries = DEFAULT_MAX_RETRIES,
-      commitmentLevel = undefined,
-    }: GetSolanaTransactionOptions = {},
-  ): Promise<VersionedTransactionResponse> {
-    const knownTx = this.txCache.get(txId);
-    if (knownTx !== undefined) {
-      return knownTx;
+  public async createSplTokenAccount(
+    wallet: SolanaWalletAdapter,
+    splTokenMintAddress: string,
+  ): Promise<string> {
+    if (!wallet.publicKey) {
+      throw new Error("No Solana wallet connected");
     }
-    // This uses websocket and a longer timeout than getTransaction
-    await this.confirmTx(txId, {
-      maxRetries,
-      commitmentLevel,
-    });
-
-    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
-    // So we retry getting the tx too if necessary.
-    return this.callWithRetry(async () => {
-      const txResponse = await this.connection.getTransaction(txId, {
-        commitment: commitmentLevel,
-        maxSupportedTransactionVersion: 0,
-      });
-      if (txResponse !== null) {
-        this.txCache.set(txId, txResponse);
-        return txResponse;
-      }
-      throw new Error(`Transaction with ID ${txId} did not confirm`);
-    }, maxRetries);
-  }
-
-  public async getParsedTx(
-    txId: string,
-    {
-      maxRetries = DEFAULT_MAX_RETRIES,
-      commitmentLevel = undefined,
-    }: GetSolanaTransactionOptions = {},
-  ): Promise<ParsedTransactionWithMeta> {
-    const knownTx = this.parsedTxCache.get(txId);
-    if (knownTx !== undefined) {
-      return knownTx;
-    }
-
-    // This uses websocket and a longer timeout than getParsedTransaction
-    await this.confirmTx(txId, {
-      maxRetries,
-      commitmentLevel,
-    });
-
-    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
-    // So we retry getting the tx too if necessary.
-    return this.callWithRetry(async () => {
-      const txResponse = await this.connection.getParsedTransaction(
-        txId,
-        commitmentLevel,
-      );
-      if (txResponse !== null) {
-        this.parsedTxCache.set(txId, txResponse);
-        return txResponse;
-      }
-      throw new Error(`Transaction with ID ${txId} did not confirm`);
-    }, maxRetries);
-  }
-
-  public async getParsedTxs(
-    txIds: readonly string[],
-    {
-      maxRetries = DEFAULT_MAX_RETRIES,
-      commitmentLevel = undefined,
-    }: GetSolanaTransactionOptions = {},
-  ): Promise<readonly ParsedTransactionWithMeta[]> {
-    return this.callWithRetry(
-      async () => {
-        const missingTxIds = txIds.filter(
-          (txId) => !this.parsedTxCache.get(txId),
-        );
-        if (missingTxIds.length === 0) {
-          return txIds.map((txId) => {
-            const tx = this.parsedTxCache.get(txId);
-            if (!tx) {
-              // NOTE: This check is only here for type safety and should never happen
-              throw new Error("Missing transaction");
-            }
-            return tx;
-          });
-        }
-        // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
-        const txResponses = await this.connection.getParsedTransactions(
-          missingTxIds,
-          commitmentLevel,
-        );
-        txResponses.forEach((txResponse, i) => {
-          if (txResponse !== null) {
-            this.parsedTxCache.set(missingTxIds[i], txResponse);
-          }
-        });
-        throw new Error("One or more transactions did not confirm");
-      },
-
-      maxRetries,
+    const mint = new PublicKey(splTokenMintAddress);
+    const associatedAccount = await getAssociatedTokenAddress(
+      mint,
+      wallet.publicKey,
     );
+    const ix = createAssociatedTokenAccountInstruction(
+      wallet.publicKey,
+      associatedAccount,
+      wallet.publicKey,
+      mint,
+    );
+
+    const tx = createTx({
+      feePayer: wallet.publicKey,
+    });
+    tx.add(ix);
+    return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
   }
 
   public async getTokenAccountWithRetry(
@@ -433,61 +424,13 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
     );
   }
 
-  public async createSplTokenAccount(
-    wallet: SolanaWalletAdapter,
-    splTokenMintAddress: string,
-  ): Promise<string> {
-    if (!wallet.publicKey) {
-      throw new Error("No Solana wallet connected");
-    }
-    const mint = new PublicKey(splTokenMintAddress);
-    const associatedAccount = await getAssociatedTokenAddress(
-      mint,
-      wallet.publicKey,
-    );
-    const ix = createAssociatedTokenAccountInstruction(
-      wallet.publicKey,
-      associatedAccount,
-      wallet.publicKey,
-      mint,
-    );
-
-    const tx = createTx({
-      feePayer: wallet.publicKey,
-    });
-    tx.add(ix);
-    return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
-  }
-
-  // Looks for a signature, only returns a value if there's no error
-  // or value
-  private async getSigStatusToSigResult(
-    txId: string,
-  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
-    try {
-      const { context, value } = await this.connection.getSignatureStatus(
-        txId,
-        { searchTransactionHistory: true },
-      );
-      if (!value) {
-        return null;
-      }
-      return {
-        context,
-        value,
-      };
-    } catch {
-      return null;
-    }
-  }
-
   private incrementRpcProvider() {
     if (
       this.endpoints.length === 1 &&
       (this.connection as CustomConnection | undefined) !== undefined
     ) {
       // Skip initializing a new connection if there are no fallback endpoints
-      // and it is not being called in the constructor (when this.rawConnection is still undefined)
+      // and it is not being called in the constructor (when this.connection is still undefined)
       return;
     }
     if (this.dummySubscriptionId !== undefined) {
@@ -506,6 +449,28 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
       Keypair.generate().publicKey,
       () => {},
     );
+  }
+
+  // Looks for a signature, only returns a value if there's no error
+  // or value
+  private async getSignatureResult(
+    txId: string,
+  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
+    try {
+      const { context, value } = await this.connection.getSignatureStatus(
+        txId,
+        { searchTransactionHistory: true },
+      );
+      if (!value) {
+        return null;
+      }
+      return {
+        context,
+        value,
+      };
+    } catch {
+      return null;
+    }
   }
 
   private async callWithRetry<T>(
@@ -528,6 +493,78 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
       }
     }
     throw new Error("callWithRetry bug, this code should be unreachable.");
+  }
+
+  private async getParsedTx(
+    txId: string,
+    {
+      maxRetries = DEFAULT_MAX_RETRIES,
+      commitmentLevel = undefined,
+    }: GetSolanaTransactionOptions = {},
+  ): Promise<ParsedTransactionWithMeta> {
+    const knownTx = this.parsedTxCache.get(txId);
+    if (knownTx !== undefined) {
+      return knownTx;
+    }
+
+    // This uses websocket and a longer timeout than getParsedTransaction
+    await this.confirmTx(txId, {
+      maxRetries,
+      commitmentLevel,
+    });
+
+    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
+    // So we retry getting the tx too if necessary.
+    return this.callWithRetry(async () => {
+      const txResponse = await this.connection.getParsedTransaction(
+        txId,
+        commitmentLevel,
+      );
+      if (txResponse !== null) {
+        this.parsedTxCache.set(txId, txResponse);
+        return txResponse;
+      }
+      throw new Error(`Transaction with ID ${txId} did not confirm`);
+    }, maxRetries);
+  }
+
+  private async getParsedTxs(
+    txIds: readonly string[],
+    {
+      maxRetries = DEFAULT_MAX_RETRIES,
+      commitmentLevel = undefined,
+    }: GetSolanaTransactionOptions = {},
+  ): Promise<readonly ParsedTransactionWithMeta[]> {
+    return this.callWithRetry(
+      async () => {
+        const missingTxIds = txIds.filter(
+          (txId) => !this.parsedTxCache.get(txId),
+        );
+        if (missingTxIds.length === 0) {
+          return txIds.map((txId) => {
+            const tx = this.parsedTxCache.get(txId);
+            if (!tx) {
+              // NOTE: This check is only here for type safety and should never happen
+              throw new Error("Missing transaction");
+            }
+            return tx;
+          });
+        }
+        // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
+        const txResponses = await this.connection.getParsedTransactions(
+          missingTxIds,
+          commitmentLevel,
+        );
+        txResponses.forEach((txResponse, i) => {
+          if (txResponse !== null) {
+            this.parsedTxCache.set(missingTxIds[i], txResponse);
+          }
+        });
+        throw new Error("One or more transactions did not confirm");
+      },
+
+      maxRetries,
+    );
   }
 
   private async *generatePostVaaTxIds({

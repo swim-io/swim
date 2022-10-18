@@ -4,8 +4,6 @@ import { Env } from "@swim-io/core";
 import type { EvmClient, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import type { SolanaClient, SolanaTx } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { isNotNull } from "@swim-io/utils";
 import type { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
@@ -51,25 +49,7 @@ export const fetchEvmTxForInteractionId = async (
       const matchedTxResponses = history.filter(
         (txResponse) => findEvmInteractionId(txResponse) === interactionId,
       );
-      const evmTxsOrNull = await Promise.all(
-        matchedTxResponses.map(
-          async (txResponse: ethers.providers.TransactionResponse) => {
-            const txReceipt = await client.getTxReceipt(txResponse);
-            if (txReceipt === null) {
-              return null;
-            }
-            return {
-              ecosystemId,
-              id: txResponse.hash,
-              timestamp: txResponse.timestamp ?? null,
-              interactionId: interactionId,
-              response: txResponse,
-              receipt: txReceipt,
-            };
-          },
-        ),
-      );
-      return evmTxsOrNull.filter(isNotNull);
+      return await client.getTxs(matchedTxResponses);
     }),
   );
 
@@ -107,7 +87,8 @@ const addSolanaInteractionId = async (
   const tx = await solanaClient.getTx(signatureInfo.signature);
   // NOTE: Getting the ID from the log is more brittle but simpler than getting it from the instructions
   const memoLog =
-    tx.meta?.logMessages?.find((log) => MEMO_LOG_REGEXP.test(log)) ?? null;
+    tx.parsedTx.meta?.logMessages?.find((log) => MEMO_LOG_REGEXP.test(log)) ??
+    null;
   const match = memoLog?.match(MEMO_LOG_REGEXP);
   const interactionId = match?.groups?.[INTERACTION_ID_MATCH_GROUP] ?? null;
   return { signatureInfo, interactionId };
@@ -141,19 +122,9 @@ export const fetchSolanaTxsForInteractionId = async (
     )
   ).filter((txInfo) => txInfo.interactionId === interactionId);
 
-  const parsedTxs = await solanaClient.getParsedTxs(
+  return await solanaClient.getTxs(
     txInfosAndInteractionIds.map(
       ({ signatureInfo }) => signatureInfo.signature,
     ),
-  );
-
-  return txInfosAndInteractionIds.map(
-    ({ signatureInfo: { blockTime, signature } }, index) => ({
-      ecosystemId: SOLANA_ECOSYSTEM_ID,
-      id: signature,
-      timestamp: blockTime ?? null,
-      interactionId,
-      parsedTx: parsedTxs[index],
-    }),
   );
 };

@@ -1,4 +1,4 @@
-import type { Env } from "@swim-io/core/types";
+import type { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 import type {
   InteractionStateV2,

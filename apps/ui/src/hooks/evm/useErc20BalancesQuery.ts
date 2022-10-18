@@ -1,3 +1,4 @@
+import type { TokenDetails } from "@swim-io/core";
 import type { EvmEcosystemId } from "@swim-io/evm";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
@@ -11,26 +12,26 @@ import { useEvmWallet } from "./useEvmWallet";
 
 export const useErc20BalancesQuery = (
   ecosystemId: EvmEcosystemId,
-  contractAddresses: readonly string[],
+  tokenDetails: readonly TokenDetails[],
 ): readonly UseQueryResult<Decimal | null, Error>[] => {
   const { env } = useEnvironment();
   const client = useEvmClient(ecosystemId);
   const { address: walletAddress } = useEvmWallet();
 
   return useQueries(
-    contractAddresses.map((contractAddress) => ({
+    tokenDetails.map((details) => ({
       queryKey: [
         env,
         "erc20Balance",
         ecosystemId,
-        contractAddress,
+        details.address,
         walletAddress,
       ],
       queryFn: async (): Promise<Decimal | null> => {
         if (walletAddress === null) {
           return null;
         }
-        return client.getTokenBalance(contractAddress, walletAddress);
+        return client.getTokenBalance(walletAddress, details);
       },
       enabled: isEcosystemEnabled(ecosystemId),
     })),

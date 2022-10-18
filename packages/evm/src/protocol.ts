@@ -48,7 +48,6 @@ export interface EvmEcosystemConfig<E extends EvmEcosystemId = EvmEcosystemId>
 
 export interface EvmTx extends Tx {
   readonly ecosystemId: EvmEcosystemId;
-  readonly response: ethers.providers.TransactionResponse;
   readonly receipt: ethers.providers.TransactionReceipt;
 }
 

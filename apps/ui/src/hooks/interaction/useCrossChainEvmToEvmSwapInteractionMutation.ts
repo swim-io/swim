@@ -101,11 +101,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           wallet,
           spenderAddress: fromChainConfig.routingContractAddress,
         });
-        const approvalReceipts = await Promise.all(
-          approvalResponses.map((response) =>
-            fromEvmClient.getTxReceiptOrThrow(response),
-          ),
-        );
+        const approvalTxs = await fromEvmClient.getTxs(approvalResponses);
         updateInteractionState(interaction.id, (draft) => {
           if (
             draft.interactionType !== InteractionType.SwapV2 ||
@@ -113,7 +109,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           ) {
             throw new Error("Interaction type mismatch");
           }
-          draft.approvalTxIds = approvalReceipts.map((a) => a.transactionHash);
+          draft.approvalTxIds = approvalTxs.map((tx) => tx.id);
         });
         const crossChainInitiateRequest = await fromRouting.populateTransaction[
           "crossChainInitiate(address,uint256,uint256,uint16,bytes32,bytes16)"
@@ -144,13 +140,11 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           draft.crossChainInitiateTxId = crossChainInitiateResponse.hash;
         });
       }
-      const crossChainInitiateResponse =
-        await fromEvmClient.provider.getTransaction(crossChainInitiateTxId);
-      const crossChainInitiateReceipt = await fromEvmClient.getTxReceiptOrThrow(
-        crossChainInitiateResponse,
+      const crossChainInitiateTx = await fromEvmClient.getTx(
+        crossChainInitiateTxId,
       );
       const wormholeSequence = parseSequenceFromLogEth(
-        crossChainInitiateReceipt,
+        crossChainInitiateTx.receipt,
         fromChainConfig.wormhole.bridge,
       );
       const { wormholeChainId: emitterChainId } = ECOSYSTEMS[fromEcosystem];
@@ -185,7 +179,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
       const crossChainCompleteResponse = await wallet.signer.sendTransaction(
         crossChainCompleteRequest,
       );
-      const crossChainCompleteReceipt = await toEvmClient.getTxReceiptOrThrow(
+      const crossChainCompleteTx = await toEvmClient.getTx(
         crossChainCompleteResponse,
       );
       updateInteractionState(interaction.id, (draft) => {
@@ -195,8 +189,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
         ) {
           throw new Error("Interaction type mismatch");
         }
-        draft.crossChainCompleteTxId =
-          crossChainCompleteReceipt.transactionHash;
+        draft.crossChainCompleteTxId = crossChainCompleteTx.id;
       });
     },
   );

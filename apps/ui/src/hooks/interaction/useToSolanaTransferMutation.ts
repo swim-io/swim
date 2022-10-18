@@ -3,11 +3,9 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import type { EvmClient, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
-import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -29,23 +27,6 @@ import {
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
 import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
-
-const txResponseToTx = async (
-  interactionId: string,
-  ecosystemId: EvmEcosystemId,
-  client: EvmClient,
-  txResponse: ethers.providers.TransactionResponse,
-): Promise<EvmTx> => {
-  const txReceipt = await client.getTxReceiptOrThrow(txResponse);
-  return {
-    interactionId,
-    ecosystemId,
-    id: txReceipt.transactionHash,
-    timestamp: txResponse.timestamp ?? null,
-    response: txResponse,
-    receipt: txReceipt,
-  };
-};
 
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
@@ -123,26 +104,16 @@ export const useToSolanaTransferMutation = () => {
         wrappedTokenInfo: getWrappedTokenInfo(token, fromEcosystem),
       });
 
-      const [transferTx, ...approvalTxs] = await Promise.all(
-        [transferResponse, ...approvalResponses].map((txResponse) =>
-          txResponseToTx(
-            interactionId,
-            fromEcosystem,
-            evmClients[index],
-            txResponse,
-          ),
-        ),
-      );
-
       // Update transfer state with txId
-      const approveAndTransferEvmTokenTxIds = [...approvalTxs, transferTx].map(
-        ({ id }) => id,
-      );
+      const approveAndTransferEvmTokenTxIds = [
+        ...approvalResponses,
+        transferResponse,
+      ].map(({ hash }) => hash);
       updateInteractionState(interactionId, (draft) => {
         draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
           approveAndTransferEvmTokenTxIds;
       });
-      transferTxIds = [...transferTxIds, transferTx.id];
+      transferTxIds = [...transferTxIds, transferResponse.hash];
     }
 
     const sequences = await Promise.all(
@@ -151,21 +122,7 @@ export const useToSolanaTransferMutation = () => {
         if (transfer.txIds.claimTokenOnSolana !== null) {
           return null;
         }
-        const transferTxId = transferTxIds[index];
-        const fromEcosystem = getFromEcosystemOfToSolanaTransfer(
-          transfer,
-          interaction,
-        );
-        const transferResponse = await evmClients[
-          index
-        ].provider.getTransaction(transferTxId);
-        const transferTx = await txResponseToTx(
-          interactionId,
-          fromEcosystem,
-          evmClients[index],
-          transferResponse,
-        );
-
+        const transferTx = await evmClients[index].getTx(transferTxIds[index]);
         return parseSequenceFromLogEth(
           transferTx.receipt,
           evmChains[index].wormhole.bridge,

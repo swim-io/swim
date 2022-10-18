@@ -45,6 +45,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
           }),
         ),
       );
+      // refetch the token accounts by owner as there will be a new SPL token account
       await queryClient.invalidateQueries(
         getUserSolanaTokenAccountsQueryKey(env, address),
       );

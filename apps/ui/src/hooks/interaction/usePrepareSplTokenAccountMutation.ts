@@ -60,6 +60,7 @@ export const usePrepareSplTokenAccountMutation = () => {
         interaction.env,
         solanaAddress,
       );
+      // refetch the token accounts by owner as there will be a new SPL token account
       await queryClient.refetchQueries(splTokenAccountsQueryKey);
     }
   });

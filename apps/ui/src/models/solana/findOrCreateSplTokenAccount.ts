@@ -47,6 +47,7 @@ export const findOrCreateSplTokenAccount = async ({
   );
   await solanaClient.confirmTx(createSplTokenAccountTxId);
   await sleep(1000); // TODO: Find a better condition
+  // refetch the token accounts by owner as there will be a new SPL token account
   await queryClient.invalidateQueries([
     env,
     "userSolanaTokenAccounts",

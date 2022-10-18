@@ -103,6 +103,7 @@ export const useUserSolanaTokenAccountsQuery = (
     {
       ...options,
       // rely on websocket to update outdated data
+      // require `invalidateQueries` when new token account is created
       staleTime: Infinity,
     },
   );

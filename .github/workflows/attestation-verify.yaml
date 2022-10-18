@@ -1,0 +1,18 @@
+name: "Verify attestation build"
+on:
+  pull_request:
+    paths:
+      - "apps/attestation/**"
+      - "yarn.lock"
+      - ".github/workflows/attestation-verify.yaml"
+      - ".github/workflows/verify.yaml"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./apps/attestation
+      skipTest: true

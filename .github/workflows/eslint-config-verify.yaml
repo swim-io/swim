@@ -2,8 +2,9 @@ name: "Verify eslint-config build"
 on:
   pull_request:
     paths:
-      - "packages/eslint-config/**.cjs"
-      - "packages/eslint-config/**.json"
+      - "packages/eslint-config/**"
+      - ".github/workflows/verify.yaml"
+      - ".github/workflows/eslint-config-verify.yaml"
   push:
     branches:
       - master

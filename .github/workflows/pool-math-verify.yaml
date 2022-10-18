@@ -2,7 +2,7 @@ name: "Verify pool-math build"
 on:
   pull_request:
     paths:
-      - "packages/pool-math/**/*.{ts,json}"
+      - "packages/pool-math/**"
       - ".github/workflows/pool-math-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

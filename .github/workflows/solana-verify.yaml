@@ -2,7 +2,7 @@ name: "Verify solana build"
 on:
   pull_request:
     paths:
-      - "packages/solana/**/*.{ts,json}"
+      - "packages/solana/**"
       - ".github/workflows/solana-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

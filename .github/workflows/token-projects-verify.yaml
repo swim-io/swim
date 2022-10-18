@@ -2,7 +2,7 @@ name: "Verify token-projects build"
 on:
   pull_request:
     paths:
-      - "packages/token-projects/**/*.{ts,json}"
+      - "packages/token-projects/**"
       - ".github/workflows/token-projects-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

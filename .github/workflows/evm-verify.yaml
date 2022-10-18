@@ -2,7 +2,7 @@ name: "Verify evm build"
 on:
   pull_request:
     paths:
-      - "packages/evm/**/*.{ts,json}"
+      - "packages/evm/**"
       - ".github/workflows/evm-verify.yaml"
       - ".github/workflows/verify.yaml"
       - "yarn.lock"

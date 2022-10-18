@@ -14,13 +14,12 @@ import { Connection, Keypair, clusterApiUrl } from "@solana/web3.js";
 import { aptos } from "@swim-io/aptos";
 import { Env, wormholeConfigs } from "@swim-io/core";
 import { solana } from "@swim-io/solana";
-import { AptosAccount } from "aptos";
+import type { Types } from "aptos";
+import { AptosAccount, AptosClient } from "aptos";
 import * as bip39 from "bip39";
 import { derivePath } from "ed25519-hd-key";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers"; // eslint-disable-line import/extensions
-
-import { AptosClientWrapper } from "./AptosClientWrapper";
 
 import "dotenv/config"; // eslint-disable-line import/extensions
 
@@ -125,14 +124,15 @@ async function main() {
     new Uint8Array(Buffer.from(aptosPrivateKey, "hex")),
   );
 
-  const clientWrapper = new AptosClientWrapper(aptosRpcUrl);
+  const client = new AptosClient(aptosRpcUrl);
 
   const createWrappedCoinTypePayload = createWrappedCoinType(
     aptosChainConfig.wormhole.bridge,
     vaaBytes,
   );
   console.info("createWrappedCoinTypePayload", createWrappedCoinTypePayload);
-  const createWrappedCoinTypeTx = await clientWrapper.executeEntryFunction(
+  const createWrappedCoinTypeTx = await executeEntryFunction(
+    client,
     sender,
     createWrappedCoinTypePayload,
   );
@@ -146,7 +146,8 @@ async function main() {
   console.info(
     `The address of the attested token is ${createWrappedCoinPayload.type_arguments[0]}`,
   );
-  const createWrappedCoinTx = await clientWrapper.executeEntryFunction(
+  const createWrappedCoinTx = await executeEntryFunction(
+    client,
     sender,
     createWrappedCoinPayload,
   );
@@ -170,4 +171,30 @@ async function parseCliOptions() {
     })
     .help()
     .parse();
+}
+
+async function executeEntryFunction(
+  client: AptosClient,
+  sender: AptosAccount,
+  payload: Types.EntryFunctionPayload,
+  opts?: Partial<Types.SubmitTransactionRequest>,
+): Promise<string> {
+  const rawTx = await client.generateTransaction(sender.address(), payload, {
+    ...opts,
+  });
+
+  // first simulate tx to see if something is obviously wrong
+  const simulatedTxs = await client.simulateTransaction(sender, rawTx);
+  simulatedTxs.forEach((tx) => {
+    if (!tx.success) {
+      console.error(JSON.stringify(tx, null, 2));
+      throw new Error(`Transaction simulation failed: ${tx.vm_status}`);
+    }
+  });
+
+  // sign & submit transaction if simulation is successful
+  const signedTx = await client.signTransaction(sender, rawTx);
+  const pendingTx = await client.submitTransaction(signedTx);
+  await client.waitForTransaction(pendingTx.hash);
+  return pendingTx.hash;
 }

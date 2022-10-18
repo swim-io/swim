@@ -91,10 +91,10 @@ async function main() {
   });
 
   // Get the sequence number and emitter address required to fetch the signedVAA of our message
+  // Using the deprecated signature due to `parseSequenceFromLogSolana` arg type.
   // eslint-disable-next-line deprecation/deprecation
   const info = await connection.getTransaction(txId, {
     commitment: "confirmed",
-    // maxSupportedTransactionVersion: ?,
   });
 
   if (!info)

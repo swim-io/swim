@@ -91,6 +91,11 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Build dependencies
+        env:
+          MNEMONIC: "test test test test test test test test test test test junk"
+          ETHERSCAN_API_KEY: "XRJNAJSHABY3I6GUJYGHIVTSGCQ2S2Y75J"
+        run: yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/ui --exclude @swim-io/ui run build
       - name: "Create .env file for storybook"
         run: |
           touch .env

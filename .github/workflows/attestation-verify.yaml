@@ -2,7 +2,7 @@ name: "Verify attestation build"
 on:
   pull_request:
     paths:
-      - "apps/attestation/**/*.{ts,json}"
+      - "apps/attestation/**"
       - "yarn.lock"
       - ".github/workflows/attestation-verify.yaml"
       - ".github/workflows/verify.yaml"

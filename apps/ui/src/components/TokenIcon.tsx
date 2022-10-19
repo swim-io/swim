@@ -1,12 +1,13 @@
 import { EuiIcon } from "@elastic/eui";
 import type { TokenProject } from "@swim-io/token-projects";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import type { WormholeToken } from "models";
 import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
 
-import type { EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
+import type { EcosystemId, TokenConfig } from "../config";
 import { useIntlListSeparators } from "../hooks";
 import type { Amount } from "../models/amount";
 
@@ -17,6 +18,29 @@ interface TokenIconProps
   readonly ecosystemId?: EcosystemId;
   readonly showFullName?: boolean;
 }
+
+type WormholeTokenIconProps = {
+  readonly token: WormholeToken;
+  readonly isSelected: boolean;
+};
+
+export const WormholeTokenIcon = ({
+  token,
+  isSelected,
+}: WormholeTokenIconProps): ReactElement => {
+  const { logo, symbol, displayName } = token;
+  return (
+    <div>
+      <WithIcon
+        type={logo}
+        size="m"
+        title={displayName}
+        style={{ marginRight: 5 }}
+      />
+      <span>{isSelected ? `${symbol}` : `${symbol} - ${displayName}`}</span>
+    </div>
+  );
+};
 
 type WithIconProps = ComponentProps<typeof EuiIcon>;
 const WithIcon = ({ children, ...rest }: WithIconProps) => {

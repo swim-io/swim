@@ -3,8 +3,6 @@ import {
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
-  EuiSpacer,
-  EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,24 +10,27 @@ import { useTranslation } from "react-i18next";
 import { WormholeForm } from "../components/WormholeForm";
 import { useTitle } from "../hooks";
 
-import "./WormholePage.scss";
-
 const WormholePage = (): ReactElement => {
   const { t } = useTranslation();
   useTitle(t("nav.wormhole"));
 
   return (
-    <EuiPage restrictWidth={620}>
+    <EuiPage restrictWidth={600}>
       <EuiPageBody>
-        <EuiPageContent verticalPosition="center">
-          <EuiPageContentBody>
-            <EuiTitle>
-              <h2>{"Wormhole"}</h2>
-            </EuiTitle>
-            <EuiSpacer />
+        <EuiPageContentBody>
+          <EuiPageContent
+            horizontalPosition="center"
+            verticalPosition="center"
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignContent: "center",
+            }}
+          >
             <WormholeForm />
-          </EuiPageContentBody>
-        </EuiPageContent>
+          </EuiPageContent>
+        </EuiPageContentBody>
       </EuiPageBody>
     </EuiPage>
   );

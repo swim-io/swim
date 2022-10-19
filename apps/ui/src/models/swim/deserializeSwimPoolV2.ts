@@ -6,11 +6,11 @@ import type { PublicKey } from "@solana/web3.js";
 import type { AmpFactor, SwimPoolState } from "@swim-io/solana";
 import { idl } from "@swim-io/solana-contracts";
 
-type Value = {
+interface Value {
   readonly value: number;
-};
+}
 
-type TwoPoolState = {
+interface TwoPoolState {
   readonly nonce: number;
   readonly lpMintKey: PublicKey;
   readonly lpDecimalEqualizer: number;
@@ -29,29 +29,16 @@ type TwoPoolState = {
   readonly preparedGovernanceFee: Value;
   readonly feeTransitionTs: BN;
   readonly previousDepth: BN;
-};
+}
 
 export const deserializeSwimPoolV2 = (poolData: Buffer): SwimPoolState => {
   const PoolDecoder = new BorshAccountsCoder(idl.twoPool as Idl);
   const poolState: TwoPoolState = PoolDecoder.decode("TwoPool", poolData);
   return {
-    nonce: poolState.nonce,
-    isPaused: poolState.isPaused,
-    ampFactor: poolState.ampFactor,
+    ...poolState,
     lpFee: poolState.lpFee.value,
     governanceFee: poolState.governanceFee.value,
-    lpMintKey: poolState.lpMintKey,
-    lpDecimalEqualizer: poolState.lpDecimalEqualizer,
-    tokenMintKeys: poolState.tokenMintKeys,
-    tokenDecimalEqualizers: poolState.tokenDecimalEqualizers,
-    tokenKeys: poolState.tokenKeys,
-    governanceKey: poolState.governanceKey,
-    governanceFeeKey: poolState.governanceFeeKey,
-    preparedGovernanceKey: poolState.preparedGovernanceKey,
-    governanceTransitionTs: poolState.governanceTransitionTs,
     preparedLpFee: poolState.preparedLpFee.value,
     preparedGovernanceFee: poolState.preparedGovernanceFee.value,
-    feeTransitionTs: poolState.feeTransitionTs,
-    previousDepth: poolState.previousDepth,
   };
 };

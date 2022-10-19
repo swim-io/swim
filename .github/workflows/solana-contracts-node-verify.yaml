@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - "packages/solana-contracts/src/**"
-      - "packages/solana-contracts/scipts/**/*.ts"
+      - "packages/solana-contracts/scripts/**/*.ts"
       - ".github/workflows/solana-contracts-node-verify.yaml"
       - "yarn.lock"
   push:

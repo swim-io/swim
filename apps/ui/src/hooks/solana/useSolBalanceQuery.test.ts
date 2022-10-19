@@ -35,8 +35,6 @@ describe("useSolBalanceQuery", () => {
       connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => 999,
-        onAccountChange: jest.fn(),
-        removeAccountChangeListener: jest.fn(async () => {}),
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
@@ -54,8 +52,6 @@ describe("useSolBalanceQuery", () => {
       connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => 123 * LAMPORTS_PER_SOL,
-        onAccountChange: jest.fn(),
-        removeAccountChangeListener: jest.fn(async () => {}),
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
@@ -75,8 +71,6 @@ describe("useSolBalanceQuery", () => {
         getBalance: async () => {
           throw new Error("Something went wrong");
         },
-        onAccountChange: jest.fn(),
-        removeAccountChangeListener: jest.fn(async () => {}),
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>

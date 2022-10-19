@@ -1,30 +1,22 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
-import {
-  CHAIN_ID_SOLANA,
-  toChainName,
-  tryNativeToHexString,
-  tryUint8ArrayToNative,
-} from "@certusone/wormhole-sdk";
+import { CHAIN_ID_SOLANA, toChainName, tryNativeToHexString, tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
 import { BN, web3 } from "@project-serum/anchor";
 // eslint-disable-next-line import/order
 import * as byteify from "byteify";
 
 // import { toBigNumberHex } from "./utils";
-
 import type { BigNumberish } from "ethers";
 import { BigNumber } from "ethers";
 // import { PostVaaMethod } from "./types";
 import keccak256 from "keccak256";
-
+import type { ParsedPostedMessage, ParsedVaa } from "./wormholeUtils";
 import {
-  WORMHOLE_TOKEN_BRIDGE,
   formatParsedVaa,
   formatPostedMessage,
   parsePostedMessage,
   parseVaa,
-  // signAndEncodeVaa,
+  WORMHOLE_TOKEN_BRIDGE,
 } from "./wormholeUtils";
-import type { ParsedPostedMessage, ParsedVaa } from "./wormholeUtils";
 
 export function toBigNumberHex(value: BigNumberish, numBytes: number): string {
   return BigNumber.from(value)
@@ -285,7 +277,6 @@ export const deriveMessagePda = async (
   signedVaa: Buffer,
   programId: web3.PublicKey,
 ) => {
-  const hash = hashVaa(signedVaa);
   // const hexHash = await getSignedVAAHash(signedVaa);
   // const hash2 = Buffer.from(hexToUint8Array(hexHash));
   // console.info(`
@@ -302,6 +293,7 @@ export const deriveMessagePda = async (
   // 	hash2: ${hash2}
   // 	hash2BufferHex: ${Buffer.from(hash2).toString("hex")}
   // `);
+  const hash = hashVaa(signedVaa);
   return await web3.PublicKey.findProgramAddress(
     [Buffer.from("PostedVAA"), hash],
     programId,
@@ -402,6 +394,7 @@ export async function parseTokenTransferPostedMessage(
   postedMessage: Buffer,
 ): Promise<ParsedTokenTransferPostedMessage> {
   const parsed = await parsePostedMessage(postedMessage);
+  console.info(`finished parsePostedMessage`);
   const data = parsed.data;
   const tokenTransfer = parseTokenTransfer(data);
   return {
@@ -673,3 +666,4 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 // 		);
 // 	}
 // }
+

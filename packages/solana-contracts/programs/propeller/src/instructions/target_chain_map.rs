@@ -14,11 +14,11 @@ pub struct CreateTargetChainMap<'info> {
     #[account(
     seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
-    has_one = admin,
+    has_one = governance_key @ PropellerError::InvalidPropellerGovernanceKey,
     )]
     pub propeller: Account<'info, Propeller>,
 
-    pub admin: Signer<'info>,
+    pub governance_key: Signer<'info>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -42,10 +42,11 @@ pub struct TargetChainMap {
     pub bump: u8,
     pub target_chain: u16,
     pub target_address: [u8; 32],
+    pub is_paused: bool,
 }
 
 impl TargetChainMap {
-    pub const LEN: usize = 1 + 2 + 32;
+    pub const LEN: usize = 1 + 2 + 32 + 1;
 }
 
 pub fn handle_create_target_chain_map(
@@ -58,6 +59,7 @@ pub fn handle_create_target_chain_map(
     target_chain_map.bump = *bump;
     target_chain_map.target_chain = target_chain;
     target_chain_map.target_address = target_address;
+    target_chain_map.is_paused = false;
     Ok(())
 }
 
@@ -66,11 +68,11 @@ pub struct UpdateTargetChainMap<'info> {
     #[account(
     seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
-    has_one = admin,
+    has_one = governance_key @ PropellerError::InvalidPropellerGovernanceKey,
     )]
-    pub propeller: Account<'info, Propeller>,
+    pub propeller: Box<Account<'info, Propeller>>,
 
-    pub admin: Signer<'info>,
+    pub governance_key: Signer<'info>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -84,7 +86,6 @@ pub struct UpdateTargetChainMap<'info> {
     bump = target_chain_map.bump,
     )]
     pub target_chain_map: Account<'info, TargetChainMap>,
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handle_update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routing_contract: [u8; 32]) -> Result<()> {
@@ -95,4 +96,36 @@ pub fn handle_update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routin
 
 pub fn handle_close_target_chain_map() -> Result<()> {
     todo!()
+}
+
+#[derive(Accounts)]
+pub struct TargetChainMapSetPaused<'info> {
+    #[account(
+    seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
+    bump = propeller.bump,
+    has_one = pause_key @ PropellerError::InvalidPropellerPauseKey,
+    )]
+    pub propeller: Account<'info, Propeller>,
+
+    pub pause_key: Signer<'info>,
+
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    #[account(
+    mut,
+    seeds = [
+    b"propeller".as_ref(),
+    propeller.key().as_ref(),
+    &target_chain_map.target_chain.to_le_bytes()
+    ],
+    bump = target_chain_map.bump,
+    )]
+    pub target_chain_map: Account<'info, TargetChainMap>,
+}
+
+pub fn handle_target_chain_map_set_paused(ctx: Context<TargetChainMapSetPaused>, is_paused: bool) -> Result<()> {
+    let target_chain_map = &mut ctx.accounts.target_chain_map;
+    target_chain_map.is_paused = is_paused;
+    Ok(())
 }

@@ -68,59 +68,59 @@ pub fn convert_fees_to_swim_usd_atomic<'info>(
     res = fee_in_swim_usd_atomic;
     Ok(res)
 }
-
-pub fn convert_fees_to_swim_usd_atomic_2<'info>(
-    fee_in_lamports: u64,
-    propeller: &Propeller,
-    marginal_price_pool_lp_mint: &Account<'info, Mint>,
-    marginal_prices: [BorshDecimal; TOKEN_COUNT],
-    marginal_price_pool: &TwoPool,
-    aggregator: &AccountLoader<AggregatorAccountData>,
-    max_staleness: i64,
-) -> Result<u64> {
-    // let propeller = &self.propeller;
-
-    msg!("fee_in_lamports: {:?}", fee_in_lamports);
-    let marginal_price_pool_lp_mint = &marginal_price_pool_lp_mint;
-
-    let swim_usd_mint_key = propeller.swim_usd_mint;
-    // let marginal_prices = get_marginal_prices(cpi_ctx)?;
-
-    let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
-        &marginal_price_pool,
-        &marginal_prices,
-        &propeller,
-        &marginal_price_pool_lp_mint.key(),
-    )?;
-
-    msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
-
-    let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-    msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-
-    let mut res = 0u64;
-
-    let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&aggregator, max_staleness)?;
-    let fee_in_swim_usd_decimal = lamports_intermediate_token_price
-        .checked_mul(fee_in_lamports_decimal)
-        .and_then(|x| x.checked_div(intermediate_token_price_decimal))
-        .ok_or(PropellerError::IntegerOverflow)?;
-
-    let swim_usd_decimals =
-        get_swim_usd_mint_decimals(&swim_usd_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
-    msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
-
-    let ten_pow_decimals =
-        Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-    let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
-        .checked_mul(ten_pow_decimals)
-        .and_then(|v| v.to_u64())
-        .ok_or(PropellerError::ConversionError)?;
-
-    msg!("fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}", fee_in_swim_usd_decimal, fee_in_swim_usd_atomic);
-    res = fee_in_swim_usd_atomic;
-    Ok(res)
-}
+//
+// pub fn convert_fees_to_swim_usd_atomic_2<'info>(
+//     fee_in_lamports: u64,
+//     propeller: &Propeller,
+//     marginal_price_pool_lp_mint: &Account<'info, Mint>,
+//     marginal_prices: [BorshDecimal; TOKEN_COUNT],
+//     marginal_price_pool: &TwoPool,
+//     aggregator: &AccountLoader<AggregatorAccountData>,
+//     max_staleness: i64,
+// ) -> Result<u64> {
+//     // let propeller = &self.propeller;
+//
+//     msg!("fee_in_lamports: {:?}", fee_in_lamports);
+//     let marginal_price_pool_lp_mint = &marginal_price_pool_lp_mint;
+//
+//     let swim_usd_mint_key = propeller.swim_usd_mint;
+//     // let marginal_prices = get_marginal_prices(cpi_ctx)?;
+//
+//     let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
+//         &marginal_price_pool,
+//         &marginal_prices,
+//         &propeller,
+//         &marginal_price_pool_lp_mint.key(),
+//     )?;
+//
+//     msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
+//
+//     let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
+//     msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
+//
+//     let mut res = 0u64;
+//
+//     let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&aggregator, max_staleness)?;
+//     let fee_in_swim_usd_decimal = lamports_intermediate_token_price
+//         .checked_mul(fee_in_lamports_decimal)
+//         .and_then(|x| x.checked_div(intermediate_token_price_decimal))
+//         .ok_or(PropellerError::IntegerOverflow)?;
+//
+//     let swim_usd_decimals =
+//         get_swim_usd_mint_decimals(&swim_usd_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
+//     msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
+//
+//     let ten_pow_decimals =
+//         Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+//     let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
+//         .checked_mul(ten_pow_decimals)
+//         .and_then(|v| v.to_u64())
+//         .ok_or(PropellerError::ConversionError)?;
+//
+//     msg!("fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}", fee_in_swim_usd_decimal, fee_in_swim_usd_atomic);
+//     res = fee_in_swim_usd_atomic;
+//     Ok(res)
+// }
 
 pub fn get_swim_usd_mint_decimals(
     swim_usd_mint: &Pubkey,
@@ -169,12 +169,8 @@ pub fn get_lamports_intermediate_token_price(
     max_staleness: i64,
 ) -> Result<Decimal> {
     let feed = aggregator.load()?;
-    feed.check_staleness(
-        Clock::get().unwrap().unix_timestamp,
-        // 300
-        i64::MAX,
-    )
-    .map_err(|_| error!(PropellerError::StaleFeed))?;
+    feed.check_staleness(Clock::get().unwrap().unix_timestamp, max_staleness)
+        .map_err(|_| error!(PropellerError::StaleFeed))?;
 
     // check feed does not exceed max_confidence_interval
     // if let Some(max_confidence_interval) = params.max_confidence_interval {
@@ -190,4 +186,8 @@ pub fn get_lamports_intermediate_token_price(
     msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
     Ok(lamports_usd_price)
     // check whether the feed has been updated in the last 300 seconds
+}
+
+pub fn get_memo_as_utf8(memo: [u8; 16]) -> Result<String> {
+    String::from_utf8(hex::encode(memo).into_bytes()).map_err(|_| error!(PropellerError::InvalidMemo))
 }

@@ -1,6 +1,6 @@
 use {
     crate::{amp_factor::AmpFactor, pool_fee::PoolFee, TOKEN_COUNT},
-    anchor_lang::{prelude::*},
+    anchor_lang::prelude::*,
 };
 
 // use pool_lib::amp_factor::AmpFactor;
@@ -45,54 +45,42 @@ impl TwoPool {
     //     self.lp_mint_key != Pubkey::default()
     // }
 
-    pub const LEN: usize =
-        // nonce
-        1 +
-      // is_paused
-      1 +
-      // amp_factor
-      AmpFactor::LEN +
-      // lp_fee
-      PoolFee::LEN +
-      // governance_fee
-      PoolFee::LEN +
-      // lp_mint_key
-      32 +
-      // lp_decimal_equalizer
-      1 +
-      // token_mint_keys
-      32 * TOKEN_COUNT +
-      // token_decimal_equalizers
-      TOKEN_COUNT +
-      // token_keys
-      32 * TOKEN_COUNT +
-      // pause_key
-      32 +
-      // governance_key
-      32 +
-      // governance_fee_key
-      32 +
-      // prepared_governance_key
-      32 +
-      // governance_transition_ts
-      8 +
-      // prepared_lp_fee
-      PoolFee::LEN +
-      // prepared_governance_fee
-      PoolFee::LEN +
-      // fee_transition_ts
-      8 +
-      // previous_depth
-      16;
+    pub const LEN: usize = 1 +  // nonce
+        1 +                     // is_paused
+        AmpFactor::LEN +        // amp_factor
+        PoolFee::LEN +          // lp_fee
+        PoolFee::LEN +          // governance_fee
+        32 +                    // lp_mint_key
+        1 +                     // lp_decimal_equalizer
+        (32 * TOKEN_COUNT) +    // token_mint_keys
+        TOKEN_COUNT +           // token_decimal_equalizers
+        (32 * TOKEN_COUNT) +    // token_keys
+        32 +                    // pause_key
+        32 +                    // governance_key
+        32 +                    // governance_fee_key
+        32 +                    // prepared_governance_key
+        8 +                     // governance_transition_ts
+        PoolFee::LEN +          // prepared_lp_fee
+        PoolFee::LEN +          // prepared_governance_fee
+        8 +                     // fee_transition_ts
+        16; // previous_depth
 
     // Note: this is a workaround for to be able to declare the seeds in the
     //  governance ix. anchor does not handle using `pool.token_mint_keys[0]` directly
     //  in the #[account] macro
-    pub fn get_token_mint_0(&self) -> Result<Pubkey> {
-        Ok(self.token_mint_keys[0])
+    pub fn get_token_mint_0(&self) -> Pubkey {
+        self.token_mint_keys[0]
     }
 
-    pub fn get_token_mint_1(&self) -> Result<Pubkey> {
-        Ok(self.token_mint_keys[1])
+    pub fn get_token_mint_1(&self) -> Pubkey {
+        self.token_mint_keys[1]
+    }
+
+    pub fn new_get_token_mint_0(&self) -> Pubkey {
+        self.token_mint_keys[0]
+    }
+
+    pub fn new_get_token_mint_1(&self) -> Pubkey {
+        self.token_mint_keys[1]
     }
 }

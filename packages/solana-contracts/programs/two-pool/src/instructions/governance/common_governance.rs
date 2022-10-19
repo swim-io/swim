@@ -9,8 +9,8 @@ pub struct CommonGovernance<'info> {
     mut,
     seeds = [
     b"two_pool".as_ref(),
-    pool.get_token_mint_0().unwrap().as_ref(),
-    pool.get_token_mint_1().unwrap().as_ref(),
+    pool.get_token_mint_0().as_ref(),
+    pool.get_token_mint_1().as_ref(),
     pool.lp_mint_key.as_ref(),
     ],
     bump = pool.bump

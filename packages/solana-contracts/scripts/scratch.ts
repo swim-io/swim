@@ -31,7 +31,7 @@ import {
   getPropellerPda,
   getPropellerRedeemerPda,
   getTargetChainIdMapAddr,
-  getTargetTokenIdMapAddr,
+  getToTokenNumberMapAddr,
 } from "../src/__tests__/propeller/propellerUtils";
 import type { Propeller } from "../src/artifacts/propeller";
 import type { TwoPool } from "../src/artifacts/two_pool";
@@ -143,8 +143,8 @@ async function setupPropeller() {
   // );
   // await fetchAndPrintIdMap(
   //   targetTokenIdMaps,
-  //   async (addr) => await propellerProgram.account.tokenIdMap.fetch(addr),
-  //   // propellerProgram.account.tokenIdMap.fetch,
+  //   async (addr) => await propellerProgram.account.tokenNumberMap.fetch(addr),
+  //   // propellerProgram.account.tokenNumberMap.fetch,
   //   "targetTokenId",
   // );
   //
@@ -258,7 +258,7 @@ async function initializePropellerState(): Promise<PropellerInfo> {
         propeller: propellerAddr,
         propellerRedeemerEscrow,
         propellerFeeVault,
-        admin: propellerAdmin.publicKey,
+        governanceKey: propellerAdmin.publicKey,
         swimUsdMint,
         payer: payer.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID,

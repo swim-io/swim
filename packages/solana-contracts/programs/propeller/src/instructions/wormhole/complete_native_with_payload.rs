@@ -1,13 +1,12 @@
-use crate::Fees;
+use crate::{get_memo_as_utf8, validate_marginal_prices_pool_accounts, wormhole::SwimPayload, Fees};
 use {
     crate::{
         constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*,
         get_lamports_intermediate_token_price, get_marginal_price_decimal, get_marginal_prices, get_message_data,
         get_swim_usd_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
-        instructions::fee_tracker::FeeTracker, state::SwimPayloadMessage, validate_marginal_prices_pool_accounts,
-        Address, ChainID, ClaimData, MessageData, PayloadTransferWithPayload, PostVAAData, PostedMessageData,
-        PostedVAAData, Propeller, RawSwimPayload, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
-        TOKEN_COUNT,
+        instructions::fee_tracker::FeeTracker, state::SwimPayloadMessage, Address, ChainID, ClaimData, MessageData,
+        PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, TokenBridge, Wormhole,
+        COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, TOKEN_COUNT,
     },
     anchor_lang::{
         prelude::*,
@@ -35,6 +34,7 @@ pub struct CompleteNativeWithPayload<'info> {
     bump = propeller.bump,
     has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
     has_one = fee_vault @ PropellerError::InvalidFeeVault,
+    constraint = !propeller.is_paused @ PropellerError::IsPaused,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
 
@@ -45,7 +45,7 @@ pub struct CompleteNativeWithPayload<'info> {
     mut,
     seeds = [ b"config".as_ref() ],
     bump,
-    seeds::program = propeller.token_bridge().unwrap()
+    seeds::program = token_bridge.key(),
     )]
     /// CHECK: Token Bridge Config
     pub token_bridge_config: UncheckedAccount<'info>,
@@ -77,14 +77,20 @@ pub struct CompleteNativeWithPayload<'info> {
     //   bump,
     //   seeds::program = propeller.wormhole()?
     // )]
+    // pub message: Box<Account<'info, PostedMessageData>>,
     #[account(
     mut,
-    owner = propeller.wormhole()?,
+    owner = wormhole.key(),
     )]
     /// CHECK: wormhole message account. seeds = [ "PostedVAA", hash(vaa) ], seeds::program = token_bridge
     pub message: UncheckedAccount<'info>,
-    // pub message: Account<'info, PostedMessageData>,
-    // pub message: Account<'info, PostedVAAData>,
+    // Note: this works only without the Box wrapper
+    // error[E0277]: the trait bound `Box<anchor_lang::prelude::Account<'_, wormhole::PostedVAAData>>: AsRef<anchor_lang::prelude::AccountInfo<'_>>` is not satisfied
+    //
+    // #[derive(Accounts)]
+    //          ^^^^^^^^ the trait `AsRef<anchor_lang::prelude::AccountInfo<'_>>` is not implemented for `Box<anchor_lang::prelude::Account<'_, wormhole::PostedVAAData>>`
+
+    // pub message: Box<Account<'info, PostedVAAData>>,
     /// seeds = [
     ///   vaa.emitter_address, vaa.emitter_chain, vaa.sequence
     ///],
@@ -131,26 +137,8 @@ pub struct CompleteNativeWithPayload<'info> {
     )]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
+    /// this is only used in `propellerCompleteNativeWithPayload`.
     pub fee_vault: Box<Account<'info, TokenAccount>>,
-    // #[account(mut)]
-    // /// this is "to_fees"
-    // /// TODO: type as TokenAccount?
-    // /// CHECK: recipient of fees for executing complete transfer (e.g. relayer)
-    // pub fee_recipient: AccountInfo<'info>,
-    #[account(mut)]
-    /// CHECK: wormhole_custody_account: seeds = [mint], seeds::program = token_bridge
-    pub custody: UncheckedAccount<'info>,
-    // #[account(address = propeller.token_bridge_mint)]
-    pub swim_usd_mint: Box<Account<'info, Mint>>,
-    /// CHECK: custody_signer_account: seeds = [b"custody_signer"], seeds::program = token_bridge
-    pub custody_signer: UncheckedAccount<'info>,
-
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-
-    pub wormhole: Program<'info, Wormhole>,
-    pub token_program: Program<'info, Token>,
-    pub token_bridge: Program<'info, TokenBridge>,
 
     #[account(
     init,
@@ -163,7 +151,35 @@ pub struct CompleteNativeWithPayload<'info> {
     bump,
     space = 8 + SwimPayloadMessage::LEN,
     )]
-    pub swim_payload_message: Account<'info, SwimPayloadMessage>,
+    pub swim_payload_message: Box<Account<'info, SwimPayloadMessage>>,
+    // #[account(mut)]
+    // /// this is "to_fees"
+    // /// TODO: type as TokenAccount?
+    // /// CHECK: recipient of fees for executing complete transfer (e.g. relayer)
+    // pub fee_recipient: AccountInfo<'info>,
+    #[account(
+        mut,
+        seeds = [swim_usd_mint.key().as_ref()],
+        seeds::program = token_bridge.key(),
+        bump,
+    )]
+    /// CHECK: wormhole_custody_account: seeds = [mint], seeds::program = token_bridge
+    pub custody: UncheckedAccount<'info>,
+    // #[account(address = propeller.token_bridge_mint)]
+    pub swim_usd_mint: Box<Account<'info, Mint>>,
+    #[account(
+        seeds = [b"custody_signer".as_ref()],
+        seeds::program = token_bridge.key(),
+        bump,
+    )]
+    /// CHECK: custody_signer_account: seeds = [b"custody_signer"], seeds::program = token_bridge
+    pub custody_signer: UncheckedAccount<'info>,
+
+    pub wormhole: Program<'info, Wormhole>,
+    pub token_program: Program<'info, Token>,
+    pub token_bridge: Program<'info, TokenBridge>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 impl<'info> CompleteNativeWithPayload<'info> {
@@ -242,20 +258,45 @@ impl<'info> CompleteNativeWithPayload<'info> {
     }
 
     pub fn get_transfer_with_payload(&self, message_data: &MessageData) -> Result<PayloadTransferWithPayload> {
-        // let message_account_info = &self.message.to_account_info();
-        // let message_data = get_message_data(message_account_info)?;
-        // msg!("message_data: {:?}", message_data);
-        let transfer_with_payload = deserialize_message_payload(&mut message_data.payload.as_slice())?;
+        // let transfer_with_payload = deserialize_message_payload(&mut message_data.payload.as_slice())?;
+        let transfer_with_payload = PayloadTransferWithPayload::deserialize(&mut message_data.payload.as_slice())?;
         msg!("transfer_with_payload: {:?}", transfer_with_payload);
         Ok(transfer_with_payload)
     }
+
+    // fn write_swim_payload_message(
+    //     &mut self,
+    //     bump: u8,
+    //     message_data: &MessageData,
+    //     transfer_amount: u64,
+    //     swim_payload: &RawSwimPayload,
+    // ) -> Result<()> {
+    //     let swim_payload_message = &mut self.swim_payload_message;
+    //     swim_payload_message.bump = bump;
+    //     swim_payload_message.claim = self.claim.key();
+    //     // swim_payload_message.claim_bump = *ctx.bumps.get("claim").unwrap();
+    //     swim_payload_message.swim_payload_message_payer = self.payer.key();
+    //     // swim_payload_message.wh_message_bump = *ctx.bumps.get("message").unwrap();
+    //     swim_payload_message.vaa_emitter_address = message_data.emitter_address;
+    //     swim_payload_message.vaa_emitter_chain = message_data.emitter_chain;
+    //     swim_payload_message.vaa_sequence = message_data.sequence;
+    //     swim_payload_message.transfer_amount = transfer_amount;
+    //     swim_payload_message.swim_payload_version = swim_payload.swim_payload_version;
+    //     swim_payload_message.max_fee = swim_payload.max_fee;
+    //     swim_payload_message.target_token_id = swim_payload.target_token_id;
+    //     swim_payload_message.owner = Pubkey::new_from_array(swim_payload.owner);
+    //     swim_payload_message.memo = swim_payload.memo;
+    //     swim_payload_message.propeller_enabled = swim_payload.propeller_enabled;
+    //     swim_payload_message.gas_kickstart = swim_payload.gas_kickstart;
+    //     Ok(())
+    // }
 
     fn write_swim_payload_message(
         &mut self,
         bump: u8,
         message_data: &MessageData,
         transfer_amount: u64,
-        swim_payload: &RawSwimPayload,
+        swim_payload: &SwimPayload,
     ) -> Result<()> {
         let swim_payload_message = &mut self.swim_payload_message;
         swim_payload_message.bump = bump;
@@ -268,11 +309,12 @@ impl<'info> CompleteNativeWithPayload<'info> {
         swim_payload_message.vaa_sequence = message_data.sequence;
         swim_payload_message.transfer_amount = transfer_amount;
         swim_payload_message.swim_payload_version = swim_payload.swim_payload_version;
-        swim_payload_message.target_token_id = swim_payload.target_token_id;
         swim_payload_message.owner = Pubkey::new_from_array(swim_payload.owner);
-        swim_payload_message.memo = swim_payload.memo;
-        swim_payload_message.propeller_enabled = swim_payload.propeller_enabled;
-        swim_payload_message.gas_kickstart = swim_payload.gas_kickstart;
+        swim_payload_message.propeller_enabled = swim_payload.propeller_enabled.unwrap_or_default();
+        swim_payload_message.gas_kickstart = swim_payload.gas_kickstart.unwrap_or_default();
+        swim_payload_message.max_fee = swim_payload.max_fee.unwrap_or_default();
+        swim_payload_message.target_token_id = swim_payload.target_token_id.unwrap_or_default();
+        swim_payload_message.memo = swim_payload.memo.unwrap_or_default();
         Ok(())
     }
 }
@@ -369,11 +411,8 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
         let propeller = &ctx.accounts.complete_native_with_payload.propeller;
         validate_marginal_prices_pool_accounts(
             &propeller,
-            &ctx.accounts.marginal_price_pool.key(),
-            &[
-                ctx.accounts.marginal_price_pool_token_0_account.mint,
-                ctx.accounts.marginal_price_pool_token_1_account.mint,
-            ],
+            &ctx.accounts.marginal_price_pool,
+            &[&ctx.accounts.marginal_price_pool_token_0_account, &ctx.accounts.marginal_price_pool_token_1_account],
         )?;
         require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_vault.key(), propeller.fee_vault);
         require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_vault.owner, propeller.key());
@@ -383,9 +422,8 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
 
     fn log_memo(&self, memo: [u8; 16]) -> Result<()> {
         if memo != [0u8; 16] {
-            let memo_ix =
-                spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
-            invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+            let memo_ix = spl_memo::build_memo(get_memo_as_utf8(memo)?.as_ref(), &[]);
+            invoke(&memo_ix, &[self.memo.to_account_info()])?;
         }
         Ok(())
     }
@@ -520,7 +558,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     msg!("transfer_with_payload: {:?}", transfer_with_payload);
     let swim_payload = &transfer_with_payload.payload;
     msg!("swim_payload: {:?}", swim_payload);
-    require!(swim_payload.propeller_enabled, PropellerError::NotPropellerEnabled);
+    require!(swim_payload.propeller_enabled.unwrap_or_default(), PropellerError::NotPropellerEnabled);
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.complete_native_with_payload.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     msg!("claim_data: {:?}", claim_data);
@@ -564,7 +602,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         transfer_amount,
         &swim_payload,
     )?;
-    let memo = swim_payload.memo;
+    let memo = swim_payload.memo.unwrap_or_default();
 
     ctx.accounts.log_memo(memo)?;
     Ok(())

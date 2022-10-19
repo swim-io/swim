@@ -1,31 +1,15 @@
-use anchor_lang::solana_program::{
-    borsh::try_from_slice_unchecked,
-    instruction::Instruction,
-    program::{get_return_data, invoke, invoke_signed},
-    program_option::COption,
-    system_instruction::transfer,
-    sysvar::SysvarId, // sysvar::Sysvar::to_account_info,
-};
 use {
     crate::two_pool_cpi::{
-        add::*, remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_input::*,
-        swap_exact_output::*,
+        add::*,
+        swap_exact_input::*,
+        // remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_output::*,
     },
     anchor_lang::{prelude::*, solana_program},
     // crate::two_pool_cpi::*,
-    anchor_spl::{
-        associated_token::{get_associated_token_address, AssociatedToken},
-        token::{Mint, Token, TokenAccount},
-        *,
-    },
     constants::TOKEN_COUNT,
     fees::*,
-    // error::PropellerError,
-    // instructions::*,
-    solana_program::clock::Epoch,
     state::*,
     token_bridge::*,
-    two_pool::instructions::AddParams,
     wormhole::*,
 };
 
@@ -52,27 +36,60 @@ pub mod propeller {
         handle_initialize(ctx, params)
     }
 
+    pub fn set_paused(ctx: Context<SetPaused>, paused: bool) -> Result<()> {
+        handle_set_paused(ctx, paused)
+    }
+
+    pub fn change_pause_key(ctx: Context<ChangePauseKey>) -> Result<()> {
+        handle_change_pause_key(ctx)
+    }
+
+    pub fn prepare_governance_transition(ctx: Context<Governance>) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn enact_governance_transition(ctx: Context<Governance>) -> Result<()> {
+        Ok(())
+    }
+
     #[inline(never)]
     #[access_control(
-      CreateTokenIdMap::accounts(
+    CreateTokenNumberMap::accounts(
         &ctx,
-        target_token_index,
+        to_token_number,
         pool,
         pool_token_index,
         pool_token_mint,
-        pool_ix,
+        to_token_step,
     ))]
-    pub fn create_token_id_map(
-        ctx: Context<CreateTokenIdMap>,
-        target_token_index: u16,
+    pub fn create_token_number_map(
+        ctx: Context<CreateTokenNumberMap>,
+        to_token_number: u16,
         pool: Pubkey,
         pool_token_index: u8,
         pool_token_mint: Pubkey,
-        pool_ix: PoolInstruction,
+        to_token_step: ToTokenStep,
     ) -> Result<()> {
-        handle_create_token_id_map(ctx, target_token_index, pool, pool_token_index, pool_token_mint, pool_ix)
+        handle_create_token_number_map(ctx, to_token_number, pool, pool_token_index, pool_token_mint, to_token_step)
     }
 
+    #[inline(never)]
+    #[access_control(UpdateTokenNumberMap::accounts(&ctx, &pool_token_index, &pool_token_mint, &to_token_step))]
+    pub fn update_token_number_map(
+        ctx: Context<UpdateTokenNumberMap>,
+        to_token_number: u16,
+        pool_token_index: u8,
+        pool_token_mint: Pubkey,
+        to_token_step: ToTokenStep,
+    ) -> Result<()> {
+        handle_update_token_number_map(ctx, to_token_number, pool_token_index, pool_token_mint, to_token_step)
+    }
+
+    pub fn close_token_number_map(ctx: Context<CloseTokenNumberMap>, to_token_number: u16) -> Result<()> {
+        handle_close_token_number_map(ctx, to_token_number)
+    }
+
+    /** Target Chain Map **/
     pub fn create_target_chain_map(
         ctx: Context<CreateTargetChainMap>,
         target_chain: u16,
@@ -81,8 +98,13 @@ pub mod propeller {
         handle_create_target_chain_map(ctx, target_chain, target_address)
     }
 
+    //TODO: pass in `target_chain` as input parameter for these?
     pub fn update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routing_contract: [u8; 32]) -> Result<()> {
         handle_update_target_chain_map(ctx, routing_contract)
+    }
+
+    pub fn target_chain_map_set_paused(ctx: Context<TargetChainMapSetPaused>, is_paused: bool) -> Result<()> {
+        handle_target_chain_map_set_paused(ctx, is_paused)
     }
 
     #[inline(never)]
@@ -280,21 +302,22 @@ pub mod propeller {
     #[access_control(TransferNativeWithPayload::accounts(&ctx))]
     pub fn cross_chain_transfer_native_with_payload(
         ctx: Context<TransferNativeWithPayload>,
+        nonce: u32,
         amount: u64,
         target_chain: u16,
         owner: Vec<u8>,
     ) -> Result<()> {
-        handle_cross_chain_transfer_native_with_payload(ctx, amount, target_chain, owner)
+        handle_cross_chain_transfer_native_with_payload(ctx, nonce, amount, target_chain, owner)
     }
 
     #[inline(never)]
     #[access_control(TransferNativeWithPayload::accounts(&ctx))]
     pub fn propeller_transfer_native_with_payload(
         ctx: Context<TransferNativeWithPayload>,
+        nonce: u32,
         amount: u64,
         target_chain: u16,
         owner: Vec<u8>,
-        // propeller_enabled: bool,
         gas_kickstart: bool,
         max_fee: u64,
         target_token_id: u16,
@@ -302,6 +325,7 @@ pub mod propeller {
     ) -> Result<()> {
         handle_propeller_transfer_native_with_payload(
             ctx,
+            nonce,
             amount,
             target_chain,
             owner,
@@ -322,10 +346,10 @@ pub mod propeller {
     #[access_control(ProcessSwimPayload::accounts(&ctx))]
     pub fn process_swim_payload(
         ctx: Context<ProcessSwimPayload>,
-        target_token_id: u16,
+        to_token_number: u16,
         min_output_amount: u64,
     ) -> Result<u64> {
-        handle_process_swim_payload(ctx, target_token_id, min_output_amount)
+        handle_process_swim_payload(ctx, to_token_number, min_output_amount)
     }
 
     #[inline(never)]
@@ -344,12 +368,12 @@ pub mod propeller {
     /// Note: passing in target_token_id here due to PDA seed derivation.
     /// for propeller_process_swim_payload, require_eq!(target_token_id, propeller_message.target_token_id);
     #[inline(never)]
-    #[access_control(PropellerProcessSwimPayload::accounts(&ctx, target_token_id))]
+    #[access_control(PropellerProcessSwimPayload::accounts(&ctx, to_token_number))]
     pub fn propeller_process_swim_payload(
         ctx: Context<PropellerProcessSwimPayload>,
-        target_token_id: u16,
+        to_token_number: u16,
     ) -> Result<u64> {
-        handle_propeller_process_swim_payload(ctx, target_token_id)
+        handle_propeller_process_swim_payload(ctx, to_token_number)
     }
 
     /// This ix is used if a propeller engine detects (off-chain) that the target_token_id is not valid

@@ -17,6 +17,7 @@ pub struct SwapExactInput<'info> {
     ],
     bump = propeller.bump,
     has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
+    constraint = !propeller.is_paused @ PropellerError::IsPaused,
     )]
     pub propeller: Account<'info, Propeller>,
     #[account(

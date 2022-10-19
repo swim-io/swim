@@ -1,10 +1,7 @@
 use {
     crate::{common, error::*, gen_pool_signer_seeds, invariant::Invariant, TwoPool, TOKEN_COUNT},
     anchor_lang::prelude::*,
-    anchor_spl::{
-        associated_token::get_associated_token_address,
-        token::{self, Mint, Token, TokenAccount},
-    },
+    anchor_spl::token::{self, Mint, Token, TokenAccount},
     std::iter::zip,
 };
 
@@ -21,9 +18,6 @@ pub struct Add<'info> {
     bump = pool.bump,
     )]
     pub pool: Box<Account<'info, TwoPool>>,
-    // /// TODO: could be removed if initialized with pool_v2
-    // /// CHECK: checked in CPI
-    // pub pool_auth: UncheckedAccount<'info>,
     #[account(
     mut,
     address = pool.token_keys[0] @ PoolError::PoolTokenAccountExpected,
@@ -45,7 +39,6 @@ pub struct Add<'info> {
     address = pool.governance_fee_key @  PoolError::InvalidGovernanceFeeAccount,
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
-    ///CHECK: checked in CPI
     pub user_transfer_authority: Signer<'info>,
     #[account(
     mut,

@@ -1,7 +1,7 @@
 use {
     crate::{
-        constants::CURRENT_SWIM_PAYLOAD_VERSION, error::*, target_chain_map::TargetChainMap, Propeller, RawSwimPayload,
-        TokenBridge, Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        constants::CURRENT_SWIM_PAYLOAD_VERSION, error::*, target_chain_map::TargetChainMap, wormhole::SwimPayload,
+        Address, Propeller, TokenBridge, Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -18,18 +18,22 @@ use {
         associated_token::get_associated_token_address,
         token::{self, Mint, Token, TokenAccount},
     },
-    byteorder::{BigEndian, WriteBytesExt},
-    std::{io::Write, str},
+    byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
+    std::{
+        io::{Cursor, ErrorKind, Read, Write},
+        str,
+    },
 };
 
 #[derive(Accounts)]
-#[instruction(amount: u64, target_chain: u16)]
+#[instruction(nonce: u32, amount: u64, target_chain: u16)]
 pub struct TransferNativeWithPayload<'info> {
     #[account(
     mut,
     seeds = [b"propeller".as_ref(), swim_usd_mint.key().as_ref()],
     bump = propeller.bump,
     has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
+    constraint = !propeller.is_paused @ PropellerError::IsPaused,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
 
@@ -187,7 +191,8 @@ pub struct TransferNativeWithPayload<'info> {
     propeller.key().as_ref(),
     &target_chain.to_le_bytes()
     ],
-    bump = target_chain_map.bump
+    bump = target_chain_map.bump,
+    constraint = !target_chain_map.is_paused @ PropellerError::TargetChainIsPaused,
     )]
     pub target_chain_map: Account<'info, TargetChainMap>,
     pub system_program: Program<'info, System>,
@@ -268,12 +273,6 @@ impl<'info> TransferNativeWithPayload<'info> {
         )?;
         Ok(())
     }
-
-    pub fn increment_nonce(&mut self) -> Result<()> {
-        let propeller = &mut self.propeller;
-        propeller.nonce = propeller.nonce.wrapping_add(1);
-        Ok(())
-    }
 }
 
 #[derive(AnchorDeserialize, AnchorSerialize, Default)]
@@ -289,6 +288,7 @@ pub struct TransferWithPayloadData {
 
 pub fn handle_cross_chain_transfer_native_with_payload(
     ctx: Context<TransferNativeWithPayload>,
+    nonce: u32,
     amount: u64,
     target_chain: u16,
     owner: Vec<u8>,
@@ -314,43 +314,11 @@ pub fn handle_cross_chain_transfer_native_with_payload(
 
     let swim_payload =
         SwimPayload { swim_payload_version: CURRENT_SWIM_PAYLOAD_VERSION, owner: owner_addr, ..Default::default() };
-    // let swim_payload = RawSwimPayload {
-    //     //TODO: this should come from the propeller or global constant?
-    //     swim_payload_version: CURRENT_SWIM_PAYLOAD_VERSION,
-    //     owner: owner_addr,
-    //     propeller_enabled,
-    //     gas_kickstart,
-    //     max_fee,
-    //     target_token_id,
-    //     // min_output_amount: U256::from(0u64),
-    //     memo: memo.clone().try_into().unwrap(),
-    // };
     msg!("transfer_native_with_payload swim_payload: {:?}", swim_payload);
-    // let mut swim_payload_bytes = [0u8; 32];
-    // let swim_payload_bytes = swim_payload.try_to_vec()?;
-    // anchor_lang::prelude::msg!("swim_payload_bytes {:?}", swim_payload_bytes);
-    //
-    // Note:
-    //     1. nonce is created randomly client side using this
-    //         export function createNonce() {
-    //              const nonceConst = Math.random() * 100000;
-    //              const nonceBuffer = Buffer.alloc(4);
-    //              nonceBuffer.writeUInt32LE(nonceConst, 0);
-    //              return nonceBuffer;
-    //          }
-    //     2. fee is relayerFee
-    //         a. removed in payload3
-    //     3. targetAddress is Uint8Array (on wasm.rs its Vec<u8>
-    //         a. WH client has special handling/formatting for this
-    //             see - wh-sdk/src/utils/array.ts tryNativeToUint8Array(address: string, chain: ChainId | ChainName)
-    //     4. targetChain is number/u16
-    //     5. payload is Vec<u8>
-    // ok
 
     let target_address = ctx.accounts.target_chain_map.target_address.clone();
     let transfer_with_payload_data = TransferWithPayloadData {
-        //TODO: update this.
-        nonce: ctx.accounts.propeller.nonce,
+        nonce,
         amount,
         target_address,
         target_chain,
@@ -369,12 +337,12 @@ pub fn handle_cross_chain_transfer_native_with_payload(
         },
     ))?;
     msg!("Revoked authority_signer approval");
-    ctx.accounts.increment_nonce()?;
     Ok(())
 }
 
 pub fn handle_propeller_transfer_native_with_payload(
     ctx: Context<TransferNativeWithPayload>,
+    nonce: u32,
     amount: u64,
     target_chain: u16,
     owner: Vec<u8>,
@@ -398,8 +366,6 @@ pub fn handle_propeller_transfer_native_with_payload(
         amount,
     )?;
     msg!("finished approve for authority_signer");
-    // let mut target_token_addr = [0u8; 32];
-    // target_token_addr.copy_from_slice(target_token.as_slice());
     let mut owner_addr = [0u8; 32];
     owner_addr.copy_from_slice(owner.as_slice());
 
@@ -416,7 +382,7 @@ pub fn handle_propeller_transfer_native_with_payload(
 
     let target_address = ctx.accounts.target_chain_map.target_address.clone();
     let transfer_with_payload_data = TransferWithPayloadData {
-        nonce: ctx.accounts.propeller.nonce,
+        nonce,
         amount,
         target_address,
         target_chain,
@@ -436,41 +402,5 @@ pub fn handle_propeller_transfer_native_with_payload(
         },
     ))?;
     msg!("Revoked authority_signer approval");
-    ctx.accounts.increment_nonce()?;
     Ok(())
-}
-
-#[derive(PartialEq, Debug, Clone, AnchorDeserialize, Default)]
-pub struct SwimPayload {
-    //TOOD: should this come from propeller?
-    //required
-    pub swim_payload_version: u8,
-    pub owner: [u8; 32],
-    // required for all propellerEngines
-    pub propeller_enabled: Option<bool>,
-    pub gas_kickstart: Option<bool>,
-    pub max_fee: Option<u64>,
-    pub target_token_id: Option<u16>,
-    // required for SWIM propellerEngine
-    pub memo: Option<[u8; 16]>,
-}
-
-impl AnchorSerialize for SwimPayload {
-    fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        // Payload ID
-        // writer.write_u8(self.swim_payload_version)?;
-        writer.write_u8(self.swim_payload_version)?;
-        writer.write_all(&self.owner)?;
-
-        if self.propeller_enabled.is_some() {
-            writer.write_u8(1)?;
-            writer.write_u8(self.gas_kickstart.unwrap() as u8)?;
-            writer.write_u64::<BigEndian>(self.max_fee.unwrap())?;
-            writer.write_u16::<BigEndian>(self.target_token_id.unwrap())?;
-            if self.memo.is_some() {
-                writer.write_all(&self.memo.unwrap())?;
-            }
-        }
-        Ok(())
-    }
 }

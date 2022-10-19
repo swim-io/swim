@@ -13,7 +13,7 @@ pub struct Add<'info> {
     #[account(
     seeds = [ b"propeller".as_ref(), lp_mint.key().as_ref()],
     bump = propeller.bump,
-
+    constraint = !propeller.is_paused @ PropellerError::IsPaused,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     #[account(
@@ -139,6 +139,7 @@ pub fn handle_cross_chain_add(
             lp_mint: ctx.accounts.lp_mint.to_account_info(),
             governance_fee: ctx.accounts.governance_fee.to_account_info(),
             user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
+
             user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
             user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
             user_lp_token_account: ctx.accounts.user_lp_token_account.to_account_info(),

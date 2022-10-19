@@ -9,15 +9,15 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export const commitment = "confirmed" as web3.Commitment;
 export const rpcCommitmentConfig = {
-  commitment: "confirmed",
+  commitment,
   preflightCommitment: commitment,
   skipPreflight: true,
 };
 
-const ethTokenBridgeStr = "0x0290FB167208Af455bB137780163b7B7a9a10C16";
+export const ethTokenBridgeNativeStr = "0x0290FB167208Af455bB137780163b7B7a9a10C16";
 //0000000000000000000000000290fb167208af455bb137780163b7b7a9a10c16
 const ethTokenBridgeEthHexStr = tryNativeToHexString(
-  ethTokenBridgeStr,
+  ethTokenBridgeNativeStr,
   CHAIN_ID_ETH,
 );
 //ethTokenBridge.toString() = gibberish
@@ -52,9 +52,9 @@ export const routingContracts = [
   { targetChainId: CHAIN_ID_ETH, address: ethRoutingContract },
   { targetChainId: CHAIN_ID_BSC, address: ethRoutingContract },
 ];
+//TODO: figure out actual value for compute budget
 export const setComputeUnitLimitIx: web3.TransactionInstruction =
   web3.ComputeBudgetProgram.setComputeUnitLimit({
-    // units: 420690,
     units: 900000,
   });
 export const SWIM_USD_TO_TOKEN_NUMBER = 0;
@@ -64,11 +64,11 @@ export const marginalPricePoolTokenIndex = 0;
 export const swimPayloadVersion = 1;
 export const usdcPoolTokenIndex = 0;
 export const usdtPoolTokenIndex = 1;
-export const metapoolMint1OutputTokenIndex = 3;
+export const metapoolMint1ToTokenNumber = 3;
 export const metapoolMint1PoolTokenIndex = 1; // const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
 
-export const gasKickstartAmount: BN = new BN(0.75 * LAMPORTS_PER_SOL);
-export const initAtaFee: BN = new BN(0.25 * LAMPORTS_PER_SOL);
+export const gasKickstartAmount: BN = new BN(0.25 * LAMPORTS_PER_SOL);
+export const initAtaFee: BN = new BN(0.0025 * LAMPORTS_PER_SOL);
 export const secpVerifyInitFee: BN = new BN(0.000045 * LAMPORTS_PER_SOL);
 export const secpVerifyFee: BN = new BN(0.00004 * LAMPORTS_PER_SOL);
 export const postVaaFee: BN = new BN(0.00005 * LAMPORTS_PER_SOL);

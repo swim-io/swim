@@ -1,0 +1,18 @@
+name: "Verify solana-contracts node build"
+on:
+  pull_request:
+    paths:
+      - "packages/solana-contracts/src/**"
+      - "packages/solana-contracts/scipts/**/*.ts"
+      - ".github/workflows/solana-contracts-node-verify.yaml"
+      - "yarn.lock"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./packages/solana-contracts
+      skipTest: true

@@ -27,7 +27,7 @@ const findEvmInteractionId = (
   return dataHex.slice(-INTERACTION_ID_LENGTH_HEX);
 };
 
-export const fetchEvmTxForInteractionId = async (
+export const fetchEvmTxsForInteractionId = async (
   interactionId: string,
   queryClient: QueryClient,
   env: Env,

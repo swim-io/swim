@@ -12,7 +12,7 @@ import {
   SOLANA_TXS_FOR_RELOAD_INTERACTION,
 } from "../../fixtures/tx/useReloadInteractionStateMutationFixture";
 import {
-  fetchEvmTxForInteractionId,
+  fetchEvmTxsForInteractionId,
   fetchSolanaTxsForInteractionId,
 } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
@@ -44,7 +44,7 @@ jest.mock("../../models", () => ({
   fetchSolanaTxsForInteractionId: jest.fn(),
   EvmConnection: jest.fn(),
 }));
-const fetchEvmTxForInteractionIdMock = mockOf(fetchEvmTxForInteractionId);
+const fetchEvmTxsForInteractionIdMock = mockOf(fetchEvmTxsForInteractionId);
 const fetchSolanaTxsForInteractionIdMock = mockOf(
   fetchSolanaTxsForInteractionId,
 );
@@ -90,7 +90,7 @@ describe("useReloadInteractionStateMutation", () => {
     useEvmWalletMock.mockReturnValue({
       address: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
     });
-    fetchEvmTxForInteractionIdMock.mockReturnValue(
+    fetchEvmTxsForInteractionIdMock.mockReturnValue(
       Promise.resolve(EVM_TXS_FOR_RELOAD_INTERACTION),
     );
     fetchSolanaTxsForInteractionIdMock.mockReturnValue(

@@ -90,7 +90,7 @@ export const useToSolanaTransferMutation = () => {
         splTokenAccounts,
       );
       if (splTokenAccount === null) {
-        throw new Error("Spl token account not found");
+        throw new Error("SPL token account not found");
       }
 
       // Process transfer if transfer txId does not exist

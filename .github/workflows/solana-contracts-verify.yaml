@@ -2,9 +2,8 @@ name: "Verify solana-contracts build"
 on:
   pull_request:
     paths:
-      - "packages/solana-contracts/**"
+      - "packages/solana-contracts/programs/**"
       - ".github/workflows/solana-contracts-verify.yaml"
-      - "yarn.lock"
   push:
     branches:
       - master
@@ -63,15 +62,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --immutable
-
-      - name: Check types
-        run: yarn typecheck
-
-      - name: Check format
-        run: yarn format:check
-
-      - name: Check lint
-        run: yarn lint --max-warnings=0
 
       - name: Build and Test All Programs
         run: yarn run test

@@ -117,7 +117,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           npx --yes wrangler@2 pages publish storybook-static --project-name=ui-storybook --branch=${{ github.head_ref || github.ref_name }} | tee wrangler-output.txt
-          echo "::set-output name=storybook-deployment::$(grep Deployment wrangler-output.txt)"
+          echo "storybook-deployment=$(grep Deployment wrangler-output.txt)" >> $GITHUB_OUTPUT
       - name: Find storybook comment
         uses: peter-evans/find-comment@v2
         if: ${{ github.event_name == 'pull_request' }}

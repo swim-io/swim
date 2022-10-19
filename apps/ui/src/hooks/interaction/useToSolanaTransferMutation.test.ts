@@ -64,7 +64,7 @@ describe("useToSolanaTransferMutation", () => {
       data: [
         {
           mint: new PublicKey("9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr"),
-          address: new PublicKey("TP6DaXSavPoCHKrKb5dcwtAkxM9b4Dwh4isd7fQ8hCb"),
+          address: new PublicKey("9xDYy7dmSEQePAurpoQTW43ubKuKh67PaUwmUwfkcNm"),
         } as TokenAccount,
       ],
     });

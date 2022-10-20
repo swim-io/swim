@@ -16,7 +16,7 @@ export const APTOS_ECOSYSTEM_ID: AptosEcosystemId = "aptos";
 
 export interface AptosPoolConfig extends PoolConfig {
   readonly ecosystemId: AptosEcosystemId;
-  readonly resourceType: Types.MoveStructTag;
+  readonly owner: Types.Address;
 }
 
 export interface AptosChainConfig extends ChainConfig {

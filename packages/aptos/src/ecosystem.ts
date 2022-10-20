@@ -64,12 +64,12 @@ const testnet: AptosChainConfig = {
       isStakingPool: false,
       isStableSwap: true, // TODO is it?
       isLegacyPool: false, // TODO, not legacy, not evm though, do we need a type here?
-      // address is the owner of the resource. All liquidswap pools have the same owner, see https://github.com/pontem-network/liquidswap/blob/5fc2625652c15369d0ffc52f9024c180d6e72fea/Move.toml#L15
+      // address is the type of the resource. All liquidswap pools have the same owner, see https://github.com/pontem-network/liquidswap/blob/5fc2625652c15369d0ffc52f9024c180d6e72fea/Move.toml#L15
       address:
-        "0x5a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948",
-      // resourceType is the identifier of our pool which allows us to query its state
-      resourceType:
         "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::liquidity_pool::LiquidityPool<0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T, 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC, 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated>",
+      // the account that all pools are stored into
+      owner:
+        "0x5a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948",
       feeDecimals: 6, // TODO ? https://github.com/pontem-network/liquidswap/blob/5fc2625652c15369d0ffc52f9024c180d6e72fea/sources/swap/liquidity_pool.move#L70-L74
       lpTokenId: "testnet-aptos-lp-meta-aptos-usdc",
       tokenIds: ["testnet-aptos-usdc", "testnet-swimusd"],

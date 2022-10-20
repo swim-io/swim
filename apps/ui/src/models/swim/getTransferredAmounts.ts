@@ -33,7 +33,7 @@ export const getTransferredAmounts = (
         // Solana-native token
         amount = getAmountTransferredToAccountByMint(
           splTokenAccounts,
-          tx.parsedTx,
+          tx.original,
           mint,
           walletAddress,
         );
@@ -43,7 +43,7 @@ export const getTransferredAmounts = (
         // Wormhole-wrapped token
         amount = getAmountMintedToAccountByMint(
           splTokenAccounts,
-          tx.parsedTx,
+          tx.original,
           mint,
           walletAddress,
         );

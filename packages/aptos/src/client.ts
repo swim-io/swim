@@ -1,4 +1,4 @@
-import type { TokenDetails } from "@swim-io/core";
+import type { TokenDetails, TxGeneratorResult } from "@swim-io/core";
 import { Client } from "@swim-io/core";
 import { atomicToHuman } from "@swim-io/utils";
 import {
@@ -9,7 +9,12 @@ import {
 } from "aptos";
 import Decimal from "decimal.js";
 
-import type { AptosChainConfig, AptosEcosystemId, AptosTx } from "./protocol";
+import type {
+  AptosChainConfig,
+  AptosEcosystemId,
+  AptosTx,
+  AptosTxType,
+} from "./protocol";
 import { APTOS_ECOSYSTEM_ID } from "./protocol";
 import type { AptosWalletAdapter } from "./walletAdapters";
 
@@ -27,6 +32,8 @@ export interface AptosClientOptions {
 export class AptosClient extends Client<
   AptosEcosystemId,
   AptosChainConfig,
+  any,
+  AptosTxType,
   AptosTx,
   AptosWalletAdapter
 > {
@@ -102,11 +109,15 @@ export class AptosClient extends Client<
     throw new Error("Not implemented");
   }
 
-  public initiateWormholeTransfer(): Promise<void> {
+  public generateInitiatePortalTransferTxs(): AsyncGenerator<
+    TxGeneratorResult<any, AptosTx, AptosTxType>
+  > {
     throw new Error("Not implemented");
   }
 
-  public completeWormholeTransfer(): Promise<void> {
+  public generateCompletePortalTransferTxs(): AsyncGenerator<
+    TxGeneratorResult<any, AptosTx, AptosTxType>
+  > {
     throw new Error("Not implemented");
   }
 }

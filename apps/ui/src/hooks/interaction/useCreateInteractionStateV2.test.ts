@@ -10,7 +10,7 @@ import { MOCK_TOKEN_ACCOUNTS, MOCK_WALLETS } from "../../fixtures";
 import { Amount, InteractionType, generateId } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useUserSolanaTokenAccountsQuery } from "../solana";
 
 import { useCreateInteractionStateV2 } from "./useCreateInteractionStateV2";
 
@@ -35,12 +35,14 @@ jest.mock("../crossEcosystem", () => ({
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
-  useSplTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
 }));
 
 // Make typescript happy with jest
 const generateIdMock = mockOf(generateId);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 const useWalletsMock = mockOf(useWallets);
 
 describe("useCreateInteractionStateV2", () => {
@@ -51,7 +53,9 @@ describe("useCreateInteractionStateV2", () => {
       envStore.current.setEnv(Env.Testnet);
     });
     generateIdMock.mockReturnValue("11111111111111111111111111111111");
-    useSplTokenAccountsQueryMock.mockReturnValue({ data: MOCK_TOKEN_ACCOUNTS });
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
+      data: MOCK_TOKEN_ACCOUNTS,
+    });
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
     jest.spyOn(Date, "now").mockImplementation(() => 1657544558283);
   });

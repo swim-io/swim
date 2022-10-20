@@ -47,7 +47,11 @@ export const findOrCreateSplTokenAccount = async ({
   );
   await solanaClient.confirmTx(createSplTokenAccountTxId);
   await sleep(1000); // TODO: Find a better condition
-  await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
+  await queryClient.invalidateQueries([
+    env,
+    "userSolanaTokenAccounts",
+    solanaAddress,
+  ]);
   const tokenAccount = await solanaClient.getTokenAccountWithRetry(
     splTokenMintAddress,
     solanaAddress,

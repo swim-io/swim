@@ -17,9 +17,6 @@ import {
   CHAIN_ID_OASIS,
   CHAIN_ID_OPTIMISM,
   CHAIN_ID_POLYGON,
-  CHAIN_ID_SOLANA,
-  CHAIN_ID_TO_NAME,
-  isEVMChain,
 } from "@certusone/wormhole-sdk";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";

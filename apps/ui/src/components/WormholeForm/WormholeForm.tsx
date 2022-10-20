@@ -1,5 +1,5 @@
-import { ChainId, CHAIN_ID_SOLANA } from "@certusone/wormhole-sdk";
-import { CHAIN_ID_TO_NAME } from "@certusone/wormhole-sdk";
+import type { ChainId } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_SOLANA, CHAIN_ID_TO_NAME } from "@certusone/wormhole-sdk";
 import {
   EuiButton,
   EuiCallOut,
@@ -21,7 +21,8 @@ import { useTranslation } from "react-i18next";
 import type { EcosystemId } from "../../config";
 import { wormholeTokens as rawWormholeTokens } from "../../config";
 import { useNotification } from "../../core/store";
-import { useWormholeErc20BalanceQuery, useWormholeTransfer } from "../../hooks";
+import { useUserSolanaTokenBalance, useWormholeTransfer } from "../../hooks";
+import { useWormholeErc20BalanceQuery } from "../../hooks/wormhole/useWormholeErc20BalanceQuery";
 import { generateId } from "../../models";
 import type {
   TxResult,
@@ -37,7 +38,6 @@ import WormholeChainSelect from "./WormholeChainSelect";
 import { WormholeTokenSelect } from "./WormholeTokenSelect";
 
 import "./WormholeForm.scss";
-import { useSplUserBalance } from "hooks/solana/useSplUserBalance";
 
 const getDetailsByChainId = (
   token: WormholeToken,
@@ -84,13 +84,13 @@ export const WormholeForm = (): ReactElement => {
 
   const sourceDetails = getDetailsByChainId(currentToken, sourceChainId);
   const targetDetails = getDetailsByChainId(currentToken, targetChainId);
-  const splBalance = useSplUserBalance(
+  const splBalance = useUserSolanaTokenBalance(
     sourceChainId === CHAIN_ID_SOLANA ? sourceDetails : null,
     { enabled: sourceChainId === CHAIN_ID_SOLANA },
   );
   const { data: erc20Balance = null } =
     useWormholeErc20BalanceQuery(sourceDetails);
-  const balance = splBalance ?? erc20Balance ?? null;
+  const balance = splBalance ?? erc20Balance;
 
   const handleTxResult = (txResult: TxResult): void => {
     setTxResults((previousResults) => [...previousResults, txResult]);
@@ -140,28 +140,36 @@ export const WormholeForm = (): ReactElement => {
     handleSubmit();
   };
 
-  const checkAmountErrors = useCallback(() => {
-    let errors: readonly string[] = [];
-    if (inputAmount.isNeg()) {
-      errors = [...errors, t("general.amount_of_tokens_invalid")];
-    } else if (inputAmount.lte(0)) {
-      errors = [...errors, t("general.amount_of_tokens_less_than_one")];
-    } else if (currentToken && new Decimal(inputAmount).gt(balance ?? 0)) {
-      errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
-    } else {
-      errors = [];
-    }
-    setAmountErrors(errors);
-  }, [inputAmount, balance]);
+  const checkAmountErrors = useCallback(
+    (value: Decimal) => {
+      let errors: readonly string[] = [];
+      if (value.isNeg()) {
+        errors = [...errors, t("general.amount_of_tokens_invalid")];
+      } else if (value.lte(0)) {
+        errors = [...errors, t("general.amount_of_tokens_less_than_one")];
+      } else if (!balance || new Decimal(value).gt(balance)) {
+        errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
+      } else {
+        errors = [];
+      }
+      setAmountErrors(errors);
+    },
+    [balance, t],
+  );
 
-  const handleTransferAmountChange = useCallback((value: string): void => {
-    if (value === "") {
-      setInputAmount(new Decimal(0));
-    } else {
-      setInputAmount(new Decimal(value));
-    }
-    checkAmountErrors();
-  }, []);
+  const handleTransferAmountChange = useCallback(
+    (value: string): void => {
+      let newValue = new Decimal(0);
+      if (value === "") {
+        setInputAmount(new Decimal(0));
+      } else {
+        setInputAmount(new Decimal(value));
+        newValue = new Decimal(value);
+      }
+      checkAmountErrors(newValue);
+    },
+    [checkAmountErrors],
+  );
 
   return (
     <EuiForm
@@ -197,7 +205,7 @@ export const WormholeForm = (): ReactElement => {
             labelType="legend"
             labelAppend={
               <EuiText size="s">
-                {`${t("swap_form.user_balance")} ${balance ?? "-"}`}
+                {`${t("swap_form.user_balance")} ${balance?.toString() || "-"}`}
               </EuiText>
             }
             isInvalid={amountErrors.length > 0}
@@ -209,6 +217,7 @@ export const WormholeForm = (): ReactElement => {
               step={10 ** -currentToken.nativeDetails.decimals}
               min={0}
               onValueChange={handleTransferAmountChange}
+              onBlur={() => checkAmountErrors(inputAmount)}
               isInvalid={amountErrors.length > 0}
             />
           </EuiFormRow>
@@ -252,7 +261,7 @@ export const WormholeForm = (): ReactElement => {
         fill
         isLoading={isLoading}
         isDisabled={
-          isLoading || inputAmount.isZero() || amountErrors?.length > 0
+          isLoading || inputAmount.isZero() || amountErrors.length > 0
         }
       >
         {isLoading

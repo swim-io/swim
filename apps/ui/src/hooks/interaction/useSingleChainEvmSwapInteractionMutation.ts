@@ -66,27 +66,24 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         fromTokenSpec,
         fromTokenData.ecosystemId,
       );
-      const approvalResponses = await client.approveTokenAmount({
+      const approveTxGenerator = client.generateErc20ApproveTxs({
         atomicAmount: inputAmountAtomicString,
         wallet,
         mintAddress: tokenDetails.address,
         spenderAddress: routingContractAddress,
       });
 
-      await Promise.all(
-        approvalResponses.map(async (response) => {
-          const tx = await client.getTx(response);
-          updateInteractionState(interaction.id, (draft) => {
-            if (
-              draft.interactionType !== InteractionType.SwapV2 ||
-              draft.swapType !== SwapType.SingleChainEvm
-            ) {
-              throw new Error("Interaction type mismatch");
-            }
-            draft.approvalTxIds.push(tx.id);
-          });
-        }),
-      );
+      for await (const result of approveTxGenerator) {
+        updateInteractionState(interaction.id, (draft) => {
+          if (
+            draft.interactionType !== InteractionType.SwapV2 ||
+            draft.swapType !== SwapType.SingleChainEvm
+          ) {
+            throw new Error("Interaction type mismatch");
+          }
+          draft.approvalTxIds.push(result.tx.id);
+        });
+      }
 
       const routingContract = Routing__factory.connect(
         routingContractAddress,

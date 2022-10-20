@@ -8,7 +8,7 @@ import type { EcosystemId } from "../../config";
 import { ECOSYSTEM_IDS } from "../../config";
 import { useAptosGasBalanceQuery } from "../aptos";
 import { useEvmUserNativeBalanceQuery } from "../evm";
-import { useSolBalanceQuery } from "../solana";
+import { useSolanaGasBalanceQuery } from "../solana";
 
 export const useUserNativeBalances = (
   /** only fetch the ecosystems specified to reduce network calls */
@@ -17,7 +17,7 @@ export const useUserNativeBalances = (
   const { data: aptBalance = new Decimal(0) } = useAptosGasBalanceQuery({
     enabled: ecosystemIds.includes(APTOS_ECOSYSTEM_ID),
   });
-  const { data: solBalance = new Decimal(0) } = useSolBalanceQuery({
+  const { data: solBalance = new Decimal(0) } = useSolanaGasBalanceQuery({
     enabled: ecosystemIds.includes(SOLANA_ECOSYSTEM_ID),
   });
   const { data: ethBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(

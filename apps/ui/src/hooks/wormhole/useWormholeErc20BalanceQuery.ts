@@ -1,11 +1,13 @@
-import Decimal from "decimal.js";
-import { WormholeTokenDetails } from "models";
-import { useQuery, UseQueryResult } from "react-query";
-import { ERC20__factory } from "@swim-io/evm-contracts";
-import { useEvmWallet } from "hooks";
 import { isEVMChain } from "@certusone/wormhole-sdk";
-import { EVM_NETWORKS } from "config";
+import { ERC20__factory } from "@swim-io/evm-contracts";
+import Decimal from "decimal.js";
 import { utils as ethersUtils } from "ethers";
+import type { WormholeTokenDetails } from "models";
+import type { UseQueryResult } from "react-query";
+import { useQuery } from "react-query";
+
+import { useEvmWallet } from "..";
+import { EVM_NETWORKS } from "../../config";
 
 export const useWormholeErc20BalanceQuery = ({
   chainId,

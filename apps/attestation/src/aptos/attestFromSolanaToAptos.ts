@@ -119,7 +119,7 @@ async function main() {
   console.info(`Fetched signed VAA. vaaBytes: ${vaaBytes.toString()}`);
 
   const sender = new AptosAccount(
-    new Uint8Array(Buffer.from(aptosPrivateKey, "hex")),
+    new Uint8Array(Buffer.from(aptosPrivateKey.replace(/^0x/, ""), "hex")),
   );
 
   const client = new AptosClient(aptosRpcUrl);

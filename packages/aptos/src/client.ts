@@ -1,10 +1,11 @@
 import type { TokenDetails } from "@swim-io/core";
 import { Client } from "@swim-io/core";
 import { atomicToHuman } from "@swim-io/utils";
+import type { Types } from "aptos";
 import {
   APTOS_COIN,
+  ApiError,
   AptosAccount,
-  CoinClient,
   AptosClient as SDKAptosClient,
 } from "aptos";
 import Decimal from "decimal.js";
@@ -22,6 +23,11 @@ interface GasScheduleV2 {
 
 export interface AptosClientOptions {
   readonly endpoint: string;
+}
+
+interface CoinResource {
+  readonly data: { readonly coin: { readonly value: string } };
+  readonly type: Types.MoveStructTag;
 }
 
 export class AptosClient extends Client<
@@ -54,14 +60,22 @@ export class AptosClient extends Client<
     tokenDetails: TokenDetails,
   ): Promise<Decimal> {
     const account = new AptosAccount(undefined, address);
-    const coinClient = new CoinClient(this.sdkClient);
-    const balance = await coinClient.checkBalance(account, {
-      coinType: tokenDetails.address,
-    });
-    return atomicToHuman(
-      new Decimal(balance.toString()),
-      tokenDetails.decimals,
-    );
+
+    try {
+      const resource = (await this.sdkClient.getAccountResource(
+        account.address(),
+        tokenDetails.address,
+      )) as CoinResource;
+      return atomicToHuman(
+        new Decimal(resource.data.coin.value),
+        tokenDetails.decimals,
+      );
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404)
+        return new Decimal("0");
+
+      throw error;
+    }
   }
 
   public async getGasPrice(): Promise<Decimal> {

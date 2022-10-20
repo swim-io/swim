@@ -1,5 +1,26 @@
-import type { ChainId } from "@certusone/wormhole-sdk";
-import { CHAIN_ID_TO_NAME } from "@certusone/wormhole-sdk";
+import type { ChainId, EVMChainId } from "@certusone/wormhole-sdk";
+import {
+  CHAIN_ID_ACALA,
+  CHAIN_ID_ARBITRUM,
+  CHAIN_ID_AURORA,
+  CHAIN_ID_AVAX,
+  CHAIN_ID_BSC,
+  CHAIN_ID_CELO,
+  CHAIN_ID_ETH,
+  CHAIN_ID_ETHEREUM_ROPSTEN,
+  CHAIN_ID_FANTOM,
+  CHAIN_ID_GNOSIS,
+  CHAIN_ID_KARURA,
+  CHAIN_ID_KLAYTN,
+  CHAIN_ID_MOONBEAM,
+  CHAIN_ID_NEON,
+  CHAIN_ID_OASIS,
+  CHAIN_ID_OPTIMISM,
+  CHAIN_ID_POLYGON,
+  CHAIN_ID_SOLANA,
+  CHAIN_ID_TO_NAME,
+  isEVMChain,
+} from "@certusone/wormhole-sdk";
 import type { EuiSelectOption } from "@elastic/eui";
 import {
   EuiButton,
@@ -8,17 +29,42 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { ERC20__factory } from "@swim-io/evm-contracts";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
+import { utils as ethersUtils } from "ethers";
 import type { ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import type { UseQueryResult } from "react-query";
+import { useQuery } from "react-query";
 
 import { wormholeTokens as rawWormholeTokens } from "../config";
-import { useWormholeTransfer } from "../hooks";
+import { useEvmWallet, useSplUserBalance, useWormholeTransfer } from "../hooks";
 import type { TxResult, WormholeToken, WormholeTokenDetails } from "../models";
 import { generateId } from "../models";
 
 import { EuiFieldIntlNumber } from "./EuiFieldIntlNumber";
+
+const EVM_NETWORKS: ReadonlyRecord<EVMChainId, number> = {
+  [CHAIN_ID_ETH]: 1,
+  [CHAIN_ID_BSC]: 56,
+  [CHAIN_ID_POLYGON]: 137,
+  [CHAIN_ID_AVAX]: 43114,
+  [CHAIN_ID_OASIS]: 42262,
+  [CHAIN_ID_AURORA]: 1313161554,
+  [CHAIN_ID_FANTOM]: 250,
+  [CHAIN_ID_KARURA]: 686,
+  [CHAIN_ID_ACALA]: 787,
+  [CHAIN_ID_KLAYTN]: 8217,
+  [CHAIN_ID_CELO]: 42220,
+  [CHAIN_ID_MOONBEAM]: 1284,
+  [CHAIN_ID_NEON]: 245022934,
+  [CHAIN_ID_ARBITRUM]: 42161,
+  [CHAIN_ID_OPTIMISM]: 10,
+  [CHAIN_ID_GNOSIS]: 100,
+  [CHAIN_ID_ETHEREUM_ROPSTEN]: 3,
+};
 
 const getDetailsByChainId = (
   token: WormholeToken,
@@ -28,6 +74,37 @@ const getDetailsByChainId = (
     [token.nativeDetails, ...token.wrappedDetails],
     (details) => details.chainId === chainId,
   );
+
+const useErc20BalanceQuery = ({
+  chainId,
+  address,
+  decimals,
+}: WormholeTokenDetails): UseQueryResult<Decimal | null, Error> => {
+  const { wallet } = useEvmWallet();
+
+  return useQuery<Decimal | null, Error>(
+    ["wormhole", "erc20Balance", chainId, address, wallet?.address],
+    async () => {
+      if (!wallet?.address || !isEVMChain(chainId)) {
+        return null;
+      }
+      const evmNetwork = EVM_NETWORKS[chainId];
+      await wallet.switchNetwork(evmNetwork);
+      const { provider } = wallet.signer ?? {};
+      if (!provider) {
+        return null;
+      }
+      const erc20Contract = ERC20__factory.connect(address, provider);
+      try {
+        const balance = await erc20Contract.balanceOf(wallet.address);
+        return new Decimal(ethersUtils.formatUnits(balance, decimals));
+      } catch {
+        return new Decimal(0);
+      }
+    },
+    {},
+  );
+};
 
 export const WormholeForm = (): ReactElement => {
   const wormholeTokens = rawWormholeTokens as readonly WormholeToken[];
@@ -78,6 +155,14 @@ export const WormholeForm = (): ReactElement => {
 
   const { mutateAsync: transfer, isLoading } = useWormholeTransfer();
 
+  const sourceDetails = getDetailsByChainId(currentToken, sourceChainId);
+  const targetDetails = getDetailsByChainId(currentToken, targetChainId);
+  const splBalance = useSplUserBalance(
+    sourceChainId === CHAIN_ID_SOLANA ? sourceDetails : null,
+    { enabled: sourceChainId === CHAIN_ID_SOLANA },
+  );
+  const { data: erc20Balance = null } = useErc20BalanceQuery(sourceDetails);
+
   const handleTxResult = (txResult: TxResult): void => {
     setTxResults((previousResults) => [...previousResults, txResult]);
   };
@@ -85,8 +170,6 @@ export const WormholeForm = (): ReactElement => {
   const handleSubmit = () => {
     (async (): Promise<void> => {
       setTxResults([]);
-      const sourceDetails = getDetailsByChainId(currentToken, sourceChainId);
-      const targetDetails = getDetailsByChainId(currentToken, targetChainId);
       await transfer({
         interactionId: generateId(),
         value: inputAmount,
@@ -137,6 +220,10 @@ export const WormholeForm = (): ReactElement => {
         <tr>
           <th>{"Source Chain"}</th>
           <td>{sourceChainId}</td>
+        </tr>
+        <tr>
+          <th>{"Balance"}</th>
+          <td>{splBalance?.toString() ?? erc20Balance?.toString() ?? "-"}</td>
         </tr>
         <tr>
           <th>{"Target Chain"}</th>

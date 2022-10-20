@@ -5,7 +5,6 @@ import {
 import { getTokenDetails } from "@swim-io/core";
 import {
   EVM_ECOSYSTEMS,
-  EvmTxType,
   evmAddressToWormhole,
   isEvmEcosystemId,
 } from "@swim-io/evm";

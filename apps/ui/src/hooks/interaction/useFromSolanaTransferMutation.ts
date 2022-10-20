@@ -1,10 +1,8 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import { EvmTxType } from "@swim-io/evm";
 import type { SolanaClient, SolanaTx, TokenAccount } from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
-  SolanaTxType,
   findTokenAccountForMint,
   parseSequenceFromLogSolana,
 } from "@swim-io/solana";

@@ -1,4 +1,4 @@
-import { EvmTxType, isEvmEcosystemId } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
 import { Pool__factory } from "@swim-io/evm-contracts";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";

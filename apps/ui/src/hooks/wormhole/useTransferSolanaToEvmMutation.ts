@@ -1,6 +1,7 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
 import { isEvmEcosystemId } from "@swim-io/evm";
+import type { SolanaTx } from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
   parseSequenceFromLogSolana,
@@ -74,7 +75,7 @@ export const useTransferSolanaToEvmMutation = () => {
       }
 
       const auxiliarySigner = Keypair.generate();
-      const transferSplTokenTxId = await solanaClient.initiateWormholeTransfer({
+      const solanaTxGenerator = solanaClient.generateInitiatePortalTransferTxs({
         atomicAmount: humanToAtomic(value, sourceDetails.decimals).toString(),
         interactionId,
         sourceAddress: sourceDetails.address,
@@ -87,13 +88,20 @@ export const useTransferSolanaToEvmMutation = () => {
           nativeDetails,
         ),
       });
-      onTxResult({
-        chainId: sourceDetails.chainId,
-        txId: transferSplTokenTxId,
-      });
 
-      const solanaTx = await solanaClient.getTx(transferSplTokenTxId);
-      const sequence = parseSequenceFromLogSolana(solanaTx.parsedTx);
+      let solanaTx: SolanaTx | null = null;
+      for await (const result of solanaTxGenerator) {
+        solanaTx = result.tx;
+        onTxResult({
+          chainId: sourceDetails.chainId,
+          txId: result.tx.id,
+        });
+      }
+      if (solanaTx === null) {
+        throw new Error("Missing Solana transaction");
+      }
+
+      const sequence = parseSequenceFromLogSolana(solanaTx.original);
       const emitterAddress = await getEmitterAddressSolana(
         solanaChain.wormhole.portal,
       );
@@ -108,21 +116,18 @@ export const useTransferSolanaToEvmMutation = () => {
         retries,
       );
       await evmWallet.switchNetwork(evmChain.chainId);
-      const redeemResponse = await evmClient.completeWormholeTransfer({
+      const evmTxGenerator = evmClient.generateCompletePortalTransferTxs({
         interactionId,
         vaa,
         wallet: evmWallet,
       });
-      if (redeemResponse === null) {
-        throw new Error(
-          `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
-        );
+
+      for await (const result of evmTxGenerator) {
+        onTxResult({
+          chainId: targetDetails.chainId,
+          txId: result.tx.id,
+        });
       }
-      const evmTx = await evmClient.getTx(redeemResponse);
-      onTxResult({
-        chainId: targetDetails.chainId,
-        txId: evmTx.id,
-      });
     },
   );
 };

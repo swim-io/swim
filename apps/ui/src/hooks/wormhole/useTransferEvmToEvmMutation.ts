@@ -2,7 +2,8 @@ import {
   getEmitterAddressEth,
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
-import { isEvmEcosystemId } from "@swim-io/evm";
+import type { EvmTx } from "@swim-io/evm";
+import { EvmTxType, isEvmEcosystemId } from "@swim-io/evm";
 import { findOrThrow, humanToAtomic } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -77,34 +78,35 @@ export const useTransferEvmToEvmMutation = () => {
 
       await evmWallet.switchNetwork(sourceChain.chainId);
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } =
-        await sourceClient.initiateWormholeTransfer({
-          atomicAmount: humanToAtomic(value, sourceDetails.decimals).toString(),
-          interactionId,
-          sourceAddress: sourceDetails.address,
-          targetAddress: formatWormholeAddress(Protocol.Evm, evmWalletAddress),
-          targetChainId: targetDetails.chainId,
-          wallet: evmWallet,
-          wrappedTokenInfo: getWrappedTokenInfoFromNativeDetails(
-            sourceDetails.chainId,
-            nativeDetails,
-          ),
-        });
+      const sourceTxGenerator = sourceClient.generateInitiatePortalTransferTxs({
+        atomicAmount: humanToAtomic(value, sourceDetails.decimals).toString(),
+        interactionId,
+        sourceAddress: sourceDetails.address,
+        targetAddress: formatWormholeAddress(Protocol.Evm, evmWalletAddress),
+        targetChainId: targetDetails.chainId,
+        wallet: evmWallet,
+        wrappedTokenInfo: getWrappedTokenInfoFromNativeDetails(
+          sourceDetails.chainId,
+          nativeDetails,
+        ),
+      });
 
-      approvalResponses.forEach((response) =>
+      let transferTx: EvmTx | null = null;
+      for await (const result of sourceTxGenerator) {
+        if (result.type === EvmTxType.PortalTransferTokens) {
+          transferTx = result.tx;
+        }
         onTxResult({
           chainId: sourceDetails.chainId,
-          txId: response.hash,
-        }),
-      );
+          txId: result.tx.id,
+        });
+      }
 
-      const transferTx = await sourceClient.getTx(transferResponse);
-      onTxResult({
-        chainId: sourceDetails.chainId,
-        txId: transferTx.id,
-      });
+      if (transferTx === null) {
+        throw new Error("Missing source transaction");
+      }
       const sequence = parseSequenceFromLogEth(
-        transferTx.receipt,
+        transferTx.original,
         sourceChain.wormhole.bridge,
       );
       const retries = getWormholeRetries(sourceDetails.chainId);
@@ -119,21 +121,17 @@ export const useTransferEvmToEvmMutation = () => {
       );
 
       await evmWallet.switchNetwork(targetChain.chainId);
-      const redeemResponse = await targetClient.completeWormholeTransfer({
+      const targetTxGenerator = targetClient.generateCompletePortalTransferTxs({
         interactionId,
         vaa,
         wallet: evmWallet,
       });
-      if (redeemResponse === null) {
-        throw new Error(
-          `Transaction not found: (unlock/mint on ${targetEcosystemId})`,
-        );
+      for await (const result of targetTxGenerator) {
+        onTxResult({
+          chainId: targetDetails.chainId,
+          txId: result.tx.id,
+        });
       }
-      const redeemTx = await targetClient.getTx(redeemResponse);
-      onTxResult({
-        chainId: targetDetails.chainId,
-        txId: redeemTx.id,
-      });
     },
   );
 };

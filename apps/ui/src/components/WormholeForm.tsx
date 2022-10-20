@@ -40,7 +40,11 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { wormholeTokens as rawWormholeTokens } from "../config";
-import { useEvmWallet, useSplUserBalance, useWormholeTransfer } from "../hooks";
+import {
+  useEvmWallet,
+  useUserSolanaTokenBalance,
+  useWormholeTransfer,
+} from "../hooks";
 import type { TxResult, WormholeToken, WormholeTokenDetails } from "../models";
 import { generateId } from "../models";
 
@@ -157,7 +161,7 @@ export const WormholeForm = (): ReactElement => {
 
   const sourceDetails = getDetailsByChainId(currentToken, sourceChainId);
   const targetDetails = getDetailsByChainId(currentToken, targetChainId);
-  const splBalance = useSplUserBalance(
+  const splBalance = useUserSolanaTokenBalance(
     sourceChainId === CHAIN_ID_SOLANA ? sourceDetails : null,
     { enabled: sourceChainId === CHAIN_ID_SOLANA },
   );

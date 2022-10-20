@@ -1,4 +1,26 @@
-import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
+import type { ChainId, ChainName, EVMChainId } from "@certusone/wormhole-sdk";
+import {
+  CHAIN_ID_ACALA,
+  CHAIN_ID_ARBITRUM,
+  CHAIN_ID_AURORA,
+  CHAIN_ID_AVAX,
+  CHAIN_ID_BSC,
+  CHAIN_ID_CELO,
+  CHAIN_ID_ETH,
+  CHAIN_ID_ETHEREUM_ROPSTEN,
+  CHAIN_ID_FANTOM,
+  CHAIN_ID_GNOSIS,
+  CHAIN_ID_KARURA,
+  CHAIN_ID_KLAYTN,
+  CHAIN_ID_MOONBEAM,
+  CHAIN_ID_NEON,
+  CHAIN_ID_OASIS,
+  CHAIN_ID_OPTIMISM,
+  CHAIN_ID_POLYGON,
+  CHAIN_ID_SOLANA,
+  CHAIN_ID_TO_NAME,
+  isEVMChain,
+} from "@certusone/wormhole-sdk";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 
@@ -30,6 +52,26 @@ export const getWormholeRetries = (chainId: WormholeChainId): number => {
     default:
       return 300;
   }
+};
+
+export const EVM_NETWORKS: ReadonlyRecord<EVMChainId, number> = {
+  [CHAIN_ID_ETH]: 1,
+  [CHAIN_ID_BSC]: 56,
+  [CHAIN_ID_POLYGON]: 137,
+  [CHAIN_ID_AVAX]: 43114,
+  [CHAIN_ID_OASIS]: 42262,
+  [CHAIN_ID_AURORA]: 1313161554,
+  [CHAIN_ID_FANTOM]: 250,
+  [CHAIN_ID_KARURA]: 686,
+  [CHAIN_ID_ACALA]: 787,
+  [CHAIN_ID_KLAYTN]: 8217,
+  [CHAIN_ID_CELO]: 42220,
+  [CHAIN_ID_MOONBEAM]: 1284,
+  [CHAIN_ID_NEON]: 245022934,
+  [CHAIN_ID_ARBITRUM]: 42161,
+  [CHAIN_ID_OPTIMISM]: 10,
+  [CHAIN_ID_GNOSIS]: 100,
+  [CHAIN_ID_ETHEREUM_ROPSTEN]: 3,
 };
 
 export const enum WormholeEcosystemId {

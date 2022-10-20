@@ -7156,7 +7156,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@workspace:packages/aptos":
+"@swim-io/aptos@workspace:^, @swim-io/aptos@workspace:packages/aptos":
   version: 0.0.0-use.local
   resolution: "@swim-io/aptos@workspace:packages/aptos"
   dependencies:
@@ -7909,7 +7909,7 @@ __metadata:
     "@storybook/manager-webpack4": ^6.5.10
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
-    "@swim-io/aptos": ^0.39.0
+    "@swim-io/aptos": "workspace:^"
     "@swim-io/core": ^0.39.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.39.0
@@ -7917,7 +7917,7 @@ __metadata:
     "@swim-io/pool-math": ^0.39.0
     "@swim-io/solana": ^0.39.0
     "@swim-io/solana-contracts": ^0.39.0
-    "@swim-io/token-projects": ^0.39.0
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.39.0
     "@swim-io/wormhole": ^0.39.0

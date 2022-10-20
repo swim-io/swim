@@ -98,15 +98,13 @@ export const useTransferEvmToEvmMutation = () => {
         }),
       );
 
-      const transferTxReceipt = await sourceClient.getTxReceiptOrThrow(
-        transferResponse,
-      );
+      const transferTx = await sourceClient.getTx(transferResponse);
       onTxResult({
         chainId: sourceDetails.chainId,
-        txId: transferTxReceipt.transactionHash,
+        txId: transferTx.id,
       });
       const sequence = parseSequenceFromLogEth(
-        transferTxReceipt,
+        transferTx.receipt,
         sourceChain.wormhole.bridge,
       );
       const retries = getWormholeRetries(sourceDetails.chainId);
@@ -131,10 +129,10 @@ export const useTransferEvmToEvmMutation = () => {
           `Transaction not found: (unlock/mint on ${targetEcosystemId})`,
         );
       }
-      const evmReceipt = await targetClient.getTxReceiptOrThrow(redeemResponse);
+      const redeemTx = await targetClient.getTx(redeemResponse);
       onTxResult({
         chainId: targetDetails.chainId,
-        txId: evmReceipt.transactionHash,
+        txId: redeemTx.id,
       });
     },
   );

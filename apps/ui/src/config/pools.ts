@@ -1,4 +1,5 @@
 import type { AptosEcosystemId } from "@swim-io/aptos";
+import { APTOS_ECOSYSTEM_ID, aptos } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaEcosystemId } from "@swim-io/solana";
@@ -536,6 +537,15 @@ export const TESTNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     lpToken: "testnet-acala-lp-ausd",
     tokens: ["testnet-swimusd", "testnet-acala-ausd"],
   },
+  ...aptos.chains[Env.Testnet].pools.map((pool) => ({
+    isDisabled:
+      !isEcosystemEnabled(APTOS_ECOSYSTEM_ID) || !isPoolRestructureEnabled(),
+    ecosystem: pool.ecosystemId,
+    tokens: pool.tokenIds,
+    lpToken: pool.lpTokenId,
+    isLegacyPool: pool.isLegacyPool ?? false,
+    ...pool,
+  })),
 ];
 
 export const TESTNET_POOLS: readonly PoolSpec[] = [

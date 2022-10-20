@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID, aptos } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import type {
   TokenConfig as CoreTokenConfig,
@@ -585,6 +586,69 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
+const TESTNET_SWIMUSD_WRAPPED_DETAILS_ARRAY: readonly (readonly [
+  EcosystemId,
+  TokenDetails,
+])[] = [
+  [APTOS_ECOSYSTEM_ID, aptos.chains[Env.Testnet].swimUsdDetails],
+  [
+    EvmEcosystemId.Acala,
+    {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Aurora,
+    {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Avalanche,
+    {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Bnb,
+    {
+      address: "0x4c15919a4354b4416e7afcb9a27a118bc45818c0", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Ethereum,
+    {
+      address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Fantom,
+    {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Karura,
+    {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 6,
+    },
+  ],
+  [
+    EvmEcosystemId.Polygon,
+    {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 6,
+    },
+  ],
+];
+
 export const TESTNET_SWIMUSD: TokenConfig = {
   isDisabled: !isPoolRestructureEnabled(),
   id: "testnet-swimusd",
@@ -594,64 +658,7 @@ export const TESTNET_SWIMUSD: TokenConfig = {
     address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C", // TODO: Update
     decimals: 6,
   },
-  wrappedDetails: new Map([
-    [
-      EvmEcosystemId.Acala,
-      {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Aurora,
-      {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Avalanche,
-      {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Bnb,
-      {
-        address: "0x4c15919a4354b4416e7afcb9a27a118bc45818c0", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Ethereum,
-      {
-        address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Fantom,
-      {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Karura,
-      {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 6,
-      },
-    ],
-    [
-      EvmEcosystemId.Polygon,
-      {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 6,
-      },
-    ],
-  ]),
+  wrappedDetails: new Map(TESTNET_SWIMUSD_WRAPPED_DETAILS_ARRAY),
 };
 
 export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
@@ -767,6 +774,13 @@ export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     },
     wrappedDetails: EMPTY_MAP,
   },
+  ...aptos.chains[Env.Testnet].tokens.map((token) => ({
+    isDisabled:
+      !isEcosystemEnabled(APTOS_ECOSYSTEM_ID) || !isPoolRestructureEnabled(),
+    nativeEcosystemId: APTOS_ECOSYSTEM_ID,
+    ...token,
+    wrappedDetails: EMPTY_MAP,
+  })),
 ];
 
 export const TESTNET_TOKENS: readonly TokenConfig[] = [

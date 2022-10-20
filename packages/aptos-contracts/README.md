@@ -11,7 +11,7 @@ Copy [Aptos testnet account](https://start.1password.com/open/i?a=PO5QNP2LDRCKVK
 If you need some gas, visit https://aptoslabs.com/testnet-faucet and import the testnet account into a wallet (try Martian).
 
 ```bash
-aptos config show-profiles
+$ aptos config show-profiles
 {
   "Result": {
     "testnet": {
@@ -29,7 +29,7 @@ aptos config show-profiles
 ### Compile sources
 
 ```bash
-aptos move compile --named-addresses account=testnet --save-metadata
+$ aptos move compile --named-addresses account=testnet --save-metadata
 Compiling, may take a little while to download git dependencies...
 INCLUDING DEPENDENCY AptosFramework
 INCLUDING DEPENDENCY AptosStdlib
@@ -45,7 +45,7 @@ BUILDING Swim.io
 ### Publish
 
 ```bash
-aptos move publish --named-addresses account=testnet --profile testnet
+$ aptos move publish --named-addresses account=testnet --profile testnet
 Compiling, may take a little while to download git dependencies...
 INCLUDING DEPENDENCY AptosFramework
 INCLUDING DEPENDENCY AptosStdlib
@@ -72,7 +72,7 @@ yes
 ### Initialize and mint our stablecoin to use for liquidity on the pool later
 
 ```bash
-aptos move run \
+$ aptos move run \
 --function-id testnet::test_coin::initialize \
 --profile testnet
 Do you want to submit a transaction for a range of [118900 - 178300] Octas at a gas unit price of 100 Octas? [yes/no] >
@@ -109,7 +109,7 @@ true
 At the time of this writing it seems there is a [bug](https://github.com/pontem-network/liquidswap/pull/118) on the `liquidswap::curves::Stable` so we will use the `liquidswap::curves::Uncorrelated` curve. See [Stable swaps](https://docs.liquidswap.com/protocol-overview#stable-swaps) for more info.
 
 ```
-aptos move run \
+$ aptos move run \
 --function-id 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::scripts::register_pool \
 --type-args 0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated \
 --profile testnet

@@ -21,6 +21,7 @@ import {
 import { CHAINS } from "../src/config";
 import {
   confirm,
+  deployRegular,
   getLogic,
   getProxy,
   getRoutingProxy,
@@ -268,15 +269,37 @@ async function printWormholeEmitters() {
 }
 
 async function main() {
-  await printWormholeEmitters();
+  const { pool } = await setupWrappers(await getChainConfig());
+  //await printWormholeEmitters();
+  //await printBalances();
+  const [deployer] = await ethers.getSigners();
+  // const faucet = { address: "0x790e1590023754b1554fcc3bde8ee90340f82ac5" };
+  const faucet = await deployRegular("Faucet", [deployer.address]);
+  console.log("faucetAddress", faucet.address);
+  await confirm(
+    faucet.setup(
+      pool.tokens.map((t) => t.address),
+      pool.tokens.map((t) => t.toAtomic(1000))
+    )
+  );
+  for (const token of pool.tokens) {
+    console.log("transferring", token.symbol, token.address);
+    await token.transfer(deployer, faucet, 1000000);
+  }
+  console.log("faucetBalances:");
+  for (const token of pool.tokens) console.log(await token.balanceOf(faucet));
+
+  // const faucet = { address: "0x790e1590023754b1554fcc3bde8ee90340f82ac5" };
+  // await confirm(deployer.sendTransaction({ to: faucet.address }));
   // await printBalances();
-  // const [deployer] = await ethers.getSigners();
+
   // await deployer.sendTransaction({
   //   to: "0x280999ab9abfde9dc5ce7afb25497d6bb3e8bdd4",
   //   data: "0x4a0cfc6b0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000012d01000000000100e47c4b37ed8e168a7be81c39d8eae4d1e7e557b520a30788641c612f248c5946664aa021b38c7c92bc4b3f0417389010132100b7edd6b5e140fcd5e5c90ee80100633d21140000001f0002000000000000000000000000f890982f9310df57d00f659cf4fd87e65aded8d7000000000000086101030000000000000000000000000000000000000000000000000000000165a0bc00296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe267190001000000000000000000000000280999ab9abfde9dc5ce7afb25497d6bb3e8bdd4000a000000000000000000000000280999ab9abfde9dc5ce7afb25497d6bb3e8bdd401000000000000000000000000866450d3256310d51ff3aac388608e30d03d7841010000000000000003e8000000000000000000000000000000000000000000",
   // });
   // const { pool } = await setupWrappers(await getChainConfig());
-  // await pool.add(deployer, [5000, 5000, 1000], 0);
+  //await pool.add(deployer, [995000, 995000, 995000], 0);
+  //for (const token of pool.tokens) console.log(token.symbol, await token.balanceOf(pool));
   // await ethers.provider.estimateGas({
   //   from: "0x2fd34874480371d80904d2822e58aeade3aa1c74",
   //   to: "0x280999ab9abfde9dc5ce7afb25497d6bb3e8bdd4",
@@ -314,7 +337,6 @@ async function main() {
   // console.log("after", await pool.contract.getState());
   //await printTokenBalances(deployer.address);
   // const pool = await getDefaultPool();
-  // console.log(pool.address, await pool.getState());
   // const pool = await ethers.getContractAt("Pool", "0x944fd8212c855e82e654ce70cd54566edf90f532");
   //console.log(pool.address, await pool.getState());
   // const lpToken = await ethers.getContractAt(

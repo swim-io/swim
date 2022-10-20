@@ -113,15 +113,13 @@ export const useTransferEvmToSolanaMutation = () => {
         }),
       );
 
-      const transferTxReceipt = await evmClient.getTxReceiptOrThrow(
-        transferResponse,
-      );
+      const transferTx = await evmClient.getTx(transferResponse);
       onTxResult({
         chainId: sourceDetails.chainId,
-        txId: transferTxReceipt.transactionHash,
+        txId: transferTx.id,
       });
       const sequence = parseSequenceFromLogEth(
-        transferTxReceipt,
+        transferTx.receipt,
         evmChain.wormhole.bridge,
       );
 

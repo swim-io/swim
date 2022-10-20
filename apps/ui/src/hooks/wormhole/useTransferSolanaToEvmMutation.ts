@@ -92,8 +92,8 @@ export const useTransferSolanaToEvmMutation = () => {
         txId: transferSplTokenTxId,
       });
 
-      const parsedTx = await solanaClient.getParsedTx(transferSplTokenTxId);
-      const sequence = parseSequenceFromLogSolana(parsedTx);
+      const solanaTx = await solanaClient.getTx(transferSplTokenTxId);
+      const sequence = parseSequenceFromLogSolana(solanaTx.parsedTx);
       const emitterAddress = await getEmitterAddressSolana(
         solanaChain.wormhole.portal,
       );
@@ -118,10 +118,10 @@ export const useTransferSolanaToEvmMutation = () => {
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmReceipt = await evmClient.getTxReceiptOrThrow(redeemResponse);
+      const evmTx = await evmClient.getTx(redeemResponse);
       onTxResult({
         chainId: targetDetails.chainId,
-        txId: evmReceipt.transactionHash,
+        txId: evmTx.id,
       });
     },
   );

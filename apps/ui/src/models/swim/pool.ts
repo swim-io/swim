@@ -97,7 +97,7 @@ export const getSolanaPoolState = async (
   }
   const swimPool = poolSpec.isLegacyPool
     ? deserializeSwimPool(numberOfTokens, accountInfo.data)
-    : deserializeSwimPoolV2(numberOfTokens, accountInfo.data);
+    : deserializeSwimPoolV2(accountInfo.data);
 
   return {
     ...swimPool,

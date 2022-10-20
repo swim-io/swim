@@ -69,6 +69,8 @@ const WormholeChainSelect = ({
           options={chainOptions}
           valueOfSelected={String(selectedChainId)}
           onChange={(value) => onSelectChain(Number(value) as ChainId)}
+          className="euiButton--primary"
+          itemClassName="chainSelectItem"
           hasDividers
         />
       </EuiFormRow>

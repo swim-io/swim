@@ -21,8 +21,14 @@
   transition: all 1s ease-out;
 }
 
-@media (min-width: 768px) {
-  .wormholeForm {
-    min-width: 460px;
+@media only screen and (max-width: 748px) {
+  .chainSelectItem {
+    .euiContextMenuItem__text {
+      max-width: 80%;
+      .euiFlexGroup--responsive {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+    }
   }
 }

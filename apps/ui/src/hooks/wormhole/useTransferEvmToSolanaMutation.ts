@@ -3,7 +3,8 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import { isEvmEcosystemId } from "@swim-io/evm";
+import type { EvmTx } from "@swim-io/evm";
+import { EvmTxType, isEvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID, solana } from "@swim-io/solana";
 import { findOrThrow, humanToAtomic } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
@@ -22,7 +23,7 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 export const useTransferEvmToSolanaMutation = () => {
   const queryClient = useQueryClient();
@@ -32,7 +33,7 @@ export const useTransferEvmToSolanaMutation = () => {
   const solanaClient = useSolanaClient();
   const wallets = useWallets();
   const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
 
   return useMutation(
     async ({
@@ -89,37 +90,39 @@ export const useTransferEvmToSolanaMutation = () => {
 
       await evmWallet.switchNetwork(evmChain.chainId);
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } =
-        await evmClient.initiateWormholeTransfer({
-          atomicAmount: humanToAtomic(value, sourceDetails.decimals).toString(),
-          interactionId,
-          sourceAddress: sourceDetails.address,
-          targetAddress: formatWormholeAddress(
-            Protocol.Solana,
-            splTokenAccountAddress,
-          ),
-          targetChainId: solana.wormholeChainId,
-          wallet: evmWallet,
-          wrappedTokenInfo: getWrappedTokenInfoFromNativeDetails(
-            sourceDetails.chainId,
-            nativeDetails,
-          ),
-        });
+      const evmTxGenerator = evmClient.generateInitiatePortalTransferTxs({
+        atomicAmount: humanToAtomic(value, sourceDetails.decimals).toString(),
+        interactionId,
+        sourceAddress: sourceDetails.address,
+        targetAddress: formatWormholeAddress(
+          Protocol.Solana,
+          splTokenAccountAddress,
+        ),
+        targetChainId: solana.wormholeChainId,
+        wallet: evmWallet,
+        wrappedTokenInfo: getWrappedTokenInfoFromNativeDetails(
+          sourceDetails.chainId,
+          nativeDetails,
+        ),
+      });
 
-      approvalResponses.forEach((response) =>
+      let evmTransferTx: EvmTx | null = null;
+      for await (const result of evmTxGenerator) {
+        if (result.type === EvmTxType.PortalTransferTokens) {
+          evmTransferTx = result.tx;
+        }
         onTxResult({
           chainId: sourceDetails.chainId,
-          txId: response.hash,
-        }),
-      );
+          txId: result.tx.id,
+        });
+      }
 
-      const transferTx = await evmClient.getTx(transferResponse);
-      onTxResult({
-        chainId: sourceDetails.chainId,
-        txId: transferTx.id,
-      });
+      if (evmTransferTx === null) {
+        throw new Error("Missing EVM transaction");
+      }
+
       const sequence = parseSequenceFromLogEth(
-        transferTx.receipt,
+        evmTransferTx.original,
         evmChain.wormhole.bridge,
       );
 
@@ -134,18 +137,17 @@ export const useTransferEvmToSolanaMutation = () => {
         undefined,
         retries,
       );
-      const unlockSplTokenTxIdsGenerator =
-        solanaClient.generateCompleteWormholeTransferTxIds({
-          interactionId,
-          vaa,
-          wallet: solanaWallet,
-          auxiliarySigner,
-        });
+      const splTxGenerator = solanaClient.generateCompletePortalTransferTxs({
+        interactionId,
+        vaa,
+        wallet: solanaWallet,
+        auxiliarySigner,
+      });
 
-      for await (const txId of unlockSplTokenTxIdsGenerator) {
+      for await (const result of splTxGenerator) {
         onTxResult({
           chainId: targetDetails.chainId,
-          txId,
+          txId: result.tx.id,
         });
       }
     },

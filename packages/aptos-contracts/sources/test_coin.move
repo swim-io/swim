@@ -15,7 +15,7 @@ module account::test_coin {
             true,
         );
 
-        let coins = coin::mint(1000000000000, &mint_cap);
+        let coins = coin::mint(1000000000000, &mint_cap); // 1000000000000 / 10^6 = 1,000,000 coins
         coin::register<USDC>(account);
         coin::deposit(signer::address_of(account), coins);
 

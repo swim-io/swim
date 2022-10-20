@@ -2,6 +2,13 @@
   width: 100%;
   max-width: 500px;
   transition: all 0.5s ease;
+
+  .euiSuperSelectControl {
+    .euiFlexGroup--responsive {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+  }
 }
 
 .chainName {

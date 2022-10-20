@@ -98,7 +98,7 @@ So our fake stablecoin has an address of 0x8c9d3a36ae2c7a765826c126fe625f39e9110
 
 We get the LiquidSwap address from https://github.com/pontem-network/liquidswap/blob/main/Move.toml (0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12) and we call their [entry function](https://docs.liquidswap.com/smart-contracts#scripts) named `register_pool`.
 
-Before we do that, we need to sort the addresses of the two tokens in order to know which one to put first (see [coins sorting](https://docs.liquidswap.com/smart-contracts#coins-sorting)). So we [try](https://gist.github.com/borispovod/2809728c8959649d42c5cef15b4cedb7) their `is_sorted` function and it looks like the attested swimUSD need to go first on the type arguments.
+Before we do that, we need to sort the addresses of the two tokens in order to know which one to put first (see [coins sorting](https://docs.liquidswap.com/smart-contracts#coins-sorting)). So we [try](https://gist.github.com/borispovod/2809728c8959649d42c5cef15b4cedb7) their `is_sorted` function and it looks like the attested swimUSD needs to go first in the type arguments.
 
 ```
 is_sorted("0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T", "0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC")

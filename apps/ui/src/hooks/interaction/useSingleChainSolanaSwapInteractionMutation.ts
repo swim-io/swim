@@ -23,7 +23,7 @@ import {
   getTokensByPool,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 import { useSwimUsd } from "../swim";
 
 const createOperationSpec = (
@@ -101,7 +101,8 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
   const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const solanaClient = useSolanaClient();
-  const { data: existingSplTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: existingSplTokenAccounts = [] } =
+    useUserSolanaTokenAccountsQuery();
   const { updateInteractionState } = useInteractionStateV2();
   const swimUsd = useSwimUsd();
   const tokensByPoolId = getTokensByPool(config);

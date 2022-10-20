@@ -32,7 +32,7 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,
@@ -60,7 +60,7 @@ const getTransferredAmountsByTokenId = async (
 };
 
 export const useFromSolanaTransferMutation = () => {
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
   const getEvmClient = useGetEvmClient();

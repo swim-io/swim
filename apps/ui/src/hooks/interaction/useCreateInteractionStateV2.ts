@@ -29,7 +29,7 @@ import {
   getTokensByPool,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useUserSolanaTokenAccountsQuery } from "../solana";
 
 const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
@@ -224,7 +224,7 @@ export const useCreateInteractionStateV2 = () => {
   const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const { env } = useEnvironment();
-  const { data: tokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: tokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const solanaWalletAddress = wallets[SOLANA_ECOSYSTEM_ID].address;
   const tokensByPoolId = getTokensByPool(config);
 

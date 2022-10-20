@@ -19,10 +19,10 @@ export const isLockSplTx = (
   wormholeChainConfig: WormholeChainConfig,
   splTokenAccountAddress: string,
   token: TokenConfig,
-  { parsedTx }: SolanaTx,
+  { original }: SolanaTx,
 ): boolean => {
   if (
-    !parsedTx.transaction.message.instructions.some(
+    !original.transaction.message.instructions.some(
       (ix) => ix.programId.toBase58() === wormholeChainConfig.portal,
     )
   ) {
@@ -31,11 +31,11 @@ export const isLockSplTx = (
 
   return token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID
     ? getAmountTransferredFromAccount(
-        parsedTx,
+        original,
         splTokenAccountAddress,
       ).greaterThan(0)
     : getAmountBurnedByMint(
-        parsedTx,
+        original,
         getSolanaTokenDetails(token).address,
       ).greaterThan(0);
 };
@@ -53,7 +53,7 @@ export const isPostVaaSolanaTx = (
   if (signatureSetAddress === null) {
     return false;
   }
-  return tx.parsedTx.transaction.message.instructions.some(
+  return tx.original.transaction.message.instructions.some(
     (ix) =>
       isPartiallyDecodedInstruction(ix) &&
       ix.programId.toBase58() === wormholeChainConfig.bridge &&
@@ -65,16 +65,16 @@ export const isRedeemOnSolanaTx = (
   wormholeChainConfig: WormholeChainConfig,
   token: TokenConfig,
   splTokenAccount: string,
-  { parsedTx }: SolanaTx,
+  { original }: SolanaTx,
 ): boolean => {
   if (
-    !parsedTx.transaction.message.instructions.some(
+    !original.transaction.message.instructions.some(
       (ix) => ix.programId.toBase58() === wormholeChainConfig.portal,
     )
   ) {
     return false;
   }
   return token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID
-    ? getAmountTransferredToAccount(parsedTx, splTokenAccount).greaterThan(0)
-    : getAmountMintedToAccount(parsedTx, splTokenAccount).greaterThan(0);
+    ? getAmountTransferredToAccount(original, splTokenAccount).greaterThan(0)
+    : getAmountMintedToAccount(original, splTokenAccount).greaterThan(0);
 };

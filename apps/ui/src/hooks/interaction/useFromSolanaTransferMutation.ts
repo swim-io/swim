@@ -1,6 +1,6 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import type { SolanaClient, TokenAccount } from "@swim-io/solana";
+import type { SolanaClient, SolanaTx, TokenAccount } from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
   findTokenAccountForMint,
@@ -104,7 +104,7 @@ export const useFromSolanaTransferMutation = () => {
       config,
     );
 
-    let transferSplTokenTxIds: readonly string[] = [];
+    let transferSplTokenTxs: readonly SolanaTx[] = [];
     for (const [index, transfer] of fromSolanaTransfers.entries()) {
       const toEcosystem = getToEcosystemOfFromSolanaTransfer(
         transfer,
@@ -113,10 +113,8 @@ export const useFromSolanaTransferMutation = () => {
       const { token, txIds } = transfer;
       // Transfer already completed, skip
       if (txIds.transferSplToken !== null) {
-        transferSplTokenTxIds = [
-          ...transferSplTokenTxIds,
-          txIds.transferSplToken,
-        ];
+        const tx = await solanaClient.getTx(txIds.transferSplToken);
+        transferSplTokenTxs = [...transferSplTokenTxs, tx];
         continue;
       }
 
@@ -152,32 +150,30 @@ export const useFromSolanaTransferMutation = () => {
         throw new Error("Missing SPL token account");
       }
 
-      let transferSplTokenTxId = transfer.txIds.transferSplToken;
-      if (transferSplTokenTxId === null) {
+      if (transfer.txIds.transferSplToken === null) {
         // No existing tx
         const auxiliarySigner = Keypair.generate();
-        transferSplTokenTxId = await solanaClient.initiateWormholeTransfer({
-          atomicAmount: amount.toAtomicString(SOLANA_ECOSYSTEM_ID),
-          interactionId,
-          targetAddress: formatWormholeAddress(
-            evmEcosystem.protocol,
-            evmWalletAddress,
-          ),
-          targetChainId: evmEcosystem.wormholeChainId,
-          tokenProjectId: token.projectId,
-          wallet: solanaWallet,
-          auxiliarySigner,
-          wrappedTokenInfo: getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID),
-        });
-        // Update transfer state with txId
-        updateInteractionState(interactionId, (draft) => {
-          draft.fromSolanaTransfers[index].txIds.transferSplToken =
-            transferSplTokenTxId;
-        });
-        transferSplTokenTxIds = [
-          ...transferSplTokenTxIds,
-          transferSplTokenTxId,
-        ];
+        const initiateTransferTxGenerator =
+          solanaClient.generateInitiatePortalTransferTxs({
+            atomicAmount: amount.toAtomicString(SOLANA_ECOSYSTEM_ID),
+            interactionId,
+            targetAddress: formatWormholeAddress(
+              evmEcosystem.protocol,
+              evmWalletAddress,
+            ),
+            targetChainId: evmEcosystem.wormholeChainId,
+            tokenProjectId: token.projectId,
+            wallet: solanaWallet,
+            auxiliarySigner,
+            wrappedTokenInfo: getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID),
+          });
+        for await (const result of initiateTransferTxGenerator) {
+          transferSplTokenTxs = [...transferSplTokenTxs, result.tx];
+          updateInteractionState(interactionId, (draft) => {
+            draft.fromSolanaTransfers[index].txIds.transferSplToken =
+              result.tx.id;
+          });
+        }
       }
     }
 
@@ -190,7 +186,7 @@ export const useFromSolanaTransferMutation = () => {
         transfer,
         interaction,
       );
-      const transferSplTokenTxId = transferSplTokenTxIds[index];
+      const transferTx = transferSplTokenTxs[index];
       const evmWallet = wallets[toEcosystem].wallet;
       if (!evmWallet) {
         throw new Error("No EVM wallet");
@@ -199,8 +195,7 @@ export const useFromSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === toEcosystem,
       );
-      const transferTx = await solanaClient.getTx(transferSplTokenTxId);
-      const sequence = parseSequenceFromLogSolana(transferTx.parsedTx);
+      const sequence = parseSequenceFromLogSolana(transferTx.original);
       const emitterAddress = await getEmitterAddressSolana(
         solanaWormhole.portal,
       );
@@ -217,21 +212,17 @@ export const useFromSolanaTransferMutation = () => {
       );
       await evmWallet.switchNetwork(evmChain.chainId);
       const evmClient = getEvmClient(toEcosystem);
-      const redeemResponse = await evmClient.completeWormholeTransfer({
-        interactionId,
-        vaa: vaaBytesResponse.vaaBytes,
-        wallet: evmWallet,
-      });
-      if (redeemResponse === null) {
-        throw new Error(
-          `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
-        );
+      const completeTransferTxGenerator =
+        evmClient.generateCompletePortalTransferTxs({
+          interactionId,
+          vaa: vaaBytesResponse.vaaBytes,
+          wallet: evmWallet,
+        });
+      for await (const result of completeTransferTxGenerator) {
+        updateInteractionState(interactionId, (draft) => {
+          draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm = result.tx.id;
+        });
       }
-      // Update transfer state with txId
-      updateInteractionState(interactionId, (draft) => {
-        draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm =
-          redeemResponse.hash;
-      });
     }
   });
 };

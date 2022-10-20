@@ -15,7 +15,7 @@ describe("Cross-ecosystem tx", () => {
     id: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7h",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    parsedTx: parsedSwimSwapTx,
+    original: parsedSwimSwapTx,
   };
 
   const ethereumTx: EvmTx = {
@@ -23,7 +23,7 @@ describe("Cross-ecosystem tx", () => {
     id: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a456",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    receipt: mock<ethers.providers.TransactionReceipt>(),
+    original: mock<ethers.providers.TransactionReceipt>(),
   };
 
   const bnbTx: EvmTx = {

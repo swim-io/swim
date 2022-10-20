@@ -133,7 +133,7 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
     id: "53PBEMpqPraH1KFGSQfGn8JR62kndfU6iv6XqeJdDtpuEyD9FLkGjtnUZUB6TPv4H8A7kVxk2WiyEJPY7bLCNQGC",
     timestamp: 1656406854,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    parsedTx: {
+    original: {
       blockTime: 1656406854,
       meta: {
         err: null,
@@ -483,7 +483,7 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
     id: "53mCCVJEvoERa1anMkJxm5JD3doRcMBoQVyw8ZgtJ5sMuDZsw1QaW8worMbsbWBqAhwAheURKNKA7xrafSHyDEjA",
     timestamp: 1656406848,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    parsedTx: {
+    original: {
       blockTime: 1656406848,
       meta: {
         err: null,
@@ -850,7 +850,7 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
     id: "4LCZusMofy5oPLZe5cX5VCn4T1n6qgGsxCRhbwTVAcKSvZRvQLdeEWXJef2m5sD9u6XfRgRNRcBHJBwB48tun2eQ",
     timestamp: 1656406843,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    parsedTx: {
+    original: {
       blockTime: 1656406843,
       meta: {
         err: null,
@@ -1345,7 +1345,7 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
     id: "5UfH9wni8vGP8Ch2KQp2JjoPKyWssFjePVpxAduFErWQVFEfF7Av3iCK9wA7CyQTWUkHZtr6ThoWxZXjr73dVQqF",
     timestamp: 1656406839,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    parsedTx: {
+    original: {
       blockTime: 1656406839,
       meta: {
         err: null,
@@ -1642,7 +1642,7 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
     id: "reEurpv1vonjzLPpqoMWvcNV5bbJmhJwfPPM7d7PEEVcb8mN6DzZTqPtYMLcenJ6VLMa3naXe4gPzPkxurjQy4e",
     timestamp: 1656406836,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    parsedTx: {
+    original: {
       blockTime: 1656406836,
       meta: {
         err: null,
@@ -1812,7 +1812,7 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
     id: "61FvZ4bp3Ua2ED6cv32rqZnLnW5hGDYMf6racBeoZXJaxzVUVZzEEqtut29aqeBoGwxk3Dhr7mbXY6ziVpCDiHTT",
     timestamp: 1656406832,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    parsedTx: {
+    original: {
       blockTime: 1656406832,
       meta: {
         err: null,
@@ -1982,36 +1982,36 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
     id: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
     timestamp: 1656406577,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    response: {
-      hash: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
-      type: 0,
-      accessList: null,
-      blockHash:
-        "0xa0cef0931f71340206080d50fd4f00fb1d924f3bd8a4ff436027f05147f2f2f2",
-      blockNumber: 7132783,
-      transactionIndex: 15,
-      confirmations: 60,
-      from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
-      gasPrice: {
-        type: "BigNumber",
-        hex: "0x59682f07",
-      },
-      gasLimit: {
-        type: "BigNumber",
-        hex: "0x0191ca",
-      },
-      to: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
-      value: {
-        type: "BigNumber",
-        hex: "0x00",
-      },
-      nonce: 41,
-      data: "0x0f5287b000000000000000000000000045b167cf5b14007ca0490dcfb7c4b870ec0c0aa6000000000000000000000000000000000000000000000000000000002b5c01900000000000000000000000000000000000000000000000000000000000000001a77f337a7b4a9d31232af9108048171b0b120b5cf09e06469b980e64c97f0dd400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000059080100a9747f341d116e592f6eac839b7f222d",
-      creates: null,
-      chainId: 0,
-      timestamp: 1656406577,
-    },
-    receipt: {
+    // response: {
+    //   hash: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
+    //   type: 0,
+    //   accessList: null,
+    //   blockHash:
+    //     "0xa0cef0931f71340206080d50fd4f00fb1d924f3bd8a4ff436027f05147f2f2f2",
+    //   blockNumber: 7132783,
+    //   transactionIndex: 15,
+    //   confirmations: 60,
+    //   from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
+    //   gasPrice: {
+    //     type: "BigNumber",
+    //     hex: "0x59682f07",
+    //   },
+    //   gasLimit: {
+    //     type: "BigNumber",
+    //     hex: "0x0191ca",
+    //   },
+    //   to: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
+    //   value: {
+    //     type: "BigNumber",
+    //     hex: "0x00",
+    //   },
+    //   nonce: 41,
+    //   data: "0x0f5287b000000000000000000000000045b167cf5b14007ca0490dcfb7c4b870ec0c0aa6000000000000000000000000000000000000000000000000000000002b5c01900000000000000000000000000000000000000000000000000000000000000001a77f337a7b4a9d31232af9108048171b0b120b5cf09e06469b980e64c97f0dd400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000059080100a9747f341d116e592f6eac839b7f222d",
+    //   creates: null,
+    //   chainId: 0,
+    //   timestamp: 1656406577,
+    // },
+    original: {
       to: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
       from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
       contractAddress: null,
@@ -2095,36 +2095,36 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
     id: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
     timestamp: 1656406883,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    response: {
-      hash: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
-      type: 0,
-      accessList: null,
-      blockHash:
-        "0x54d21312a280bff7c065a94a0f79c5d63067353ae3519a77127b661387d6c7f7",
-      blockNumber: 11039320,
-      transactionIndex: 1,
-      confirmations: 232,
-      from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
-      gasPrice: {
-        type: "BigNumber",
-        hex: "0x062b85e900",
-      },
-      gasLimit: {
-        type: "BigNumber",
-        hex: "0x01ea1a",
-      },
-      to: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
-      value: {
-        type: "BigNumber",
-        hex: "0x00",
-      },
-      nonce: 4,
-      data: "0xc687851900000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000100010000000001003c0275cf8e546d379e4af28406521092c8e7e4bc4854d9ee834f0c34cae36ae215eaedadf3f85e46ea9d0e865afc2af74998ab0c5112f8f492a5aeeef910dde20162bac3460000d2e900013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca9800000000000007752001000000000000000000000000000000000000000000000000000000002f32206c00000000000000000000000092934a8b10ddf85e81b65be1d6810544744700dc0006000000000000000000000000b0a05611328d1068c91f58e2c83ab4048de8cd7f00060000000000000000000000000000000000000000000000000000000000000000a9747f341d116e592f6eac839b7f222d",
-      creates: null,
-      chainId: 0,
-      timestamp: 1656406883,
-    },
-    receipt: {
+    // response: {
+    //   hash: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
+    //   type: 0,
+    //   accessList: null,
+    //   blockHash:
+    //     "0x54d21312a280bff7c065a94a0f79c5d63067353ae3519a77127b661387d6c7f7",
+    //   blockNumber: 11039320,
+    //   transactionIndex: 1,
+    //   confirmations: 232,
+    //   from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
+    //   gasPrice: {
+    //     type: "BigNumber",
+    //     hex: "0x062b85e900",
+    //   },
+    //   gasLimit: {
+    //     type: "BigNumber",
+    //     hex: "0x01ea1a",
+    //   },
+    //   to: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+    //   value: {
+    //     type: "BigNumber",
+    //     hex: "0x00",
+    //   },
+    //   nonce: 4,
+    //   data: "0xc687851900000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000100010000000001003c0275cf8e546d379e4af28406521092c8e7e4bc4854d9ee834f0c34cae36ae215eaedadf3f85e46ea9d0e865afc2af74998ab0c5112f8f492a5aeeef910dde20162bac3460000d2e900013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca9800000000000007752001000000000000000000000000000000000000000000000000000000002f32206c00000000000000000000000092934a8b10ddf85e81b65be1d6810544744700dc0006000000000000000000000000b0a05611328d1068c91f58e2c83ab4048de8cd7f00060000000000000000000000000000000000000000000000000000000000000000a9747f341d116e592f6eac839b7f222d",
+    //   creates: null,
+    //   chainId: 0,
+    //   timestamp: 1656406883,
+    // },
+    original: {
       to: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
       from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
       contractAddress: null,

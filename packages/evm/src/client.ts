@@ -8,10 +8,11 @@ import { Client, getTokenDetails } from "@swim-io/core";
 import type {
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
+  InitiatePropellerParams,
   TokenDetails,
   TxGeneratorResult,
 } from "@swim-io/core";
-import { ERC20__factory } from "@swim-io/evm-contracts";
+import { ERC20__factory, Routing__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ethers, providers } from "ethers";
@@ -226,6 +227,74 @@ export class EvmClient extends Client<
     yield {
       tx,
       type: EvmTxType.PortalCompleteTransfer,
+    };
+  }
+
+  public async *generateInitiatePropellerTxs({
+    wallet,
+    interactionId,
+    sourceTokenId,
+    targetWormholeChainId,
+    targetTokenNumber,
+    targetWormholeAddress,
+    inputAmount,
+    maxPropellerFeeAtomic,
+    gasKickStart,
+  }: InitiatePropellerParams<EvmWalletAdapter>): AsyncGenerator<
+    TxGeneratorResult<
+      ethers.providers.TransactionReceipt,
+      EvmTx,
+      EvmTxType.Erc20Approve | EvmTxType.SwimInitiatePropeller
+    >,
+    any,
+    unknown
+  > {
+    const { signer } = wallet;
+    if (signer === null) {
+      throw new Error("Missing EVM wallet");
+    }
+
+    await wallet.switchNetwork(this.chainConfig.chainId);
+
+    const sourceTokenDetails = getTokenDetails(this.chainConfig, sourceTokenId);
+    const inputAmountAtomic = ethersUtils.parseUnits(
+      inputAmount.toString(),
+      sourceTokenDetails.decimals,
+    );
+
+    const approvalGenerator = this.generateErc20ApproveTxs({
+      atomicAmount: inputAmountAtomic.toString(),
+      mintAddress: sourceTokenDetails.address,
+      spenderAddress: this.chainConfig.routingContractAddress,
+      wallet,
+    });
+
+    for await (const approvalTxResult of approvalGenerator) {
+      yield approvalTxResult;
+    }
+
+    const memo = Buffer.from(interactionId, "hex");
+    const routingContract = Routing__factory.connect(
+      this.chainConfig.routingContractAddress,
+      signer,
+    );
+    const initiatePropellerResponse = await routingContract[
+      "propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16,bytes16)"
+    ](
+      sourceTokenDetails.address,
+      inputAmountAtomic,
+      targetWormholeChainId,
+      targetWormholeAddress,
+      gasKickStart,
+      maxPropellerFeeAtomic,
+      targetTokenNumber,
+      memo,
+      // overrides, // TODO: allow EVM overrides?
+    );
+    const initiatePropellerTx = await this.getTx(initiatePropellerResponse);
+    yield {
+      tx: initiatePropellerTx,
+      type: EvmTxType.SwimInitiatePropeller,
     };
   }
 

@@ -50,6 +50,7 @@ export enum EvmTxType {
   Erc20Approve = "erc20:approve",
   PortalTransferTokens = "portal:transferTokens",
   PortalCompleteTransfer = "portal:completeTransfer",
+  SwimInitiatePropeller = "swim:initiatePropeller",
 }
 
 export type EvmTx = Tx<ethers.providers.TransactionReceipt, EvmEcosystemId>;

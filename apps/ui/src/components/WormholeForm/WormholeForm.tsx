@@ -42,11 +42,10 @@ import "./WormholeForm.scss";
 const getDetailsByChainId = (
   token: WormholeToken,
   chainId: ChainId,
-): WormholeTokenDetails =>
-  findOrThrow(
-    [token.nativeDetails, ...token.wrappedDetails],
+): WormholeTokenDetails | null =>
+  [token.nativeDetails, ...token.wrappedDetails].find(
     (details) => details.chainId === chainId,
-  );
+  ) ?? null;
 
 export const WormholeForm = (): ReactElement => {
   const { t } = useTranslation();
@@ -83,6 +82,9 @@ export const WormholeForm = (): ReactElement => {
   const [targetChainId, setTargetChainId] = useState(targetChains[0]);
 
   const sourceDetails = getDetailsByChainId(currentToken, sourceChainId);
+  if (sourceDetails === null) {
+    throw new Error("Missing source details");
+  }
   const targetDetails = getDetailsByChainId(currentToken, targetChainId);
   const splBalance = useUserSolanaTokenBalance(
     sourceChainId === CHAIN_ID_SOLANA ? sourceDetails : null,
@@ -100,6 +102,9 @@ export const WormholeForm = (): ReactElement => {
     (async (): Promise<void> => {
       setTxResults([]);
       setError(null);
+      if (targetDetails === null) {
+        throw new Error("Missing target details");
+      }
       await transfer({
         interactionId: generateId(),
         value: inputAmount,
@@ -177,7 +182,7 @@ export const WormholeForm = (): ReactElement => {
       className="wormholeForm"
       onSubmit={handleConfirmSubmit}
     >
-      <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
+      <EuiFlexGroup justifyContent="spaceBetween" responsive={true}>
         <EuiFlexItem grow={false}>
           <EuiTitle>
             <h2>{t("wormhole_page.title")}</h2>

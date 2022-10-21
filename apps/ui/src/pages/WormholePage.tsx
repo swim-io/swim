@@ -10,6 +10,8 @@ import { useTranslation } from "react-i18next";
 import { WormholeForm } from "../components/WormholeForm";
 import { useTitle } from "../hooks";
 
+import "./WormholePage.scss";
+
 const WormholePage = (): ReactElement => {
   const { t } = useTranslation();
   useTitle(t("nav.wormhole"));

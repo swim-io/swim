@@ -137,14 +137,14 @@ export const useTransferEvmToSolanaMutation = () => {
         undefined,
         retries,
       );
-      const splTxGenerator = solanaClient.generateCompletePortalTransferTxs({
+      const solanaTxGenerator = solanaClient.generateCompletePortalTransferTxs({
         interactionId,
         vaa,
         wallet: solanaWallet,
         auxiliarySigner,
       });
 
-      for await (const result of splTxGenerator) {
+      for await (const result of solanaTxGenerator) {
         onTxResult({
           chainId: targetDetails.chainId,
           txId: result.tx.id,

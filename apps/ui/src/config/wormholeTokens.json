@@ -2114,7 +2114,11 @@
     "displayName": "LUNA (Portal)",
     "logo": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/F6v4wfAdJB8D8p77bMXZgYt8TDKsYxLYxH5AFhUkYx9W/logo.png",
     "coinGeckoId": "terra-luna",
-    "nativeDetails": { "chainId": 3, "address": "uluna", "decimals": 6 },
+    "nativeDetails": {
+      "chainId": 3,
+      "address": "uluna",
+      "decimals": 6
+    },
     "wrappedDetails": [
       {
         "chainId": 1,
@@ -2163,7 +2167,11 @@
     "displayName": "UST (Portal)",
     "logo": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9vMJfxuKxXBoEa7rM12mYLMwTacLMLDJqHozw96WQL8i/logo.png",
     "coinGeckoId": "terra-usd",
-    "nativeDetails": { "chainId": 3, "address": "uusd", "decimals": 6 },
+    "nativeDetails": {
+      "chainId": 3,
+      "address": "uusd",
+      "decimals": 6
+    },
     "wrappedDetails": [
       {
         "chainId": 1,

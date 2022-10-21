@@ -7808,6 +7808,7 @@ __metadata:
     "@certusone/wormhole-sdk": ^0.6.2
     "@ledgerhq/hw-transport": ^6.27.1
     "@ledgerhq/hw-transport-webusb": ^6.0.2
+    "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": 0.2.2
     "@solana/spl-token": ^0.3.4
@@ -7839,6 +7840,7 @@ __metadata:
     typescript: ~4.8.4
   peerDependencies:
     "@certusone/wormhole-sdk": ^0.6.2
+    "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0

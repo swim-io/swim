@@ -15,20 +15,32 @@ export interface WrappedTokenInfo {
 }
 
 export interface InitiatePortalTransferParams<Wallet> {
-  readonly atomicAmount: string;
+  readonly wallet: Wallet;
   readonly interactionId: string;
+  readonly tokenProjectId: TokenProjectId;
   /** Standardized Wormhole format, ie 32 bytes */
   readonly targetAddress: Uint8Array;
   readonly targetChainId: ChainId;
-  readonly tokenProjectId: TokenProjectId;
-  readonly wallet: Wallet;
+  readonly atomicAmount: string;
   readonly wrappedTokenInfo?: WrappedTokenInfo;
 }
 
 export interface CompletePortalTransferParams<Wallet> {
+  readonly wallet: Wallet;
   readonly interactionId: string;
   readonly vaa: Uint8Array;
+}
+
+export interface InitiatePropellerParams<Wallet> {
   readonly wallet: Wallet;
+  readonly interactionId: string;
+  readonly sourceTokenId: TokenProjectId;
+  readonly targetWormholeChainId: ChainId;
+  readonly targetTokenNumber: number;
+  readonly targetWormholeAddress: Uint8Array;
+  readonly inputAmount: Decimal;
+  readonly maxPropellerFeeAtomic: string;
+  readonly gasKickStart: boolean;
 }
 
 export interface TxGeneratorResult<
@@ -70,11 +82,15 @@ export abstract class Client<
     owner: string,
     tokenDetails: readonly TokenDetails[],
   ): Promise<readonly Decimal[]>;
+
   public abstract generateInitiatePortalTransferTxs(
     params: InitiatePortalTransferParams<Wallet>,
   ): AsyncGenerator<TxGeneratorResult<OriginalTx, T, TxType>>;
-
   public abstract generateCompletePortalTransferTxs(
     params: CompletePortalTransferParams<Wallet>,
+  ): AsyncGenerator<TxGeneratorResult<OriginalTx, T, TxType>>;
+
+  public abstract generateInitiatePropellerTxs(
+    params: InitiatePropellerParams<Wallet>,
   ): AsyncGenerator<TxGeneratorResult<OriginalTx, T, TxType>>;
 }

@@ -36,6 +36,7 @@
     "@ledgerhq/hw-transport-webusb": "^6.0.2",
     "@project-serum/sol-wallet-adapter": "0.2.2",
     "@swim-io/core": "workspace:^",
+    "@swim-io/solana-contracts": "workspace:^",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^"
   },

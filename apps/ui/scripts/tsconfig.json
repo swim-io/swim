@@ -1,14 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@swim-io/tsconfig/tsconfig-react.json",
+  "extends": "@swim-io/tsconfig/tsconfig-base.json",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "src/",
-    "noEmit": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "baseUrl": "./",
+    "noEmit": true
   },
-  "include": ["src/"],
+  "include": ["./"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs"

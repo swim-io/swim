@@ -1,4 +1,5 @@
 # ignore auto-generated files
 build/
 storybook-static/
+src/config/wormholeTokens.json
 src/keys/**/*.json

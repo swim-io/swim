@@ -18,6 +18,7 @@ export * from "./pools";
 export * from "./tokens";
 export * from "./utils";
 export * from "./wormhole";
+export { default as wormholeTokens } from "./wormholeTokens.json";
 
 export interface Config {
   readonly ecosystems: ReadonlyRecord<EcosystemId, Ecosystem>;

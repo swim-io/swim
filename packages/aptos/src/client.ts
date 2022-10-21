@@ -1,4 +1,4 @@
-import type { TokenDetails } from "@swim-io/core";
+import type { PoolState, TokenDetails } from "@swim-io/core";
 import { Client } from "@swim-io/core";
 import { atomicToHuman } from "@swim-io/utils";
 import type { Types } from "aptos";
@@ -122,5 +122,11 @@ export class AptosClient extends Client<
 
   public completeWormholeTransfer(): Promise<void> {
     throw new Error("Not implemented");
+  }
+
+  public getPoolState(poolId: string): Promise<PoolState> {
+    throw new Error(
+      `getPoolState not implemented. Called with poolId: ${poolId}`,
+    );
   }
 }

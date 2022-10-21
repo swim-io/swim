@@ -3,6 +3,7 @@ import type { TokenProjectId } from "@swim-io/token-projects";
 import type Decimal from "decimal.js";
 
 import type { ChainConfig } from "./chain";
+import type { PoolState } from "./pool";
 import type { TokenDetails } from "./token";
 import type { Tx } from "./tx";
 
@@ -66,4 +67,6 @@ export abstract class Client<
   public abstract completeWormholeTransfer(
     params: CompleteWormholeTransferParams<Wallet>,
   ): Promise<any>;
+
+  public abstract getPoolState(poolId: string): Promise<PoolState>;
 }

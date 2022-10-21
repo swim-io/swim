@@ -8,6 +8,7 @@ import { Client, getTokenDetails } from "@swim-io/core";
 import type {
   CompleteWormholeTransferParams,
   InitiateWormholeTransferParams,
+  PoolState,
   TokenDetails,
 } from "@swim-io/core";
 import { ERC20__factory } from "@swim-io/evm-contracts";
@@ -276,6 +277,12 @@ export class EvmClient extends Client<
     }
 
     return approvalResponses;
+  }
+
+  public getPoolState(poolId: string): Promise<PoolState> {
+    throw new Error(
+      `getPoolState not implemented. Called with poolId: ${poolId}`,
+    );
   }
 
   private async getTxReceipt(

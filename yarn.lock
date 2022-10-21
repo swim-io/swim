@@ -7811,6 +7811,7 @@ __metadata:
     "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": 0.2.2
+    "@solana/spl-memo": ^0.2.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
     "@swim-io/core": "workspace:^"
@@ -7843,6 +7844,7 @@ __metadata:
     "@certusone/wormhole-sdk": ^0.6.2
     "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
+    "@solana/spl-memo": ^0.2.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
     bn.js: ^5.2.1

@@ -1,0 +1,34 @@
+.wormholeForm {
+  width: 100%;
+  max-width: 500px;
+  transition: all 0.5s ease;
+
+  .euiSuperSelectControl {
+    .euiFlexGroup--responsive {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+  }
+}
+
+.chainName {
+  text-transform: capitalize;
+}
+
+.transactions {
+  padding: 10;
+  overflow-x: auto;
+  transition: all 1s ease-out;
+}
+
+@media only screen and (max-width: 748px) {
+  .chainSelectItem {
+    .euiContextMenuItem__text {
+      max-width: 80%;
+      .euiFlexGroup--responsive {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+    }
+  }
+}

@@ -34,7 +34,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { utils as ethersUtils } from "ethers";
-import type { ReactElement } from "react";
+import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
@@ -73,11 +73,10 @@ const EVM_NETWORKS: ReadonlyRecord<EVMChainId, number> = {
 const getDetailsByChainId = (
   token: WormholeToken,
   chainId: ChainId,
-): WormholeTokenDetails =>
-  findOrThrow(
-    [token.nativeDetails, ...token.wrappedDetails],
+): WormholeTokenDetails | null =>
+  [token.nativeDetails, ...token.wrappedDetails].find(
     (details) => details.chainId === chainId,
-  );
+  ) ?? null;
 
 const useErc20BalanceQuery = ({
   chainId,
@@ -160,6 +159,9 @@ export const WormholeForm = (): ReactElement => {
   const { mutateAsync: transfer, isLoading } = useWormholeTransfer();
 
   const sourceDetails = getDetailsByChainId(currentToken, sourceChainId);
+  if (sourceDetails === null) {
+    throw new Error("Missing source details");
+  }
   const targetDetails = getDetailsByChainId(currentToken, targetChainId);
   const splBalance = useUserSolanaTokenBalance(
     sourceChainId === CHAIN_ID_SOLANA ? sourceDetails : null,
@@ -171,8 +173,12 @@ export const WormholeForm = (): ReactElement => {
     setTxResults((previousResults) => [...previousResults, txResult]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
     (async (): Promise<void> => {
+      if (targetDetails === null) {
+        throw new Error("Missing target details");
+      }
       setTxResults([]);
       await transfer({
         interactionId: generateId(),

@@ -25,7 +25,7 @@ import {
   isTargetChainOperationCompleted,
 } from "../../../models";
 import { AddTransfer } from "../AddTransfer";
-import { ClaimSwimUsdOnSolana } from "../ClaimSwimUsdOnSolana";
+import { ClaimTokenOnSolana } from "../ClaimTokenOnSolana";
 import { RemoveTransfer } from "../RemoveTransfer";
 import { SwapFromSwimUsd } from "../SwapFromSwimUsd";
 import { SwapToSwimUsd } from "../SwapToSwimUsd";
@@ -314,9 +314,10 @@ const buildClaimTokenOnSolanaStep = (
   interactionStatus: InteractionStatusV2,
 ): EuiStepProps => {
   const {
-    claimTokenOnSolanaTxId,
-    postVaaOnSolanaTxIds,
-    swapFromSwimUsdTxId,
+    verifySignatureTxId,
+    postVaaOnSolanaTxId,
+    completeNativeWithPayloadTxId,
+    processSwimPayloadTxId,
     interaction: {
       params: { toTokenData },
     },
@@ -333,21 +334,16 @@ const buildClaimTokenOnSolanaStep = (
     status,
     children: (
       <>
-        <ClaimSwimUsdOnSolana
-          isLoading={status === "loading" && claimTokenOnSolanaTxId === null}
+        <ClaimTokenOnSolana
+          isLoading={status === "loading"}
+          tokenConfig={toTokenData.tokenConfig}
           transactions={[
-            ...postVaaOnSolanaTxIds,
-            claimTokenOnSolanaTxId,
+            verifySignatureTxId,
+            postVaaOnSolanaTxId,
+            completeNativeWithPayloadTxId,
+            processSwimPayloadTxId,
           ].filter(isNotNull)}
         />
-        {!isSwimUsd(toTokenData.tokenConfig) && (
-          <SwapFromSwimUsd
-            ecosystemId={toTokenData.ecosystemId}
-            toToken={toTokenData.tokenConfig}
-            isLoading={status === "loading"}
-            txId={swapFromSwimUsdTxId}
-          />
-        )}
       </>
     ),
   };

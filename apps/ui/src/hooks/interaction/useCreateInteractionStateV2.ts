@@ -212,10 +212,11 @@ const createSwapInteractionState = (
         requiredSplTokenAccounts,
         approvalTxIds: [],
         crossChainInitiateTxId: null,
-        signatureSetAddress: null,
-        postVaaOnSolanaTxIds: [],
-        claimTokenOnSolanaTxId: null,
-        swapFromSwimUsdTxId: null,
+        auxiliarySignerPublicKey: null,
+        verifySignatureTxId: null,
+        postVaaOnSolanaTxId: null,
+        completeNativeWithPayloadTxId: null,
+        processSwimPayloadTxId: null,
       };
   }
 };

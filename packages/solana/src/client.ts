@@ -1,10 +1,8 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
 import { createVerifySignaturesInstructionsSolana } from "@certusone/wormhole-sdk";
-import type { Accounts } from "@project-serum/anchor";
 import { AnchorProvider, Program } from "@project-serum/anchor";
 import { createMemoInstruction } from "@solana/spl-memo";
 import {
-  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
   getAssociatedTokenAddressSync,
@@ -24,9 +22,9 @@ import {
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
-  SYSVAR_CLOCK_PUBKEY,
 } from "@solana/web3.js";
 import type {
+  ChainConfig,
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
   InitiatePropellerParams,
@@ -42,6 +40,12 @@ import { atomicToHuman, chunks, humanToAtomic, sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
+import {
+  createCompleteNativeWithPayloadAccounts,
+  createProcessSwimPayloadAccounts,
+  getAddAccounts,
+  getPropellerTransferAccounts,
+} from "./getAccounts";
 import type {
   SolanaChainConfig,
   SolanaEcosystemId,
@@ -369,6 +373,136 @@ export class SolanaClient extends Client<
     };
   }
 
+  public async *generateCompleteNativeWithPayloadTx({
+    wallet,
+    interactionId,
+    sourceWormholeChainId,
+    sourceChainConfig,
+    signedVaa,
+  }: {
+    readonly wallet: SolanaWalletAdapter;
+    readonly interactionId: string;
+    readonly sourceWormholeChainId: ChainId;
+    readonly sourceChainConfig: ChainConfig;
+    readonly signedVaa: Buffer;
+  }): AsyncGenerator<
+    TxGeneratorResult<ParsedTransactionWithMeta, SolanaTx, SolanaTxType>,
+    any,
+    unknown
+  > {
+    const walletPublicKey = wallet.publicKey;
+    if (walletPublicKey === null) {
+      throw new Error("Missing Solana wallet");
+    }
+    const routingContract = this.getRoutingContract(wallet);
+    const swimUsdAtaPublicKey = getAssociatedTokenAddressSync(
+      new PublicKey(this.chainConfig.swimUsdDetails.address),
+      walletPublicKey,
+    );
+    const accounts = await createCompleteNativeWithPayloadAccounts(
+      this.chainConfig,
+      new PublicKey(walletPublicKey),
+      signedVaa,
+      swimUsdAtaPublicKey,
+      sourceWormholeChainId,
+      sourceChainConfig,
+    );
+    const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 900_000,
+    });
+    const txRequest = await routingContract.methods
+      .completeNativeWithPayload()
+      .accounts(accounts)
+      .preInstructions([setComputeUnitLimitIx])
+      .postInstructions([createMemoInstruction(interactionId)])
+      .transaction();
+    // eslint-disable-next-line functional/immutable-data
+    txRequest.feePayer = walletPublicKey;
+    const txId = await this.sendAndConfirmTx(
+      (tx) => wallet.signTransaction(tx),
+      txRequest,
+    );
+    const tx = await this.getTx(txId);
+    yield {
+      tx,
+      type: SolanaTxType.SwimCompleteNativeWithPayload,
+    };
+  }
+
+  public async *generateProcessSwimPayloadTx({
+    wallet,
+    interactionId,
+    signedVaa,
+    targetTokenNumber,
+    minOutputAmount,
+  }: {
+    readonly wallet: SolanaWalletAdapter;
+    readonly interactionId: string;
+    readonly signedVaa: Buffer;
+    readonly targetTokenNumber: number;
+    readonly minOutputAmount: string;
+  }): AsyncGenerator<
+    TxGeneratorResult<ParsedTransactionWithMeta, SolanaTx, SolanaTxType>,
+    any,
+    unknown
+  > {
+    const [twoPoolConfig] = this.chainConfig.pools;
+    const walletPublicKey = wallet.publicKey;
+    if (walletPublicKey === null) {
+      throw new Error("Missing Solana wallet");
+    }
+    const routingContract = this.getRoutingContract(wallet);
+    const poolTokenAccounts = [...twoPoolConfig.tokenAccounts.values()].map(
+      (address) => new PublicKey(address),
+    );
+    const userTokenAccounts = SUPPORTED_TOKEN_PROJECT_IDS.reduce(
+      (accumulator, tokenProjectId) => {
+        const { address } = getTokenDetails(this.chainConfig, tokenProjectId);
+        return {
+          ...accumulator,
+          [tokenProjectId]: getAssociatedTokenAddressSync(
+            new PublicKey(address),
+            walletPublicKey,
+          ),
+        };
+      },
+      {} as ReadonlyRecord<SupportedTokenProjectId, PublicKey>,
+    );
+    const accounts = await createProcessSwimPayloadAccounts(
+      this.chainConfig,
+      new PublicKey(walletPublicKey),
+      signedVaa,
+      userTokenAccounts[TokenProjectId.SwimUsd],
+      [
+        userTokenAccounts[TokenProjectId.Usdc],
+        userTokenAccounts[TokenProjectId.Usdt],
+      ],
+      poolTokenAccounts,
+      new PublicKey(twoPoolConfig.governanceFeeAccount),
+      targetTokenNumber,
+    );
+    const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 900_000,
+    });
+    const txRequest = await routingContract.methods
+      .processSwimPayload(targetTokenNumber, new BN(minOutputAmount))
+      .accounts(accounts)
+      .preInstructions([setComputeUnitLimitIx])
+      .postInstructions([createMemoInstruction(interactionId)])
+      .transaction();
+    // eslint-disable-next-line functional/immutable-data
+    txRequest.feePayer = walletPublicKey;
+    const txId = await this.sendAndConfirmTx(
+      (tx) => wallet.signTransaction(tx),
+      txRequest,
+    );
+    const tx = await this.getTx(txId);
+    yield {
+      tx,
+      type: SolanaTxType.SwimProcessSwimPayload,
+    };
+  }
+
   public async *generateInitiatePropellerTxs({
     wallet,
     interactionId,
@@ -401,19 +535,7 @@ export class SolanaClient extends Client<
       sourceTokenDetails.decimals,
     ).toString();
 
-    const anchorProvider = new AnchorProvider(
-      this.connection,
-      {
-        ...wallet,
-        publicKey: senderPublicKey,
-      },
-      { commitment: "confirmed" },
-    );
-    const routingContract = new Program(
-      idl.propeller,
-      this.chainConfig.routingContractAddress,
-      anchorProvider,
-    );
+    const routingContract = this.getRoutingContract(wallet);
 
     let addOutputAmountAtomic: string | null = null;
     if (sourceTokenId !== TokenProjectId.SwimUsd) {
@@ -806,90 +928,24 @@ export class SolanaClient extends Client<
     }
   }
 
-  private getAddAccounts(
-    userSwimUsdAtaPublicKey: PublicKey,
-    userTokenAccounts: readonly PublicKey[],
-    auxiliarySigner: PublicKey,
-    lpMint: PublicKey,
-    poolTokenAccounts: readonly PublicKey[],
-    poolGovernanceFeeAccount: PublicKey,
-  ): Accounts {
-    return {
-      propeller: new PublicKey(this.chainConfig.routingContractStateAddress),
-      tokenProgram: TOKEN_PROGRAM_ID,
-      poolTokenAccount0: poolTokenAccounts[0],
-      poolTokenAccount1: poolTokenAccounts[1],
-      lpMint,
-      governanceFee: poolGovernanceFeeAccount,
-      userTransferAuthority: auxiliarySigner,
-      userTokenAccount0: userTokenAccounts[0],
-      userTokenAccount1: userTokenAccounts[1],
-      userLpTokenAccount: userSwimUsdAtaPublicKey,
-      twoPoolProgram: new PublicKey(this.chainConfig.twoPoolContractAddress),
-    };
-  }
-
-  private async getPropellerTransferAccounts(
-    walletPublicKey: PublicKey,
-    swimUsdAtaPublicKey: PublicKey,
-    auxiliarySigner: PublicKey,
-  ): Promise<Accounts> {
-    const bridgePublicKey = new PublicKey(this.chainConfig.wormhole.bridge);
-    const portalPublicKey = new PublicKey(this.chainConfig.wormhole.portal);
-    const swimUsdMintPublicKey = new PublicKey(
-      this.chainConfig.swimUsdDetails.address,
+  private getRoutingContract(wallet: SolanaWalletAdapter): Program<Propeller> {
+    const walletPublicKey = wallet.publicKey;
+    if (walletPublicKey === null) {
+      throw new Error("Missing Solana wallet");
+    }
+    const anchorProvider = new AnchorProvider(
+      this.connection,
+      {
+        ...wallet,
+        publicKey: walletPublicKey,
+      },
+      { commitment: "confirmed" },
     );
-    const [wormholeConfig] = await PublicKey.findProgramAddress(
-      [Buffer.from("Bridge")],
-      bridgePublicKey,
+    return new Program(
+      idl.propeller,
+      this.chainConfig.routingContractAddress,
+      anchorProvider,
     );
-    const [tokenBridgeConfig] = await PublicKey.findProgramAddress(
-      [Buffer.from("config")],
-      portalPublicKey,
-    );
-    const [custody] = await PublicKey.findProgramAddress(
-      [swimUsdMintPublicKey.toBytes()],
-      portalPublicKey,
-    );
-    const [custodySigner] = await PublicKey.findProgramAddress(
-      [Buffer.from("custody_signer")],
-      portalPublicKey,
-    );
-    const [authoritySigner] = await PublicKey.findProgramAddress(
-      [Buffer.from("authority_signer")],
-      portalPublicKey,
-    );
-    const [wormholeEmitter] = await PublicKey.findProgramAddress(
-      [Buffer.from("emitter")],
-      portalPublicKey,
-    );
-    const [wormholeSequence] = await PublicKey.findProgramAddress(
-      [Buffer.from("Sequence"), wormholeEmitter.toBytes()],
-      bridgePublicKey,
-    );
-    const [wormholeFeeCollector] = await PublicKey.findProgramAddress(
-      [Buffer.from("fee_collector")],
-      bridgePublicKey,
-    );
-    return {
-      propeller: new PublicKey(this.chainConfig.routingContractStateAddress),
-      tokenProgram: TOKEN_PROGRAM_ID,
-      payer: walletPublicKey,
-      wormhole: bridgePublicKey,
-      tokenBridgeConfig,
-      userSwimUsdAta: swimUsdAtaPublicKey,
-      swimUsdMint: swimUsdMintPublicKey,
-      custody,
-      tokenBridge: portalPublicKey,
-      custodySigner,
-      authoritySigner,
-      wormholeConfig,
-      wormholeMessage: auxiliarySigner,
-      wormholeEmitter,
-      wormholeSequence,
-      wormholeFeeCollector,
-      clock: SYSVAR_CLOCK_PUBKEY,
-    };
   }
 
   private async propellerAdd({
@@ -921,7 +977,8 @@ export class SolanaClient extends Client<
       },
       {} as ReadonlyRecord<SupportedTokenProjectId, PublicKey>,
     );
-    const addAccounts = this.getAddAccounts(
+    const addAccounts = getAddAccounts(
+      this.chainConfig,
       userTokenAccounts[TokenProjectId.SwimUsd],
       [
         userTokenAccounts[TokenProjectId.Usdc],
@@ -981,7 +1038,8 @@ export class SolanaClient extends Client<
       new PublicKey(this.chainConfig.swimUsdDetails.address),
       senderPublicKey,
     );
-    const transferAccounts = await this.getPropellerTransferAccounts(
+    const transferAccounts = await getPropellerTransferAccounts(
+      this.chainConfig,
       senderPublicKey,
       swimUsdTokenAccount,
       auxiliarySigner.publicKey,

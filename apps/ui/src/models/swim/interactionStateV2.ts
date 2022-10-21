@@ -4,8 +4,6 @@ import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isNotNull } from "@swim-io/utils";
 
-import { isSwimUsd } from "../../config";
-
 import type {
   AddInteraction,
   RemoveExactBurnInteraction,
@@ -72,10 +70,11 @@ export interface CrossChainEvmToSolanaSwapInteractionState {
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly approvalTxIds: readonly EvmTx["id"][];
   readonly crossChainInitiateTxId: EvmTx["id"] | null;
-  readonly signatureSetAddress: string | null;
-  readonly postVaaOnSolanaTxIds: readonly SolanaTx["id"][];
-  readonly claimTokenOnSolanaTxId: SolanaTx["id"] | null;
-  readonly swapFromSwimUsdTxId: SolanaTx["id"] | null;
+  readonly auxiliarySignerPublicKey: string | null;
+  readonly verifySignatureTxId: SolanaTx["id"] | null;
+  readonly postVaaOnSolanaTxId: SolanaTx["id"] | null;
+  readonly completeNativeWithPayloadTxId: SolanaTx["id"] | null;
+  readonly processSwimPayloadTxId: SolanaTx["id"] | null;
 }
 
 export interface AddInteractionState {
@@ -176,11 +175,7 @@ export const isTargetChainOperationCompleted = (
     case SwapType.CrossChainSolanaToEvm:
       return state.crossChainCompleteTxId !== null;
     case SwapType.CrossChainEvmToSolana: {
-      if (isSwimUsd(state.interaction.params.toTokenData.tokenConfig)) {
-        return state.claimTokenOnSolanaTxId !== null;
-      } else {
-        return state.swapFromSwimUsdTxId !== null;
-      }
+      return state.processSwimPayloadTxId !== null;
     }
   }
 };

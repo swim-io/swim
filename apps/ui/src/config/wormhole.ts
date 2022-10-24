@@ -68,7 +68,6 @@ export const EVM_NETWORKS: ReadonlyRecord<EVMChainId, number> = {
 };
 
 export interface WormholeEcosystem {
-  readonly chainId: ChainId;
   readonly displayName: string;
   readonly logo: string | null;
   readonly nativeTokenSymbol: string;
@@ -78,103 +77,86 @@ export const WORMHOLE_ECOSYSTEMS: Partial<
   ReadonlyRecord<ChainId, WormholeEcosystem>
 > = {
   [CHAIN_ID_SOLANA]: {
-    chainId: CHAIN_ID_SOLANA,
     displayName: "Solana",
     logo: SOLANA_SVG,
     nativeTokenSymbol: "SOL",
   },
   [CHAIN_ID_ETH]: {
-    chainId: CHAIN_ID_ETH,
     displayName: "Ethereum",
     logo: ETHEREUM_SVG,
     nativeTokenSymbol: "ETH",
   },
   [CHAIN_ID_BSC]: {
-    chainId: CHAIN_ID_BSC,
     displayName: "BNB Chain",
     logo: BNB_SVG,
     nativeTokenSymbol: "BNB",
   },
   [CHAIN_ID_AVAX]: {
-    chainId: CHAIN_ID_AVAX,
     displayName: "Avalanche",
     logo: AVALANCHE_SVG,
     nativeTokenSymbol: "AVAX",
   },
   [CHAIN_ID_POLYGON]: {
-    chainId: CHAIN_ID_POLYGON,
     displayName: "Polygon",
     logo: POLYGON_SVG,
     nativeTokenSymbol: "MATIC",
   },
   [CHAIN_ID_AURORA]: {
-    chainId: CHAIN_ID_AURORA,
     displayName: "Aurora",
     logo: AURORA_SVG,
     nativeTokenSymbol: "ETH",
   },
   [CHAIN_ID_FANTOM]: {
-    chainId: CHAIN_ID_FANTOM,
     displayName: "Fantom",
     logo: FANTOM_SVG,
     nativeTokenSymbol: "FTM",
   },
   [CHAIN_ID_KARURA]: {
-    chainId: CHAIN_ID_KARURA,
     displayName: "Karura",
     logo: KARURA_SVG,
     nativeTokenSymbol: "KAR",
   },
   [CHAIN_ID_ACALA]: {
-    chainId: CHAIN_ID_ACALA,
     displayName: "Acala",
     logo: ACALA_SVG,
     nativeTokenSymbol: "ACA",
   },
   [CHAIN_ID_KLAYTN]: {
-    chainId: CHAIN_ID_KLAYTN,
     displayName: "Klaytn",
     logo: null,
     nativeTokenSymbol: "KLAY",
   },
   [CHAIN_ID_OASIS]: {
-    chainId: CHAIN_ID_OASIS,
     displayName: "Oasis",
     logo: null,
     nativeTokenSymbol: "ROSE",
   },
   [CHAIN_ID_ARBITRUM]: {
-    chainId: CHAIN_ID_ARBITRUM,
     displayName: "Arbitrum",
     logo: null,
     nativeTokenSymbol: "",
   },
   [CHAIN_ID_CELO]: {
-    chainId: CHAIN_ID_CELO,
     displayName: "Celo",
     logo: null,
     nativeTokenSymbol: "CELO",
   },
   [CHAIN_ID_OPTIMISM]: {
-    chainId: CHAIN_ID_OPTIMISM,
     displayName: "Optimism",
     logo: null,
     nativeTokenSymbol: "OP",
   },
   [CHAIN_ID_GNOSIS]: {
-    chainId: CHAIN_ID_GNOSIS,
     displayName: "Gnosis",
     logo: null,
     nativeTokenSymbol: "GNO",
   },
   [CHAIN_ID_MOONBEAM]: {
-    chainId: CHAIN_ID_MOONBEAM,
     displayName: "Moonbeam",
     logo: null,
     nativeTokenSymbol: "GLMR",
   },
   [CHAIN_ID_NEON]: {
-    chainId: CHAIN_ID_NEON,
     displayName: "Neon",
     logo: null,
     nativeTokenSymbol: "NEON",

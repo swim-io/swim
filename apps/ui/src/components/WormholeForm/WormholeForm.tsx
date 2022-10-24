@@ -1,5 +1,5 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
-import { CHAIN_ID_SOLANA, CHAIN_ID_TO_NAME } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_SOLANA } from "@certusone/wormhole-sdk";
 import {
   EuiButton,
   EuiCallOut,
@@ -18,7 +18,6 @@ import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { EcosystemId } from "../../config";
 import { wormholeTokens as rawWormholeTokens } from "../../config";
 import { useNotification } from "../../core/store";
 import { useUserSolanaTokenBalance, useWormholeTransfer } from "../../hooks";
@@ -32,10 +31,10 @@ import type {
 import { ConfirmModal } from "../ConfirmModal";
 import { MultiConnectButton } from "../ConnectButton";
 import { EuiFieldIntlNumber } from "../EuiFieldIntlNumber";
-import { TxListItem } from "../molecules/TxListItem";
 
 import { WormholeChainSelect } from "./WormholeChainSelect";
 import { WormholeTokenSelect } from "./WormholeTokenSelect";
+import { WormholeTxListItem } from "./WormholeTxListItem";
 
 import "./WormholeForm.scss";
 
@@ -280,10 +279,7 @@ export const WormholeForm = (): ReactElement => {
               {txResults.map(({ chainId, txId }) => (
                 <div key={txId} style={{ margin: "5px 0px" }}>
                   <EuiText size="xs" key={txId}>
-                    <TxListItem
-                      ecosystem={CHAIN_ID_TO_NAME[chainId] as EcosystemId}
-                      txId={txId}
-                    />
+                    <WormholeTxListItem chainId={chainId} txId={txId} />
                   </EuiText>
                 </div>
               ))}

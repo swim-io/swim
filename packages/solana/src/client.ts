@@ -97,6 +97,7 @@ const isSupportedTokenProjectId = (
 ): id is SupportedTokenProjectId => SUPPORTED_TOKEN_PROJECT_IDS.includes(id);
 
 interface PropellerAddParams {
+  readonly wallet: SolanaWalletAdapter;
   readonly routingContract: Program<Propeller>;
   readonly interactionId: string;
   readonly senderPublicKey: PublicKey;
@@ -105,6 +106,7 @@ interface PropellerAddParams {
 }
 
 interface PropellerTransferParams {
+  readonly wallet: SolanaWalletAdapter;
   readonly routingContract: Program<Propeller>;
   readonly interactionId: string;
   readonly senderPublicKey: PublicKey;
@@ -416,6 +418,7 @@ export class SolanaClient extends Client<
     let addOutputAmountAtomic: string | null = null;
     if (sourceTokenId !== TokenProjectId.SwimUsd) {
       const addTx = await this.propellerAdd({
+        wallet,
         routingContract,
         interactionId,
         senderPublicKey,
@@ -438,6 +441,7 @@ export class SolanaClient extends Client<
     const swimUsdInputAmountAtomic = addOutputAmountAtomic ?? inputAmountAtomic;
 
     const transferTx = await this.propellerTransfer({
+      wallet,
       routingContract,
       interactionId,
       senderPublicKey,
@@ -889,6 +893,7 @@ export class SolanaClient extends Client<
   }
 
   private async propellerAdd({
+    wallet,
     routingContract,
     interactionId,
     senderPublicKey,
@@ -948,15 +953,15 @@ export class SolanaClient extends Client<
       .postInstructions([revokeIx, memoIx])
       .signers([auxiliarySigner])
       .transaction();
-    const txId = await this.sendAndConfirmTx(
-      // eslint-disable-next-line @typescript-eslint/require-await
-      async (tx) => tx,
-      txRequest,
-    );
+    const txId = await this.sendAndConfirmTx(async (tx) => {
+      tx.partialSign(auxiliarySigner);
+      return wallet.signTransaction(tx);
+    }, txRequest);
     return await this.getTx(txId);
   }
 
   private async propellerTransfer({
+    wallet,
     routingContract,
     interactionId,
     senderPublicKey,
@@ -996,11 +1001,10 @@ export class SolanaClient extends Client<
       .signers([auxiliarySigner])
       .transaction();
 
-    const txId = await this.sendAndConfirmTx(
-      // eslint-disable-next-line @typescript-eslint/require-await
-      async (tx) => tx,
-      txRequest,
-    );
+    const txId = await this.sendAndConfirmTx(async (tx) => {
+      tx.partialSign(auxiliarySigner);
+      return wallet.signTransaction(tx);
+    }, txRequest);
     return await this.getTx(txId);
   }
 }

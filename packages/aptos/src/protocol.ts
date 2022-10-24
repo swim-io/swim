@@ -3,6 +3,7 @@ import type {
   EcosystemConfig,
   Env,
   PoolConfig,
+  PoolState,
   Tx,
 } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -17,6 +18,10 @@ export const APTOS_ECOSYSTEM_ID: AptosEcosystemId = "aptos";
 export interface AptosPoolConfig extends PoolConfig {
   readonly ecosystemId: AptosEcosystemId;
   readonly owner: Types.Address;
+}
+
+export interface AptosPoolState extends PoolState {
+  readonly ecosystem: AptosEcosystemId;
 }
 
 export interface AptosChainConfig extends ChainConfig {

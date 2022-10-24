@@ -21,23 +21,23 @@ interface TokenIconProps
 
 type WormholeTokenIconProps = {
   readonly token: WormholeToken;
-  readonly isSelected: boolean;
+  readonly displaySymbol: boolean;
 };
 
 export const WormholeTokenIcon = ({
   token,
-  isSelected,
+  displaySymbol,
 }: WormholeTokenIconProps): ReactElement => {
   const { logo, symbol, displayName } = token;
   return (
     <div>
       <WithIcon
-        type={logo}
+        type={logo || "questionInCircle"}
         size="m"
         title={displayName}
         style={{ marginRight: 5 }}
       />
-      <span>{isSelected ? `${symbol}` : `${symbol} - ${displayName}`}</span>
+      <span>{displaySymbol ? `${symbol}` : `${symbol} - ${displayName}`}</span>
     </div>
   );
 };

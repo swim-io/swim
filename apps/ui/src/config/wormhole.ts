@@ -1,6 +1,8 @@
-import type { ChainId, ChainName, EVMChainId } from "@certusone/wormhole-sdk";
+import type { ChainId, EVMChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_ACALA,
+  CHAIN_ID_ALGORAND,
+  CHAIN_ID_APTOS,
   CHAIN_ID_ARBITRUM,
   CHAIN_ID_AURORA,
   CHAIN_ID_AVAX,
@@ -10,31 +12,33 @@ import {
   CHAIN_ID_ETHEREUM_ROPSTEN,
   CHAIN_ID_FANTOM,
   CHAIN_ID_GNOSIS,
+  CHAIN_ID_INJECTIVE,
   CHAIN_ID_KARURA,
   CHAIN_ID_KLAYTN,
   CHAIN_ID_MOONBEAM,
   CHAIN_ID_NEON,
   CHAIN_ID_OASIS,
   CHAIN_ID_OPTIMISM,
+  CHAIN_ID_OSMOSIS,
   CHAIN_ID_POLYGON,
+  CHAIN_ID_PYTHNET,
+  CHAIN_ID_SOLANA,
+  CHAIN_ID_SUI,
+  CHAIN_ID_TERRA,
+  CHAIN_ID_TERRA2,
 } from "@certusone/wormhole-sdk";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 
 import ACALA_SVG from "../images/ecosystems/acala.svg";
-import ALGORAND_SVG from "../images/ecosystems/algorand.svg";
-import APTOS_SVG from "../images/ecosystems/aptos.svg";
 import AURORA_SVG from "../images/ecosystems/aurora.svg";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import FANTOM_SVG from "../images/ecosystems/fantom.svg";
 import KARURA_SVG from "../images/ecosystems/karura.svg";
-import KLAYTN_SVG from "../images/ecosystems/klaytn.svg";
-import OASIS_SVG from "../images/ecosystems/oasis.svg";
 import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
-import TERRA_SVG from "../images/ecosystems/terra.svg";
 
 // We currently use this with Wormhole SDK’s getSignedVAAWithRetry function.
 // By default this function retries every 1 second.
@@ -71,27 +75,7 @@ export const EVM_NETWORKS: ReadonlyRecord<EVMChainId, number> = {
   [CHAIN_ID_ETHEREUM_ROPSTEN]: 3,
 };
 
-export const enum WormholeEcosystemId {
-  Ethereum = "ethereum",
-  Bsc = "bsc",
-  Avalanche = "avalanche",
-  Polygon = "polygon",
-  Aurora = "aurora",
-  Fantom = "fantom",
-  Karura = "karura",
-  Acala = "acala",
-  Aptos = "aptos",
-  Celo = "celo",
-  Solana = "solana",
-  Klaytn = "klaytn",
-  Neon = "neon",
-  Oasis = "oasis",
-  Algorand = "algorand",
-  Terra = "terra",
-}
-
 export interface WormholeEcosystem {
-  readonly id: ChainName;
   readonly chainId: ChainId;
   readonly displayName: string;
   readonly logo: string;
@@ -100,108 +84,158 @@ export interface WormholeEcosystem {
 
 export const WORMHOLE_ECOSYSTEM_LIST: readonly WormholeEcosystem[] = [
   {
-    id: WormholeEcosystemId.Aptos,
-    chainId: WormholeChainId.Aptos,
+    chainId: CHAIN_ID_APTOS,
     displayName: "Aptos",
-    logo: APTOS_SVG,
+    logo: "",
     nativeTokenSymbol: "APT",
   },
   {
-    id: WormholeEcosystemId.Solana,
-    chainId: WormholeChainId.Solana,
+    chainId: CHAIN_ID_SOLANA,
     displayName: "Solana",
     logo: SOLANA_SVG,
     nativeTokenSymbol: "SOL",
   },
   {
-    id: WormholeEcosystemId.Ethereum,
-    chainId: WormholeChainId.Ethereum,
+    chainId: CHAIN_ID_ETH,
     displayName: "Ethereum",
     logo: ETHEREUM_SVG,
     nativeTokenSymbol: "ETH",
   },
   {
-    id: WormholeEcosystemId.Bsc,
-    chainId: WormholeChainId.Bnb,
+    chainId: CHAIN_ID_BSC,
     displayName: "BNB Chain",
     logo: BNB_SVG,
     nativeTokenSymbol: "BNB",
   },
   {
-    id: WormholeEcosystemId.Avalanche,
-    chainId: WormholeChainId.Avalanche,
+    chainId: CHAIN_ID_AVAX,
     displayName: "Avalanche",
     logo: AVALANCHE_SVG,
     nativeTokenSymbol: "AVAX",
   },
   {
-    id: WormholeEcosystemId.Polygon,
-    chainId: WormholeChainId.Polygon,
+    chainId: CHAIN_ID_POLYGON,
     displayName: "Polygon",
     logo: POLYGON_SVG,
     nativeTokenSymbol: "MATIC",
   },
   {
-    id: WormholeEcosystemId.Aurora,
-    chainId: WormholeChainId.Aurora,
+    chainId: CHAIN_ID_AURORA,
     displayName: "Aurora",
     logo: AURORA_SVG,
     nativeTokenSymbol: "ETH",
   },
   {
-    id: WormholeEcosystemId.Fantom,
-    chainId: WormholeChainId.Fantom,
+    chainId: CHAIN_ID_FANTOM,
     displayName: "Fantom",
     logo: FANTOM_SVG,
     nativeTokenSymbol: "FTM",
   },
   {
-    id: WormholeEcosystemId.Karura,
-    chainId: WormholeChainId.Karura,
+    chainId: CHAIN_ID_KARURA,
     displayName: "Karura",
     logo: KARURA_SVG,
     nativeTokenSymbol: "KAR",
   },
   {
-    id: WormholeEcosystemId.Acala,
-    chainId: WormholeChainId.Acala,
+    chainId: CHAIN_ID_ACALA,
     displayName: "Acala",
     logo: ACALA_SVG,
     nativeTokenSymbol: "ACA",
   },
   {
-    id: WormholeEcosystemId.Algorand,
-    chainId: WormholeChainId.Algorand,
+    chainId: CHAIN_ID_ALGORAND,
     displayName: "Algorand",
-    logo: ALGORAND_SVG,
+    logo: "",
     nativeTokenSymbol: "ALGO",
   },
   {
-    id: WormholeEcosystemId.Klaytn,
-    chainId: WormholeChainId.Klaytn,
+    chainId: CHAIN_ID_KLAYTN,
     displayName: "Klaytn",
-    logo: KLAYTN_SVG,
+    logo: "",
     nativeTokenSymbol: "KLAY",
   },
   {
-    id: WormholeEcosystemId.Oasis,
-    chainId: WormholeChainId.Oasis,
+    chainId: CHAIN_ID_OASIS,
     displayName: "Oasis",
-    logo: OASIS_SVG,
+    logo: "",
     nativeTokenSymbol: "ROSE",
   },
   {
-    id: WormholeEcosystemId.Terra,
-    chainId: WormholeChainId.Terra,
+    chainId: CHAIN_ID_TERRA,
     displayName: "Terra",
-    logo: TERRA_SVG,
+    logo: "",
     nativeTokenSymbol: "LUNA",
+  },
+  {
+    chainId: CHAIN_ID_ARBITRUM,
+    displayName: "Arbitrum",
+    logo: "",
+    nativeTokenSymbol: "",
+  },
+  {
+    chainId: CHAIN_ID_CELO,
+    displayName: "Celo",
+    logo: "",
+    nativeTokenSymbol: "CELO",
+  },
+  {
+    chainId: CHAIN_ID_OPTIMISM,
+    displayName: "Optimism",
+    logo: "",
+    nativeTokenSymbol: "OP",
+  },
+  {
+    chainId: CHAIN_ID_TERRA2,
+    displayName: "TerraClassic",
+    logo: "",
+    nativeTokenSymbol: "LUNC",
+  },
+  {
+    chainId: CHAIN_ID_GNOSIS,
+    displayName: "Gnosis",
+    logo: "",
+    nativeTokenSymbol: "GNO",
+  },
+  {
+    chainId: CHAIN_ID_INJECTIVE,
+    displayName: "Injective",
+    logo: "",
+    nativeTokenSymbol: "INJ",
+  },
+  {
+    chainId: CHAIN_ID_MOONBEAM,
+    displayName: "Moonbeam",
+    logo: "",
+    nativeTokenSymbol: "GLMR",
+  },
+  {
+    chainId: CHAIN_ID_NEON,
+    displayName: "Neon",
+    logo: "",
+    nativeTokenSymbol: "NEON",
+  },
+  {
+    chainId: CHAIN_ID_OSMOSIS,
+    displayName: "Osmosis",
+    logo: "",
+    nativeTokenSymbol: "OSMO",
+  },
+  {
+    chainId: CHAIN_ID_SUI,
+    displayName: "Sui",
+    logo: "",
+    nativeTokenSymbol: "SUI",
+  },
+  {
+    chainId: CHAIN_ID_PYTHNET,
+    displayName: "Pyth",
+    logo: "",
+    nativeTokenSymbol: "PYTH",
   },
 ];
 
-export const WORMHOLE_ECOSYSTEMS: ReadonlyRecord<
-  WormholeEcosystemId,
-  WormholeEcosystem
-> = Object.fromEntries(
-  WORMHOLE_ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.id, ecosystem]),
-) as ReadonlyRecord<WormholeEcosystemId, WormholeEcosystem>;
+export const WORMHOLE_ECOSYSTEMS: ReadonlyRecord<ChainId, WormholeEcosystem> =
+  Object.fromEntries(
+    WORMHOLE_ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.chainId, ecosystem]),
+  ) as ReadonlyRecord<ChainId, WormholeEcosystem>;

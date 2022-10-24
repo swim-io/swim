@@ -20,7 +20,7 @@ type TokenOption = EuiSelectableOption<{
 }>;
 
 const renderTokenOption = (option: TokenOption): ReactNode => (
-  <WormholeTokenIcon token={option.data} isSelected={false} />
+  <WormholeTokenIcon token={option.data} displaySymbol={false} />
 );
 
 interface Props {
@@ -62,7 +62,7 @@ export const WormholeTokenModal = ({
     >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          {t("wormhole_page.token_select_modal.title")}
+          {t("token_search_modal.search_tokens")}
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody className="modalBody">
@@ -88,5 +88,3 @@ export const WormholeTokenModal = ({
     </CustomModal>
   );
 };
-
-export {};

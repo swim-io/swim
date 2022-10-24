@@ -21,14 +21,21 @@
   transition: all 1s ease-out;
 }
 
-@media only screen and (max-width: 748px) {
+@media only screen and (max-width: 540px) {
   .chainSelectItem {
     .euiContextMenuItem__text {
-      max-width: 80%;
+      max-width: 70%;
       .euiFlexGroup--responsive {
         display: flex;
         flex-wrap: nowrap;
       }
     }
+  }
+}
+
+@media only screen and (min-width: 540) {
+  .titleConnectWrapper {
+    display: flex;
+    flex-wrap: nowrap;
   }
 }

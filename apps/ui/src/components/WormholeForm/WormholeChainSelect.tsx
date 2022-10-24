@@ -1,5 +1,4 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
-import { CHAIN_ID_TO_NAME } from "@certusone/wormhole-sdk";
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -9,7 +8,6 @@ import {
   EuiText,
 } from "@elastic/eui";
 
-import type { WormholeEcosystemId } from "../../config";
 import { WORMHOLE_ECOSYSTEMS } from "../../config";
 
 import "./WormholeForm.scss";
@@ -21,7 +19,7 @@ interface Props {
   readonly label?: string;
 }
 
-const WormholeChainSelect = ({
+export const WormholeChainSelect = ({
   chains,
   selectedChainId,
   onSelectChain,
@@ -33,32 +31,17 @@ const WormholeChainSelect = ({
       <EuiFlexGroup alignItems="center">
         <EuiFlexItem grow={false}>
           <EuiIcon
-            type={
-              WORMHOLE_ECOSYSTEMS[
-                CHAIN_ID_TO_NAME[chainId] as WormholeEcosystemId
-              ].logo
-            }
+            type={WORMHOLE_ECOSYSTEMS[chainId].logo || "questionInCircle"}
           />
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiText size="s" className="chainName">
-            {
-              WORMHOLE_ECOSYSTEMS[
-                CHAIN_ID_TO_NAME[chainId] as WormholeEcosystemId
-              ].displayName
-            }
+            {WORMHOLE_ECOSYSTEMS[chainId].displayName}
           </EuiText>
         </EuiFlexItem>
       </EuiFlexGroup>
     ),
-    append: (
-      <EuiIcon
-        type={
-          WORMHOLE_ECOSYSTEMS[CHAIN_ID_TO_NAME[chainId] as WormholeEcosystemId]
-            .logo
-        }
-      />
-    ),
+    append: <EuiIcon type={WORMHOLE_ECOSYSTEMS[chainId].logo} />,
     selected: chainId === selectedChainId,
   }));
 
@@ -67,8 +50,8 @@ const WormholeChainSelect = ({
       <EuiFormRow label={label}>
         <EuiSuperSelect
           options={chainOptions}
-          valueOfSelected={String(selectedChainId)}
-          onChange={(value) => onSelectChain(Number(value) as ChainId)}
+          valueOfSelected={selectedChainId.toString()}
+          onChange={(value) => onSelectChain(parseInt(value, 10) as ChainId)}
           className="euiButton--primary"
           itemClassName="chainSelectItem"
           hasDividers
@@ -77,5 +60,3 @@ const WormholeChainSelect = ({
     </>
   );
 };
-
-export default WormholeChainSelect;

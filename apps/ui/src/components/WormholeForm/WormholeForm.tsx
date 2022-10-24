@@ -34,7 +34,7 @@ import { MultiConnectButton } from "../ConnectButton";
 import { EuiFieldIntlNumber } from "../EuiFieldIntlNumber";
 import { TxListItem } from "../molecules/TxListItem";
 
-import WormholeChainSelect from "./WormholeChainSelect";
+import { WormholeChainSelect } from "./WormholeChainSelect";
 import { WormholeTokenSelect } from "./WormholeTokenSelect";
 
 import "./WormholeForm.scss";
@@ -98,13 +98,14 @@ export const WormholeForm = (): ReactElement => {
     setTxResults((previousResults) => [...previousResults, txResult]);
   };
 
-  const handleSubmit = () => {
-    (async (): Promise<void> => {
+  const submitForm = async (): Promise<void> => {
+    try {
       setTxResults([]);
       setError(null);
       if (targetDetails === null) {
         throw new Error("Missing target details");
       }
+
       await transfer({
         interactionId: generateId(),
         value: inputAmount,
@@ -113,17 +114,55 @@ export const WormholeForm = (): ReactElement => {
         nativeDetails: currentToken.nativeDetails,
         onTxResult: handleTxResult,
       });
-    })().catch((e) => {
+    } catch (e) {
       console.error(e);
       notify("Error", String(e), "error");
       setError(String(e));
-    });
+    }
   };
 
-  const handleConfirmSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleFormSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setIsConfirmModalVisible(true);
   };
+
+  const handleConfirmModalCancel = (): void => {
+    setIsConfirmModalVisible(false);
+  };
+
+  const handleConfirmModalConfirm = () => {
+    setIsConfirmModalVisible(false);
+    submitForm().catch(console.error);
+  };
+
+  const checkAmountErrors = useCallback(
+    (value: Decimal) => {
+      let errors: readonly string[] = [];
+      if (value.isNeg()) {
+        errors = [...errors, t("general.amount_of_tokens_invalid")];
+      } else if (value.lte(0)) {
+        errors = [...errors, t("general.amount_of_tokens_less_than_one")];
+      } else if (!balance || value.gt(balance)) {
+        errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
+      } else {
+        errors = [];
+      }
+      setAmountErrors(errors);
+    },
+    [balance, t],
+  );
+
+  const handleTransferAmountChange = useCallback(
+    (value: string): void => {
+      if (value === "") {
+        setInputAmount(new Decimal(0));
+      } else {
+        setInputAmount(new Decimal(value));
+      }
+      checkAmountErrors(new Decimal(value || 0));
+    },
+    [checkAmountErrors],
+  );
 
   useEffect(() => {
     setSourceChainId(sourceChains[0]);
@@ -136,59 +175,23 @@ export const WormholeForm = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetChains]);
 
-  const handleConfirmModalCancel = (): void => {
-    setIsConfirmModalVisible(false);
-  };
-
-  const handleConfirmModalConfirm = (): void => {
-    setIsConfirmModalVisible(false);
-    handleSubmit();
-  };
-
-  const checkAmountErrors = useCallback(
-    (value: Decimal) => {
-      let errors: readonly string[] = [];
-      if (value.isNeg()) {
-        errors = [...errors, t("general.amount_of_tokens_invalid")];
-      } else if (value.lte(0)) {
-        errors = [...errors, t("general.amount_of_tokens_less_than_one")];
-      } else if (!balance || new Decimal(value).gt(balance)) {
-        errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
-      } else {
-        errors = [];
-      }
-      setAmountErrors(errors);
-    },
-    [balance, t],
-  );
-
-  const handleTransferAmountChange = useCallback(
-    (value: string): void => {
-      let newValue = new Decimal(0);
-      if (value === "") {
-        setInputAmount(new Decimal(0));
-      } else {
-        setInputAmount(new Decimal(value));
-        newValue = new Decimal(value);
-      }
-      checkAmountErrors(newValue);
-    },
-    [checkAmountErrors],
-  );
-
   return (
     <EuiForm
       component="form"
       className="wormholeForm"
-      onSubmit={handleConfirmSubmit}
+      onSubmit={handleFormSubmit}
     >
-      <EuiFlexGroup justifyContent="spaceBetween" responsive={true}>
+      <EuiFlexGroup
+        justifyContent="spaceBetween"
+        responsive={true}
+        className="titleConnectWrapper"
+      >
         <EuiFlexItem grow={false}>
           <EuiTitle>
-            <h2>{t("wormhole_page.title")}</h2>
+            <h2>{t("nav.wormhole")}</h2>
           </EuiTitle>
         </EuiFlexItem>
-        <EuiFlexItem grow={false} className="buttons">
+        <EuiFlexItem grow={false}>
           <MultiConnectButton size="s" fullWidth />
         </EuiFlexItem>
       </EuiFlexGroup>
@@ -314,7 +317,7 @@ export const WormholeForm = (): ReactElement => {
         onCancel={handleConfirmModalCancel}
         onConfirm={handleConfirmModalConfirm}
         titleText={t("wormhole_page.confirm_modal.title")}
-        cancelText={t("wormhole_page.confirm_modal.cancel")}
+        cancelText={t("general.cancel_button")}
         confirmText={t("wormhole_page.confirm_modal.transfer")}
         promptText={t("wormhole_page.confirm_modal.question")}
       />

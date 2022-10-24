@@ -12,7 +12,6 @@ import { useWallets } from "../hooks";
 import { isEveryAddressConnected } from "../models";
 import type { InteractionType } from "../models";
 
-import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
 import { InteractionStateComponentV2 } from "./molecules/InteractionStateComponentV2";
 
@@ -55,7 +54,6 @@ export const RecentInteractionsV2 = ({
       <EuiAccordion
         id="recent-interactions"
         buttonContent={`${title} (${recentInteractions.length})`}
-        extraAction={<MultiConnectButton size="s" fullWidth />}
       >
         <EuiSpacer />
         <EuiPanel color="subdued">

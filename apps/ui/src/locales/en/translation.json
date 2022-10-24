@@ -282,7 +282,7 @@
   "wormhole_page.custom_token_address": "Custom token address",
   "wormhole_page.error.message": "If your transfer was interrupted, check the relevant blockchain explorer for the transaction ID and use link to complete the transfer.",
   "wormhole_page.error.title": "Something went wrong",
-  "wormhole_page.message.bridged_tokens": "The tokens have entered to the bridge. View transaction:",
+  "wormhole_page.message.bridged_tokens": "The tokens have entered the bridge. View transaction:",
   "wormhole_page.message.fetching_vaa": "Fetching signed VAA...",
   "wormhole_page.message.signed_vaa": "Fetched signed VAA!",
   "wormhole_page.message.transfer_success": "Transfer is completed. View transactions:",

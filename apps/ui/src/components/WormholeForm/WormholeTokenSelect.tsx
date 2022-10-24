@@ -31,7 +31,7 @@ export const WormholeTokenSelect = ({
         onClick={openModal}
         fullWidth
       >
-        <WormholeTokenIcon token={selectedToken} displaySymbol={true} />
+        <WormholeTokenIcon token={selectedToken} showFullName={false} />
       </EuiButton>
       {showModal && (
         <WormholeTokenModal

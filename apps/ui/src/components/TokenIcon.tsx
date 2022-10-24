@@ -19,29 +19,6 @@ interface TokenIconProps
   readonly showFullName?: boolean;
 }
 
-type WormholeTokenIconProps = {
-  readonly token: WormholeToken;
-  readonly displaySymbol: boolean;
-};
-
-export const WormholeTokenIcon = ({
-  token,
-  displaySymbol,
-}: WormholeTokenIconProps): ReactElement => {
-  const { logo, symbol, displayName } = token;
-  return (
-    <div>
-      <WithIcon
-        type={logo || "questionInCircle"}
-        size="m"
-        title={displayName}
-        style={{ marginRight: 5 }}
-      />
-      <span>{displaySymbol ? `${symbol}` : `${symbol} - ${displayName}`}</span>
-    </div>
-  );
-};
-
 type WithIconProps = ComponentProps<typeof EuiIcon>;
 const WithIcon = ({ children, ...rest }: WithIconProps) => {
   return (
@@ -151,3 +128,26 @@ export const TokenSearchConfigIcon = ({
 }: Pick<TokenConfigIconProps, "token">): ReactElement => (
   <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
 );
+
+type WormholeTokenIconProps = {
+  readonly token: WormholeToken;
+  readonly showFullName: boolean;
+};
+
+export const WormholeTokenIcon = ({
+  token,
+  showFullName,
+}: WormholeTokenIconProps): ReactElement => {
+  const { logo, symbol, displayName } = token;
+  return (
+    <div>
+      <WithIcon
+        type={logo || "questionInCircle"}
+        size="m"
+        title={displayName}
+        style={{ marginRight: 5 }}
+      />
+      <span>{showFullName ? `${symbol} - ${displayName}` : `${symbol}`}</span>
+    </div>
+  );
+};

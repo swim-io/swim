@@ -99,26 +99,20 @@ export const WormholeForm = (): ReactElement => {
   };
 
   const submitForm = async (): Promise<void> => {
-    try {
-      setTxResults([]);
-      setError(null);
-      if (targetDetails === null) {
-        throw new Error("Missing target details");
-      }
-
-      await transfer({
-        interactionId: generateId(),
-        value: inputAmount,
-        sourceDetails,
-        targetDetails,
-        nativeDetails: currentToken.nativeDetails,
-        onTxResult: handleTxResult,
-      });
-    } catch (e) {
-      console.error(e);
-      notify("Error", String(e), "error");
-      setError(String(e));
+    setTxResults([]);
+    setError(null);
+    if (targetDetails === null) {
+      throw new Error("Missing target details");
     }
+
+    await transfer({
+      interactionId: generateId(),
+      value: inputAmount,
+      sourceDetails,
+      targetDetails,
+      nativeDetails: currentToken.nativeDetails,
+      onTxResult: handleTxResult,
+    });
   };
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>): void => {
@@ -132,7 +126,11 @@ export const WormholeForm = (): ReactElement => {
 
   const handleConfirmModalConfirm = () => {
     setIsConfirmModalVisible(false);
-    submitForm().catch(console.error);
+    submitForm().catch((e) => {
+      console.error(e);
+      notify("Error", String(e), "error");
+      setError(String(e));
+    });
   };
 
   const checkAmountErrors = useCallback(
@@ -154,14 +152,11 @@ export const WormholeForm = (): ReactElement => {
 
   const handleTransferAmountChange = useCallback(
     (value: string): void => {
-      if (value === "") {
-        setInputAmount(new Decimal(0));
-      } else {
-        setInputAmount(new Decimal(value));
-      }
-      checkAmountErrors(new Decimal(value || 0));
+      const newAmount = new Decimal(value || 0);
+      setInputAmount(newAmount);
+      checkAmountErrors(newAmount);
     },
-    [checkAmountErrors],
+    [setInputAmount, checkAmountErrors],
   );
 
   useEffect(() => {
@@ -172,8 +167,7 @@ export const WormholeForm = (): ReactElement => {
     if (targetChainId === sourceChainId) {
       setTargetChainId(targetChains[0]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetChains]);
+  }, [targetChains, targetChainId, sourceChainId]);
 
   return (
     <EuiForm

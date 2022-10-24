@@ -20,7 +20,7 @@ type TokenOption = EuiSelectableOption<{
 }>;
 
 const renderTokenOption = (option: TokenOption): ReactNode => (
-  <WormholeTokenIcon token={option.data} displaySymbol={false} />
+  <WormholeTokenIcon token={option.data} showFullName={true} />
 );
 
 interface Props {

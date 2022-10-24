@@ -1,8 +1,6 @@
 import type { ChainId, EVMChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_ACALA,
-  CHAIN_ID_ALGORAND,
-  CHAIN_ID_APTOS,
   CHAIN_ID_ARBITRUM,
   CHAIN_ID_AURORA,
   CHAIN_ID_AVAX,
@@ -12,20 +10,14 @@ import {
   CHAIN_ID_ETHEREUM_ROPSTEN,
   CHAIN_ID_FANTOM,
   CHAIN_ID_GNOSIS,
-  CHAIN_ID_INJECTIVE,
   CHAIN_ID_KARURA,
   CHAIN_ID_KLAYTN,
   CHAIN_ID_MOONBEAM,
   CHAIN_ID_NEON,
   CHAIN_ID_OASIS,
   CHAIN_ID_OPTIMISM,
-  CHAIN_ID_OSMOSIS,
   CHAIN_ID_POLYGON,
-  CHAIN_ID_PYTHNET,
   CHAIN_ID_SOLANA,
-  CHAIN_ID_SUI,
-  CHAIN_ID_TERRA,
-  CHAIN_ID_TERRA2,
 } from "@certusone/wormhole-sdk";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
@@ -78,164 +70,113 @@ export const EVM_NETWORKS: ReadonlyRecord<EVMChainId, number> = {
 export interface WormholeEcosystem {
   readonly chainId: ChainId;
   readonly displayName: string;
-  readonly logo: string;
+  readonly logo: string | null;
   readonly nativeTokenSymbol: string;
 }
 
-export const WORMHOLE_ECOSYSTEM_LIST: readonly WormholeEcosystem[] = [
-  {
-    chainId: CHAIN_ID_APTOS,
-    displayName: "Aptos",
-    logo: "",
-    nativeTokenSymbol: "APT",
-  },
-  {
+export const WORMHOLE_ECOSYSTEMS: Partial<
+  ReadonlyRecord<ChainId, WormholeEcosystem>
+> = {
+  [CHAIN_ID_SOLANA]: {
     chainId: CHAIN_ID_SOLANA,
     displayName: "Solana",
     logo: SOLANA_SVG,
     nativeTokenSymbol: "SOL",
   },
-  {
+  [CHAIN_ID_ETH]: {
     chainId: CHAIN_ID_ETH,
     displayName: "Ethereum",
     logo: ETHEREUM_SVG,
     nativeTokenSymbol: "ETH",
   },
-  {
+  [CHAIN_ID_BSC]: {
     chainId: CHAIN_ID_BSC,
     displayName: "BNB Chain",
     logo: BNB_SVG,
     nativeTokenSymbol: "BNB",
   },
-  {
+  [CHAIN_ID_AVAX]: {
     chainId: CHAIN_ID_AVAX,
     displayName: "Avalanche",
     logo: AVALANCHE_SVG,
     nativeTokenSymbol: "AVAX",
   },
-  {
+  [CHAIN_ID_POLYGON]: {
     chainId: CHAIN_ID_POLYGON,
     displayName: "Polygon",
     logo: POLYGON_SVG,
     nativeTokenSymbol: "MATIC",
   },
-  {
+  [CHAIN_ID_AURORA]: {
     chainId: CHAIN_ID_AURORA,
     displayName: "Aurora",
     logo: AURORA_SVG,
     nativeTokenSymbol: "ETH",
   },
-  {
+  [CHAIN_ID_FANTOM]: {
     chainId: CHAIN_ID_FANTOM,
     displayName: "Fantom",
     logo: FANTOM_SVG,
     nativeTokenSymbol: "FTM",
   },
-  {
+  [CHAIN_ID_KARURA]: {
     chainId: CHAIN_ID_KARURA,
     displayName: "Karura",
     logo: KARURA_SVG,
     nativeTokenSymbol: "KAR",
   },
-  {
+  [CHAIN_ID_ACALA]: {
     chainId: CHAIN_ID_ACALA,
     displayName: "Acala",
     logo: ACALA_SVG,
     nativeTokenSymbol: "ACA",
   },
-  {
-    chainId: CHAIN_ID_ALGORAND,
-    displayName: "Algorand",
-    logo: "",
-    nativeTokenSymbol: "ALGO",
-  },
-  {
+  [CHAIN_ID_KLAYTN]: {
     chainId: CHAIN_ID_KLAYTN,
     displayName: "Klaytn",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "KLAY",
   },
-  {
+  [CHAIN_ID_OASIS]: {
     chainId: CHAIN_ID_OASIS,
     displayName: "Oasis",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "ROSE",
   },
-  {
-    chainId: CHAIN_ID_TERRA,
-    displayName: "Terra",
-    logo: "",
-    nativeTokenSymbol: "LUNA",
-  },
-  {
+  [CHAIN_ID_ARBITRUM]: {
     chainId: CHAIN_ID_ARBITRUM,
     displayName: "Arbitrum",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "",
   },
-  {
+  [CHAIN_ID_CELO]: {
     chainId: CHAIN_ID_CELO,
     displayName: "Celo",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "CELO",
   },
-  {
+  [CHAIN_ID_OPTIMISM]: {
     chainId: CHAIN_ID_OPTIMISM,
     displayName: "Optimism",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "OP",
   },
-  {
-    chainId: CHAIN_ID_TERRA2,
-    displayName: "TerraClassic",
-    logo: "",
-    nativeTokenSymbol: "LUNC",
-  },
-  {
+  [CHAIN_ID_GNOSIS]: {
     chainId: CHAIN_ID_GNOSIS,
     displayName: "Gnosis",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "GNO",
   },
-  {
-    chainId: CHAIN_ID_INJECTIVE,
-    displayName: "Injective",
-    logo: "",
-    nativeTokenSymbol: "INJ",
-  },
-  {
+  [CHAIN_ID_MOONBEAM]: {
     chainId: CHAIN_ID_MOONBEAM,
     displayName: "Moonbeam",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "GLMR",
   },
-  {
+  [CHAIN_ID_NEON]: {
     chainId: CHAIN_ID_NEON,
     displayName: "Neon",
-    logo: "",
+    logo: null,
     nativeTokenSymbol: "NEON",
   },
-  {
-    chainId: CHAIN_ID_OSMOSIS,
-    displayName: "Osmosis",
-    logo: "",
-    nativeTokenSymbol: "OSMO",
-  },
-  {
-    chainId: CHAIN_ID_SUI,
-    displayName: "Sui",
-    logo: "",
-    nativeTokenSymbol: "SUI",
-  },
-  {
-    chainId: CHAIN_ID_PYTHNET,
-    displayName: "Pyth",
-    logo: "",
-    nativeTokenSymbol: "PYTH",
-  },
-];
-
-export const WORMHOLE_ECOSYSTEMS: ReadonlyRecord<ChainId, WormholeEcosystem> =
-  Object.fromEntries(
-    WORMHOLE_ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.chainId, ecosystem]),
-  ) as ReadonlyRecord<ChainId, WormholeEcosystem>;
+};

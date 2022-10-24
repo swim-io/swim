@@ -31,17 +31,21 @@ export const WormholeChainSelect = ({
       <EuiFlexGroup alignItems="center">
         <EuiFlexItem grow={false}>
           <EuiIcon
-            type={WORMHOLE_ECOSYSTEMS[chainId].logo || "questionInCircle"}
+            type={WORMHOLE_ECOSYSTEMS[chainId]?.logo || "questionInCircle"}
           />
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiText size="s" className="chainName">
-            {WORMHOLE_ECOSYSTEMS[chainId].displayName}
+            {WORMHOLE_ECOSYSTEMS[chainId]?.displayName}
           </EuiText>
         </EuiFlexItem>
       </EuiFlexGroup>
     ),
-    append: <EuiIcon type={WORMHOLE_ECOSYSTEMS[chainId].logo} />,
+    append: (
+      <EuiIcon
+        type={WORMHOLE_ECOSYSTEMS[chainId]?.logo || "questionInCircle"}
+      />
+    ),
     selected: chainId === selectedChainId,
   }));
 

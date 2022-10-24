@@ -120,4 +120,12 @@ export class AptosClient extends Client<
   > {
     throw new Error("Not implemented");
   }
+
+  public generateInitiatePropellerTxs(): AsyncGenerator<
+    TxGeneratorResult<any, AptosTx, AptosTxType>,
+    any,
+    AptosTxType
+  > {
+    throw new Error("Not implemented");
+  }
 }

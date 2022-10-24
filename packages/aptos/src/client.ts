@@ -1,4 +1,4 @@
-import type { TokenDetails, TxGeneratorResult } from "@swim-io/core";
+import type { PoolState, TokenDetails, TxGeneratorResult } from "@swim-io/core";
 import { Client } from "@swim-io/core";
 import { atomicToHuman } from "@swim-io/utils";
 import {
@@ -106,6 +106,10 @@ export class AptosClient extends Client<
   }
 
   public getTokenBalances(): Promise<readonly Decimal[]> {
+    throw new Error("Not implemented");
+  }
+
+  public getPoolState(): Promise<PoolState> {
     throw new Error("Not implemented");
   }
 

@@ -23,8 +23,8 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
-    "@swim-io/pool-math": "workspace:^",
-    "@swim-io/solana": "workspace:^"
+    "@swim-io/pool-math": "~0.39.0",
+    "@swim-io/solana": "~0.39.0"
   },
   "devDependencies": {
     "@project-serum/borsh": "^0.2.3",

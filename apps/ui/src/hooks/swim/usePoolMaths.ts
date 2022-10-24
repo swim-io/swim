@@ -7,7 +7,7 @@ import { bnOrBigNumberToDecimal } from "../../amounts";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { Amount, isEvmPoolState } from "../../models";
+import { Amount, isAptosPoolState, isEvmPoolState } from "../../models";
 
 import type { PoolData } from "./usePools";
 import { usePools } from "./usePools";
@@ -45,6 +45,10 @@ const getPoolMath = ({
       poolState.totalLpSupply,
       tolerance,
     );
+  }
+
+  if (isAptosPoolState(poolState)) {
+    return null; // TODO aptos
   }
 
   if (

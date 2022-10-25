@@ -43,10 +43,10 @@ pub struct TransferNativeWithPayload<'info> {
 	mut,
 	seeds = [ b"config".as_ref() ],
 	bump,
-	seeds::program = propeller.token_bridge().unwrap()
+	seeds::program = propeller.token_bridge()
 	)]
     /// CHECK: Token Bridge Config
-    pub token_bridge_config: AccountInfo<'info>,
+    pub token_bridge_config: UncheckedAccount<'info>,
 
     #[account(
 	mut,
@@ -67,7 +67,6 @@ pub struct TransferNativeWithPayload<'info> {
     /// CHECK: Will either be token bridge custody account or wrapped meta account
     pub custody: UncheckedAccount<'info>,
 
-    #[account(executable, address = propeller.token_bridge()?)]
     pub token_bridge: Program<'info, TokenBridge>,
 
     #[account(
@@ -90,7 +89,7 @@ pub struct TransferNativeWithPayload<'info> {
 	mut,
 	seeds = [b"Bridge".as_ref()],
 	bump,
-	seeds::program = propeller.wormhole().unwrap()
+	seeds::program = propeller.wormhole()
 	)]
     /// CHECK: Wormhole Config
     pub wormhole_config: AccountInfo<'info>,
@@ -113,10 +112,10 @@ pub struct TransferNativeWithPayload<'info> {
 	mut,
 	seeds = [b"emitter".as_ref()],
 	bump,
-	seeds::program = propeller.token_bridge().unwrap()
+	seeds::program = propeller.token_bridge()
 	)]
     /// CHECK: Wormhole Emitter is PDA representing the Token Bridge Program
-    pub wormhole_emitter: AccountInfo<'info>,
+    pub wormhole_emitter: UncheckedAccount<'info>,
 
     #[account(
 	mut,
@@ -125,19 +124,19 @@ pub struct TransferNativeWithPayload<'info> {
 	wormhole_emitter.key().as_ref()
 	],
 	bump,
-	seeds::program = propeller.wormhole().unwrap()
+	seeds::program = propeller.wormhole()
 	)]
     /// CHECK: Wormhole Sequence Number
-    pub wormhole_sequence: AccountInfo<'info>,
+    pub wormhole_sequence: UncheckedAccount<'info>,
 
     #[account(
 	mut,
 	seeds = [b"fee_collector".as_ref()],
 	bump,
-	seeds::program = propeller.wormhole().unwrap()
+	seeds::program = propeller.wormhole()
 	)]
     /// CHECK: Wormhole Fee Collector. leaving as UncheckedAccount since it could be uninitialized for the first transfer.
-    pub wormhole_fee_collector: AccountInfo<'info>,
+    pub wormhole_fee_collector: UncheckedAccount<'info>,
 
     /// Transfers with payload also include the address of the account or contract
     /// that sent the transfer. Semantically this is identical to "msg.sender" on
@@ -219,25 +218,24 @@ impl<'info> TransferNativeWithPayload<'info> {
 
     fn invoke_transfer_native_with_payload(&self, transfer_with_payload_data: TransferWithPayloadData) -> Result<()> {
         let wh_token_transfer_acct_infos = vec![
-            self.payer.to_account_info().clone(),
-            self.token_bridge_config.to_account_info().clone(),
-            // ctx.accounts.token_bridge.to_account_info().clone(),
-            self.user_swim_usd_ata.to_account_info().clone(),
-            self.swim_usd_mint.to_account_info().clone(),
-            self.custody.to_account_info().clone(),
-            self.authority_signer.to_account_info().clone(),
-            self.custody_signer.to_account_info().clone(),
-            self.wormhole_config.to_account_info().clone(),
-            self.wormhole_message.to_account_info().clone(),
-            self.wormhole_emitter.to_account_info().clone(),
-            self.wormhole_sequence.to_account_info().clone(),
-            self.wormhole_fee_collector.to_account_info().clone(),
-            self.clock.to_account_info().clone(),
-            self.sender.to_account_info().clone(),
-            self.rent.to_account_info().clone(),
-            self.system_program.to_account_info().clone(),
-            self.wormhole.to_account_info().clone(),
-            self.token_program.to_account_info().clone(),
+            self.payer.to_account_info(),
+            self.token_bridge_config.to_account_info(),
+            self.user_swim_usd_ata.to_account_info(),
+            self.swim_usd_mint.to_account_info(),
+            self.custody.to_account_info(),
+            self.authority_signer.to_account_info(),
+            self.custody_signer.to_account_info(),
+            self.wormhole_config.to_account_info(),
+            self.wormhole_message.to_account_info(),
+            self.wormhole_emitter.to_account_info(),
+            self.wormhole_sequence.to_account_info(),
+            self.wormhole_fee_collector.to_account_info(),
+            self.clock.to_account_info(),
+            self.sender.to_account_info(),
+            self.rent.to_account_info(),
+            self.system_program.to_account_info(),
+            self.wormhole.to_account_info(),
+            self.token_program.to_account_info(),
         ];
 
         invoke_signed(

@@ -35,6 +35,8 @@ import { parsePoolAccount } from "../../poolDecoder";
 import { TWO_POOL_PID } from "../consts";
 
 import {
+  getAddOrRemoveAccounts,
+  getSwapAccounts,
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
 } from "./poolTestUtils";
@@ -184,7 +186,7 @@ describe("TwoPool", () => {
   });
 
   describe("Defi Instructions", () => {
-    it("Can add to pool", async () => {
+    it.skip("Can add to pool", async () => {
       const previousDepthBefore = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
@@ -217,6 +219,62 @@ describe("TwoPool", () => {
           userLpTokenAccount: userSwimUsdAtaAddr,
           tokenProgram: splToken.programId,
         })
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
+        .signers([userTransferAuthority])
+        .rpc();
+
+      console.info("Your transaction signature", tx);
+
+      const userLpTokenAccountBalance = (
+        await splToken.account.token.fetch(userSwimUsdAtaAddr)
+      ).amount;
+      console.info(
+        `userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`,
+      );
+
+      expect(userLpTokenAccountBalance.gt(new BN(0))).toBeTruthy();
+      const previousDepthAfter = (
+        await twoPoolProgram.account.twoPool.fetch(flagshipPool)
+      ).previousDepth;
+      console.info(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+      expect(previousDepthAfter.gt(previousDepthBefore)).toBeTruthy();
+    });
+    it("Can add_new to pool", async () => {
+      const previousDepthBefore = (
+        await twoPoolProgram.account.twoPool.fetch(flagshipPool)
+      ).previousDepth;
+
+      const inputAmounts = [new BN(100_000_000), new BN(100_000_000)];
+      const minimumMintAmount = new BN(0);
+      // const addParams = {
+      //   inputAmounts,
+      //   minimumMintAmount,
+      // };
+      const userTransferAuthority = Keypair.generate();
+      const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+        splToken,
+        [userUsdcAtaAddr, userUsdtAtaAddr],
+        inputAmounts,
+        userTransferAuthority.publicKey,
+        payer,
+      );
+
+
+      const addOrRemoveAccounts = await getAddOrRemoveAccounts(
+        flagshipPool,
+        provider.publicKey,
+        userTransferAuthority.publicKey,
+        twoPoolProgram,
+      );
+      const tx = await twoPoolProgram.methods
+        // .add(addParams)
+        .add(inputAmounts, minimumMintAmount)
+        .accounts(addOrRemoveAccounts)
         .preInstructions([...approveIxs])
         .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])

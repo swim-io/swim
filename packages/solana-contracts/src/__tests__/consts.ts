@@ -14,7 +14,8 @@ export const rpcCommitmentConfig = {
   skipPreflight: true,
 };
 
-export const ethTokenBridgeNativeStr = "0x0290FB167208Af455bB137780163b7B7a9a10C16";
+export const ethTokenBridgeNativeStr =
+  "0x0290FB167208Af455bB137780163b7B7a9a10C16";
 //0000000000000000000000000290fb167208af455bb137780163b7b7a9a10c16
 const ethTokenBridgeEthHexStr = tryNativeToHexString(
   ethTokenBridgeNativeStr,
@@ -28,10 +29,12 @@ const bscTokenBridgeBscHexStr = tryNativeToHexString(
   bscTokenBridgeStr,
   CHAIN_ID_BSC,
 );
+
 export const bscTokenBridge = Buffer.from(bscTokenBridgeBscHexStr, "hex");
-const ethRoutingContractStr = "0x0290FB167208Af455bB137780163b7B7a9a10C17";
+const evmRoutingContractNativeStr =
+  "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4";
 // const ethRoutingContractEthUint8Arr = tryNativeToUint8Array(
-//   ethRoutingContractStr,
+//   evmRoutingContractNativeStr,
 //   CHAIN_ID_ETH,
 // );
 // console.info(`
@@ -40,17 +43,17 @@ const ethRoutingContractStr = "0x0290FB167208Af455bB137780163b7B7a9a10C17";
 //   ethRoutingContractEthUint8Arr,
 // )}
 // `);
-export const ethRoutingContractEthHexStr = tryNativeToHexString(
-  ethRoutingContractStr,
+export const evmRoutingContractHexStr = tryNativeToHexString(
+  evmRoutingContractNativeStr,
   CHAIN_ID_ETH,
 );
-export const ethRoutingContract = Buffer.from(
-  ethRoutingContractEthHexStr,
+export const evmRoutingContractBuffer = Buffer.from(
+  evmRoutingContractHexStr,
   "hex",
 );
 export const routingContracts = [
-  { targetChainId: CHAIN_ID_ETH, address: ethRoutingContract },
-  { targetChainId: CHAIN_ID_BSC, address: ethRoutingContract },
+  { targetChainId: CHAIN_ID_ETH, address: evmRoutingContractBuffer },
+  { targetChainId: CHAIN_ID_BSC, address: evmRoutingContractBuffer },
 ];
 //TODO: figure out actual value for compute budget
 export const setComputeUnitLimitIx: web3.TransactionInstruction =
@@ -97,3 +100,5 @@ export const TWO_POOL_PID = new web3.PublicKey(
 export const PROPELLER_PID = new web3.PublicKey(
   "9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK",
 );
+
+export const SWIM_MEMO_LENGTH = 16;

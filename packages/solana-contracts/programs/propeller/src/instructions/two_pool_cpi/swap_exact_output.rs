@@ -1,9 +1,5 @@
 use {
-    crate::{
-        constants::{SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX, TOKEN_BRIDGE_MINT_OUTPUT_TOKEN_INDEX},
-        error::*,
-        Propeller,
-    },
+    crate::{constants::SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX, error::*, Propeller},
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
     two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},

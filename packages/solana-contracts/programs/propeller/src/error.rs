@@ -36,6 +36,9 @@ pub enum PropellerError {
     #[msg("TransferNotAllowed")]
     TransferNotAllowed,
 
+    #[msg("Invalid Pool for Init To SwimUSD")]
+    InvalidPoolForInitToSwimUsd,
+
     #[msg("Incorrect ProgramId for CPI return value")]
     InvalidCpiReturnProgramId,
 
@@ -174,6 +177,24 @@ pub enum PropellerError {
     #[msg("Target Chain is paused")]
     TargetChainIsPaused,
 
+    #[msg("Invalid Target Chain Map")]
+    InvalidTargetChainMap,
+
     #[msg("Invalid SwimPayloadMessagePayer")]
     InvalidSwimPayloadMessagePayer,
+
+    #[msg("Invalid New Pause Key for UpdatePauseKey")]
+    InvalidNewPauseKey,
+
+    #[msg("Invalid Upcoming Governance Key for Prepare Governance Transition")]
+    InvalidUpcomingGovernanceKey,
+
+    #[msg("Invalid Enact Governance Transition")]
+    InvalidEnact,
+
+    #[msg("Insufficient Delay for Enact Governance Transition")]
+    InsufficientDelay,
+
+    #[msg("Invalid Fee Tracker")]
+    InvalidFeeTracker,
 }

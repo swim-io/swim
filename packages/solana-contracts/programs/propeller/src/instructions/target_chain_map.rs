@@ -64,6 +64,7 @@ pub fn handle_create_target_chain_map(
 }
 
 #[derive(Accounts)]
+#[instruction(target_chain: u16)]
 pub struct UpdateTargetChainMap<'info> {
     #[account(
     seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
@@ -81,15 +82,20 @@ pub struct UpdateTargetChainMap<'info> {
     seeds = [
     b"propeller".as_ref(),
     propeller.key().as_ref(),
-    &target_chain_map.target_chain.to_le_bytes()
+    &target_chain.to_le_bytes()
     ],
     bump = target_chain_map.bump,
     )]
     pub target_chain_map: Account<'info, TargetChainMap>,
 }
 
-pub fn handle_update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routing_contract: [u8; 32]) -> Result<()> {
+pub fn handle_update_target_chain_map(
+    ctx: Context<UpdateTargetChainMap>,
+    target_chain: u16,
+    routing_contract: [u8; 32],
+) -> Result<()> {
     let target_chain_map = &mut ctx.accounts.target_chain_map;
+    require_eq!(target_chain, target_chain_map.target_chain, PropellerError::InvalidTargetChainMap);
     target_chain_map.target_address = routing_contract;
     Ok(())
 }
@@ -99,6 +105,7 @@ pub fn handle_close_target_chain_map() -> Result<()> {
 }
 
 #[derive(Accounts)]
+#[instruction(target_chain: u16)]
 pub struct TargetChainMapSetPaused<'info> {
     #[account(
     seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
@@ -117,15 +124,20 @@ pub struct TargetChainMapSetPaused<'info> {
     seeds = [
     b"propeller".as_ref(),
     propeller.key().as_ref(),
-    &target_chain_map.target_chain.to_le_bytes()
+    &target_chain.to_le_bytes()
     ],
     bump = target_chain_map.bump,
     )]
     pub target_chain_map: Account<'info, TargetChainMap>,
 }
 
-pub fn handle_target_chain_map_set_paused(ctx: Context<TargetChainMapSetPaused>, is_paused: bool) -> Result<()> {
+pub fn handle_target_chain_map_set_paused(
+    ctx: Context<TargetChainMapSetPaused>,
+    target_chain: u16,
+    is_paused: bool,
+) -> Result<()> {
     let target_chain_map = &mut ctx.accounts.target_chain_map;
+    require_eq!(target_chain, target_chain_map.target_chain, PropellerError::InvalidTargetChainMap);
     target_chain_map.is_paused = is_paused;
     Ok(())
 }

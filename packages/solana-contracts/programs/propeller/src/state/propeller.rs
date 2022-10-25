@@ -51,8 +51,10 @@ pub struct Propeller {
     // pub evm_routing_contract_address: [u8; 32],
     pub fee_vault: Pubkey, //32
 
+    /** switchboard **/
     pub aggregator: Pubkey, //32
     pub max_staleness: i64, //8
+                            // pub max_confidence_interval: i64, //8
 
                             //TODO: add this?
                             // pub fallback_oracle: Pubkey, //32
@@ -90,19 +92,12 @@ impl Propeller {
         8; //max_staleness
            // 32; // evm_routing_contract_address
 
-    pub fn wormhole(&self) -> Result<Pubkey> {
-        // let pubkey = Pubkey::from_str(CORE_BRIDGE_ADDRESS)
-        // .map_err(|_| PropellerError::InvalidWormholeAddress)?;
-        // let pubkey = CORE_BRIDGE_ID;
-        let pubkey = crate::Wormhole::id();
-        Ok(pubkey)
+    pub fn wormhole(&self) -> Pubkey {
+        crate::Wormhole::id()
     }
 
-    pub fn token_bridge(&self) -> Result<Pubkey> {
-        // let pubkey = Pubkey::from_str(TOKEN_BRIDGE_ADDRESS)
-        // .map_err(|_| PropellerError::InvalidWormholeAddress)?;
-        let pubkey = crate::TokenBridge::id();
-        Ok(pubkey)
+    pub fn token_bridge(&self) -> Pubkey {
+        crate::TokenBridge::id()
     }
 
     pub fn get_complete_native_with_payload_fee(&self) -> u64 {

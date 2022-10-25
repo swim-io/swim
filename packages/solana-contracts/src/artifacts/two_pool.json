@@ -128,80 +128,85 @@
       "name": "add",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],

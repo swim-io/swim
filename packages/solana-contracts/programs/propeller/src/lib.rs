@@ -1,6 +1,7 @@
 use {
     crate::two_pool_cpi::{
         add::*,
+        init_to_swim_usd::*,
         swap_exact_input::*,
         // remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_output::*,
     },
@@ -40,17 +41,20 @@ pub mod propeller {
         handle_set_paused(ctx, paused)
     }
 
-    pub fn change_pause_key(ctx: Context<ChangePauseKey>) -> Result<()> {
-        handle_change_pause_key(ctx)
+    pub fn change_pause_key(ctx: Context<UpdatePauseKey>, new_pause_key: Pubkey) -> Result<()> {
+        handle_change_pause_key(ctx, new_pause_key)
     }
 
-    pub fn prepare_governance_transition(ctx: Context<Governance>) -> Result<()> {
-        Ok(())
+    pub fn prepare_governance_transition(ctx: Context<Governance>, upcoming_governance_key: Pubkey) -> Result<()> {
+        handle_prepare_governance_transition(ctx, upcoming_governance_key)
     }
 
     pub fn enact_governance_transition(ctx: Context<Governance>) -> Result<()> {
         Ok(())
     }
+
+    // pub fn prepare_fee_change(ctx: Context<Governance>, fee_updates: FeeUpdates) -> Result<()> {}
+    // pub fn enact_fee_change(ctx: Context<Governance>) -> Result<()> {}
 
     #[inline(never)]
     #[access_control(
@@ -99,12 +103,20 @@ pub mod propeller {
     }
 
     //TODO: pass in `target_chain` as input parameter for these?
-    pub fn update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routing_contract: [u8; 32]) -> Result<()> {
-        handle_update_target_chain_map(ctx, routing_contract)
+    pub fn update_target_chain_map(
+        ctx: Context<UpdateTargetChainMap>,
+        target_chain: u16,
+        routing_contract: [u8; 32],
+    ) -> Result<()> {
+        handle_update_target_chain_map(ctx, target_chain, routing_contract)
     }
 
-    pub fn target_chain_map_set_paused(ctx: Context<TargetChainMapSetPaused>, is_paused: bool) -> Result<()> {
-        handle_target_chain_map_set_paused(ctx, is_paused)
+    pub fn target_chain_map_set_paused(
+        ctx: Context<TargetChainMapSetPaused>,
+        target_chain: u16,
+        is_paused: bool,
+    ) -> Result<()> {
+        handle_target_chain_map_set_paused(ctx, target_chain, is_paused)
     }
 
     #[inline(never)]
@@ -118,185 +130,22 @@ pub mod propeller {
         handle_claim_fees(ctx)
     }
 
-    // #[access_control(Add::accounts(&ctx))]
-    // pub fn add(
-    //     ctx: Context<Add>,
-    //     input_amounts: [u64; TOKEN_COUNT],
-    //     minimum_mint_amount: u64,
-    //     memo: Vec<u8>,
-    //     propeller_enabled: bool,
-    //     target_chain: u16,
-    // ) -> Result<u64> {
-    //     handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice(), propeller_enabled, target_chain)
-    // }
-
-    #[access_control(Add::accounts(&ctx))]
-    pub fn cross_chain_add(
-        ctx: Context<Add>,
+    /** Sending */
+    pub fn cross_chain_init_to_swim_usd(
+        ctx: Context<InitToSwimUsd>,
         input_amounts: [u64; TOKEN_COUNT],
         minimum_mint_amount: u64,
     ) -> Result<u64> {
-        handle_cross_chain_add(ctx, input_amounts, minimum_mint_amount)
+        handle_cross_chain_init_to_swim_usd(ctx, input_amounts, minimum_mint_amount)
     }
 
-    #[access_control(Add::accounts(&ctx))]
-    pub fn propeller_add(ctx: Context<Add>, input_amounts: [u64; TOKEN_COUNT], max_fee: u64) -> Result<u64> {
-        handle_propeller_add(ctx, input_amounts, max_fee)
-    }
-
-    // pub fn swap_exact_input(
-    //     ctx: Context<SwapExactInput>,
-    //     exact_input_amount: u64,
-    //     minimum_output_amount: u64,
-    //     memo: Vec<u8>,
-    //     propeller_enabled: bool,
-    //     target_chain: u16,
-    // ) -> Result<u64> {
-    //     handle_swap_exact_input(
-    //         ctx,
-    //         exact_input_amount,
-    //         minimum_output_amount,
-    //         memo.as_slice(),
-    //         propeller_enabled,
-    //         target_chain,
-    //     )
-    // }
-
-    /* For metapools */
-
-    pub fn cross_chain_swap_exact_input(
-        ctx: Context<SwapExactInput>,
-        exact_input_amount: u64,
-        minimum_output_amount: u64,
-    ) -> Result<u64> {
-        handle_cross_chain_swap_exact_input(ctx, exact_input_amount, minimum_output_amount)
-    }
-
-    pub fn propeller_swap_exact_input(
-        ctx: Context<SwapExactInput>,
-        exact_input_amount: u64,
+    pub fn propeller_init_to_swim_usd(
+        ctx: Context<InitToSwimUsd>,
+        input_amounts: [u64; TOKEN_COUNT],
         max_fee: u64,
     ) -> Result<u64> {
-        handle_propeller_swap_exact_input(ctx, exact_input_amount, max_fee)
+        handle_propeller_init_to_swim_usd(ctx, input_amounts, max_fee)
     }
-
-    /*
-    // pub fn swap_exact_output(
-    //     ctx: Context<SwapExactOutput>,
-    //     maximum_input_amount: u64,
-    //     exact_output_amount: u64, // params: SwapExactOutputParams,
-    //     memo: Vec<u8>,
-    //     propeller_enabled: bool,
-    //     target_chain: u16,
-    // ) -> Result<Vec<u64>> {
-    //     handle_swap_exact_output(
-    //         ctx,
-    //         maximum_input_amount,
-    //         exact_output_amount,
-    //         memo.as_slice(),
-    //         propeller_enabled,
-    //         target_chain,
-    //     )
-    // }
-
-    // pub fn cross_chain_swap_exact_output(
-    //     ctx: Context<SwapExactOutput>,
-    //     maximum_input_amount: u64,
-    //     exact_output_amount: u64, // params: SwapExactOutputParams,
-    //     memo: Vec<u8>,
-    // ) -> Result<Vec<u64>> {
-    //     handle_cross_chain_swap_exact_output(
-    //         ctx,
-    //         maximum_input_amount,
-    //         exact_output_amount,
-    //         memo.as_slice(),
-    //         propeller_enabled,
-    //         target_chain,
-    //     )
-    // }
-    //
-    // pub fn propeller_swap_exact_output(
-    //     ctx: Context<SwapExactOutput>,
-    //     maximum_input_amount: u64,
-    //     memo: Vec<u8>,
-    //     max_fee: u64,
-    // ) -> Result<Vec<u64>> {
-    //     handle_propeller_swap_exact_output(
-    //         ctx,
-    //         maximum_input_amount,
-    //         exact_output_amount,
-    //         memo.as_slice(),
-    //         propeller_enabled,
-    //         target_chain,
-    //     )
-    // }
-
-    // pub fn remove_uniform(
-    //     ctx: Context<RemoveUniform>,
-    //     exact_burn_amount: u64,
-    //     minimum_output_amounts: [u64; TOKEN_COUNT],
-    //     memo: Vec<u8>,
-    // ) -> Result<Vec<u64>> {
-    //     handle_remove_uniform(ctx, exact_burn_amount, minimum_output_amounts, memo.as_slice())
-    // }
-
-    // pub fn remove_exact_burn(
-    //     ctx: Context<RemoveExactBurn>,
-    //     exact_burn_amount: u64,
-    //     minimum_output_amount: u64,
-    //     memo: Vec<u8>,
-    //     propeller_enabled: bool,
-    //     target_chain: u16,
-    // ) -> Result<u64> {
-    //     handle_remove_exact_burn(
-    //         ctx,
-    //         exact_burn_amount,
-    //         minimum_output_amount,
-    //         memo.as_slice(),
-    //         propeller_enabled,
-    //         target_chain,
-    //     )
-    // }
-     */
-
-    //TODO: does remove_exact_burn make sense for metapools?
-    // burn metapool lp token to get token_bridge_mint
-
-    // pub fn cross_chain_remove_exact_burn(
-    //     ctx: Context<RemoveExactBurn>,
-    //     exact_burn_amount: u64,
-    //     minimum_output_amount: u64,
-    //     memo: Vec<u8>,
-    // ) -> Result<u64> {
-    //     handle_cross_chain_remove_exact_burn(ctx, exact_burn_amount, minimum_output_amount, memo.as_slice())
-    // }
-    //
-    // pub fn propeller_remove_exact_burn(
-    //     ctx: Context<RemoveExactBurn>,
-    //     exact_burn_amount: u64,
-    //     memo: Vec<u8>,
-    //     max_fee: u64,
-    // ) -> Result<u64> {
-    //     handle_propeller_remove_exact_burn(ctx, exact_burn_amount, memo.as_slice(), max_fee)
-    // }
-
-    // pub fn remove_exact_output(
-    //     ctx: Context<RemoveExactOutput>,
-    //     maximum_burn_amount: u64,
-    //     exact_output_amount: u64,
-    //     memo: Vec<u8>,
-    //     propeller_enabled: bool,
-    //     target_chain: u16,
-    // ) -> Result<Vec<u64>> {
-    //     handle_remove_exact_output(
-    //         ctx,
-    //         maximum_burn_amount,
-    //         exact_output_amount,
-    //         memo.as_slice(),
-    //         propeller_enabled,
-    //         target_chain,
-    //     )
-    // }
 
     #[inline(never)]
     #[access_control(TransferNativeWithPayload::accounts(&ctx))]
@@ -335,6 +184,8 @@ pub mod propeller {
             memo,
         )
     }
+
+    /** Receiving */
 
     #[inline(never)]
     #[access_control(CompleteNativeWithPayload::accounts(&ctx))]
@@ -525,7 +376,7 @@ pub mod propeller {
 //     mut,
 //     seeds = [ b"config".as_ref() ],
 //     bump,
-//     seeds::program = propeller.token_bridge().unwrap()
+//     seeds::program = propeller.token_bridge()
 //     )]
 //     /// CHECK: Token Bridge Config
 //     pub token_bridge_config: AccountInfo<'info>,
@@ -573,7 +424,7 @@ pub mod propeller {
 //     mut,
 //     seeds = [b"Bridge".as_ref()],
 //     bump,
-//     seeds::program = propeller.wormhole().unwrap()
+//     seeds::program = propeller.wormhole()
 //     )]
 //     /// CHECK: Wormhole Config
 //     pub wormhole_config: AccountInfo<'info>,
@@ -596,7 +447,7 @@ pub mod propeller {
 //     mut,
 //     seeds = [b"emitter".as_ref()],
 //     bump,
-//     seeds::program = propeller.token_bridge().unwrap()
+//     seeds::program = propeller.token_bridge()
 //     )]
 //     /// CHECK: Wormhole Emitter is PDA representing the Token Bridge Program
 //     pub wormhole_emitter: AccountInfo<'info>,
@@ -608,7 +459,7 @@ pub mod propeller {
 //     wormhole_emitter.key().as_ref()
 //     ],
 //     bump,
-//     seeds::program = propeller.wormhole().unwrap()
+//     seeds::program = propeller.wormhole()
 //     )]
 //     /// CHECK: Wormhole Sequence Number
 //     pub wormhole_sequence: AccountInfo<'info>,
@@ -617,7 +468,7 @@ pub mod propeller {
 //     mut,
 //     seeds = [b"fee_collector".as_ref()],
 //     bump,
-//     seeds::program = propeller.wormhole().unwrap()
+//     seeds::program = propeller.wormhole()
 //     )]
 //     /// CHECK: Wormhole Fee Collector. leaving as UncheckedAccount since it could be uninitialized for the first transfer.
 //     pub wormhole_fee_collector: AccountInfo<'info>,

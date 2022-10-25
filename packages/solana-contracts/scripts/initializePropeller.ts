@@ -41,7 +41,7 @@ import {
 import {
   getPropellerPda,
   getPropellerRedeemerPda,
-  getTargetChainIdMapAddr,
+  getTargetChainMapAddr,
   getToTokenNumberMapAddr,
 } from "../src/__tests__/propeller/propellerUtils";
 
@@ -461,7 +461,7 @@ async function createTargetChainMaps() {
         tryNativeToHexString(targetAddress, wormholeChainId as ChainId),
         "hex",
       );
-      const [targetChainMapAddr] = await getTargetChainIdMapAddr(
+      const [targetChainMapAddr] = await getTargetChainMapAddr(
         propellerInfo.address,
         wormholeChainId,
         propellerProgram.programId,

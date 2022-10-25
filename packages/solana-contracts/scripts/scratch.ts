@@ -30,7 +30,7 @@ import {
 import {
   getPropellerPda,
   getPropellerRedeemerPda,
-  getTargetChainIdMapAddr,
+  getTargetChainMapAddr,
   getToTokenNumberMapAddr,
 } from "../src/__tests__/propeller/propellerUtils";
 import type { Propeller } from "../src/artifacts/propeller";

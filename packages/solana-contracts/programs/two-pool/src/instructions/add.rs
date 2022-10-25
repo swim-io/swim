@@ -75,7 +75,7 @@ impl<'info> Add<'info> {
 }
 
 //
-pub fn handle_add(
+pub fn handle_add_old(
     ctx: Context<Add>,
     params: AddParams,
     // input_amounts: [u64; TOKEN_COUNT],

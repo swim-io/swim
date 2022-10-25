@@ -1,11 +1,12 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
     crate::{
-        constants::{LAMPORTS_PER_SOL_DECIMAL, TOKEN_BRIDGE_PROGRAM_ID},
-        convert_fees_to_swim_usd_atomic, deserialize_message_payload,
+        constants::LAMPORTS_PER_SOL_DECIMAL,
+        deserialize_message_payload,
         error::*,
-        get_lamports_intermediate_token_price, get_marginal_price_decimal, get_memo_as_utf8, get_message_data,
-        get_swim_usd_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
+        fees::*,
+        get_memo_as_utf8, get_message_data, get_transfer_with_payload_from_message_account, hash_vaa,
+        marginal_price_pool::*,
         state::{SwimClaim, SwimPayloadMessage, *},
         token_bridge::TokenBridge,
         token_number_map::{ToTokenStep, TokenNumberMap},
@@ -28,8 +29,6 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     #[account(
     seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
-    has_one = aggregator @ PropellerError::InvalidAggregator,
-    has_one = marginal_price_pool @ PropellerError::InvalidMarginalPricePool,
     constraint = !propeller.is_paused @ PropellerError::IsPaused,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
@@ -50,23 +49,6 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     address = get_associated_token_address(&redeemer.key(), &propeller.swim_usd_mint)
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
-    #[account(
-    mut,
-    address = get_associated_token_address(&propeller.key(), &propeller.swim_usd_mint)
-    )]
-    pub fee_vault: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-    mut,
-    seeds = [
-    b"propeller".as_ref(),
-    b"fee".as_ref(),
-    propeller.swim_usd_mint.as_ref(),
-    payer.key().as_ref()
-    ],
-    bump = fee_tracker.bump
-    )]
-    pub fee_tracker: Account<'info, FeeTracker>,
 
     #[account(
     seeds = [
@@ -75,7 +57,7 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     swim_payload_message.vaa_sequence.to_be_bytes().as_ref(),
     ],
     bump,
-    seeds::program = propeller.token_bridge().unwrap(),
+    seeds::program = propeller.token_bridge(),
     )]
     /// CHECK: WH Claim account
     pub claim: UncheckedAccount<'info>,
@@ -113,7 +95,7 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     pool_lp_mint.key().as_ref(),
     ],
     bump = pool.bump,
-    seeds::program = two_pool_program.key()
+    seeds::program = fee_tracking.two_pool_program_key(),
     )]
     pub pool: Box<Account<'info, TwoPool>>,
     #[account(address = pool.token_mint_keys[0])]
@@ -147,33 +129,7 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 
-    /* for sol -> token_bridge_mint conversion */
-    #[account(
-    constraint =
-    *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
-    )]
-    pub aggregator: AccountLoader<'info, AggregatorAccountData>,
-
-    #[account(
-    mut,
-    seeds = [
-    b"two_pool".as_ref(),
-    marginal_price_pool_token_0_account.mint.as_ref(),
-    marginal_price_pool_token_1_account.mint.as_ref(),
-    marginal_price_pool_lp_mint.key().as_ref(),
-    ],
-    bump = marginal_price_pool.bump,
-    seeds::program = two_pool_program.key()
-    )]
-    pub marginal_price_pool: Box<Account<'info, TwoPool>>,
-    #[account(address = marginal_price_pool.token_keys[0])]
-    pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
-    #[account(address = marginal_price_pool.token_keys[1])]
-    pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
-    #[account(address = marginal_price_pool.lp_mint_key)]
-    pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
-
-    pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    pub fee_tracking: FeeTracking<'info>,
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
@@ -184,11 +140,14 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
         require_keys_eq!(ctx.accounts.user.key(), ctx.accounts.swim_payload_message.owner);
         require_keys_eq!(ctx.accounts.pool.key(), ctx.accounts.token_number_map.pool);
         let propeller = &ctx.accounts.propeller;
-        validate_marginal_prices_pool_accounts(
-            &propeller,
-            &ctx.accounts.marginal_price_pool,
-            &[&ctx.accounts.marginal_price_pool_token_0_account, &ctx.accounts.marginal_price_pool_token_1_account],
-        )?;
+        let payer = &ctx.accounts.payer.key();
+        ctx.accounts.fee_tracking.validate(propeller, payer, ctx.program_id)?;
+        // ctx.accounts.marginal_price_pool.validate(&propeller)?;
+        // validate_marginal_prices_pool_accounts(
+        //     &propeller,
+        //     &ctx.accounts.marginal_price_pool,
+        //     &[&ctx.accounts.marginal_price_pool_token_0_account, &ctx.accounts.marginal_price_pool_token_1_account],
+        // )?;
         msg!("Passed PropellerCreateOwnerTokenAccounts::accounts() check");
         Ok(())
     }
@@ -276,76 +235,13 @@ impl<'info> Fees<'info> for PropellerCreateOwnerTokenAccounts<'info> {
         Ok(create_owner_token_account_total_fees_in_lamports)
     }
 
-    fn get_marginal_prices(&self) -> Result<[BorshDecimal; TOKEN_COUNT]> {
-        let result = two_pool::cpi::marginal_prices(CpiContext::new(
-            self.two_pool_program.to_account_info(),
-            two_pool::cpi::accounts::MarginalPrices {
-                pool: self.marginal_price_pool.to_account_info(),
-                pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
-                pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
-                lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
-            },
-        ))?;
-        Ok(result.get())
-    }
-
-    fn convert_fees_to_swim_usd_atomic(&self, fee_in_lamports: u64) -> Result<u64> {
-        msg!("fee_in_lamports: {:?}", fee_in_lamports);
-        let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
-
-        let propeller = &self.propeller;
-        let max_staleness = propeller.max_staleness;
-        let swim_usd_mint_key = propeller.swim_usd_mint;
-        // let marginal_prices = get_marginal_prices(cpi_ctx)?;
-
-        let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
-            &self.marginal_price_pool,
-            &self.get_marginal_prices()?,
-            propeller,
-            &marginal_price_pool_lp_mint.key(),
-        )?;
-
-        msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
-
-        let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-        msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-
-        let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, max_staleness)?;
-        let fee_in_swim_usd_decimal = lamports_intermediate_token_price
-            .checked_mul(fee_in_lamports_decimal)
-            .and_then(|x| x.checked_div(intermediate_token_price_decimal))
-            .ok_or(PropellerError::IntegerOverflow)?;
-
-        let swim_usd_decimals =
-            get_swim_usd_mint_decimals(&swim_usd_mint_key, &self.marginal_price_pool, &marginal_price_pool_lp_mint)?;
-        msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
-
-        let ten_pow_decimals =
-            Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-        let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
-            .checked_mul(ten_pow_decimals)
-            .and_then(|v| v.to_u64())
-            .ok_or(PropellerError::ConversionError)?;
-
-        msg!(
-            "fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}",
-            fee_in_swim_usd_decimal,
-            fee_in_swim_usd_atomic
-        );
-        Ok(fee_in_swim_usd_atomic)
-    }
-
-    fn track_and_transfer_fees(&mut self, fees_in_swim_usd: u64) -> Result<()> {
-        let fee_tracker = &mut self.fee_tracker;
-        fee_tracker.fees_owed =
-            fee_tracker.fees_owed.checked_add(fees_in_swim_usd).ok_or(PropellerError::IntegerOverflow)?;
-
+    fn transfer_fees_to_vault(&mut self, fees_in_swim_usd: u64) -> Result<()> {
         token::transfer(
             CpiContext::new_with_signer(
                 self.token_program.to_account_info(),
                 Transfer {
                     from: self.redeemer_escrow.to_account_info(),
-                    to: self.fee_vault.to_account_info(),
+                    to: self.fee_tracking.fee_vault.to_account_info(),
                     authority: self.redeemer.to_account_info(),
                 },
                 &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
@@ -361,8 +257,8 @@ impl<'info> Fees<'info> for PropellerCreateOwnerTokenAccounts<'info> {
 /// we penalize the engine by not reimbursing them anything in that situation so that they are incentivized to
 /// check if any of the require token accounts don't exist.
 pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreateOwnerTokenAccounts>) -> Result<()> {
-    let create_owner_token_account_total_fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
-    if create_owner_token_account_total_fees_in_lamports == 0 {
+    let create_owner_atas_total_fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
+    if create_owner_atas_total_fees_in_lamports == 0 {
         //TODO: log memo still?
         msg!("No accounts need to be initialized. Returning early");
         ctx.accounts.log_memo()?;
@@ -372,20 +268,21 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
     // normally they should just initialize the needed ATAs on their own but have this check just in case.
     let swim_payload_owner = ctx.accounts.swim_payload_message.owner;
     if swim_payload_owner != ctx.accounts.payer.key() {
-        let create_owner_token_account_total_fees_in_swim_usd =
-            ctx.accounts.convert_fees_to_swim_usd_atomic(create_owner_token_account_total_fees_in_lamports)?;
+        let propeller = &ctx.accounts.propeller;
+        let create_owner_atas_total_fees_in_swim_usd =
+            ctx.accounts.fee_tracking.track_fees(create_owner_atas_total_fees_in_lamports, propeller)?;
 
-        ctx.accounts.track_and_transfer_fees(create_owner_token_account_total_fees_in_swim_usd)?;
+        ctx.accounts.transfer_fees_to_vault(create_owner_atas_total_fees_in_swim_usd)?;
 
         let transfer_amount = ctx.accounts.swim_payload_message.transfer_amount;
         let new_transfer_amount = transfer_amount
-            .checked_sub(create_owner_token_account_total_fees_in_swim_usd)
+            .checked_sub(create_owner_atas_total_fees_in_swim_usd)
             .ok_or(error!(PropellerError::InsufficientFunds))?;
 
         msg!(
             "transfer_amount: {} - fees_in_swim_usd: {} = {}",
             transfer_amount,
-            create_owner_token_account_total_fees_in_swim_usd,
+            create_owner_atas_total_fees_in_swim_usd,
             new_transfer_amount
         );
         ctx.accounts.swim_payload_message.transfer_amount = new_transfer_amount;
@@ -401,8 +298,6 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
     has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
-    has_one = aggregator @ PropellerError::InvalidAggregator,
-    has_one = marginal_price_pool @ PropellerError::InvalidMarginalPricePool,
     constraint = !propeller.is_paused @ PropellerError::IsPaused,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
@@ -423,23 +318,6 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     address = get_associated_token_address(&redeemer.key(), &propeller.swim_usd_mint)
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
-    #[account(
-    mut,
-    address = get_associated_token_address(&propeller.key(), &propeller.swim_usd_mint)
-    )]
-    pub fee_vault: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-    mut,
-    seeds = [
-    b"propeller".as_ref(),
-    b"fee".as_ref(),
-    propeller.swim_usd_mint.as_ref(),
-    payer.key().as_ref()
-    ],
-    bump = fee_tracker.bump
-    )]
-    pub fee_tracker: Account<'info, FeeTracker>,
 
     #[account(
     seeds = [
@@ -448,7 +326,7 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     swim_payload_message.vaa_sequence.to_be_bytes().as_ref(),
     ],
     bump,
-    seeds::program = propeller.token_bridge().unwrap()
+    seeds::program = propeller.token_bridge()
     )]
     /// CHECK: WH Claim account
     pub claim: UncheckedAccount<'info>,
@@ -493,33 +371,8 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 
-    /* for sol -> token_bridge_mint conversion */
-    #[account(
-    constraint =
-    *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
-    )]
-    pub aggregator: AccountLoader<'info, AggregatorAccountData>,
+    pub fee_tracking: FeeTracking<'info>,
 
-    // pub marginal_price_pool: MarginalPricePool<'info>,
-    #[account(
-    mut,
-    seeds = [
-    b"two_pool".as_ref(),
-    marginal_price_pool_token_0_account.mint.as_ref(),
-    marginal_price_pool_token_1_account.mint.as_ref(),
-    marginal_price_pool_lp_mint.key().as_ref(),
-    ],
-    bump = marginal_price_pool.bump,
-    seeds::program = two_pool_program.key()
-    )]
-    pub marginal_price_pool: Box<Account<'info, TwoPool>>,
-    #[account(address = marginal_price_pool.token_keys[0])]
-    pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
-    #[account(address = marginal_price_pool.token_keys[1])]
-    pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
-    #[account(address = marginal_price_pool.lp_mint_key)]
-    pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
-    pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
@@ -533,11 +386,8 @@ impl<'info> PropellerCreateOwnerSwimUsdAta<'info> {
         require_keys_eq!(ctx.accounts.owner.key(), ctx.accounts.swim_payload_message.owner);
         TokenNumberMap::assert_is_invalid(&ctx.accounts.token_id_map.to_account_info())?;
         let propeller = &ctx.accounts.propeller;
-        validate_marginal_prices_pool_accounts(
-            &propeller,
-            &ctx.accounts.marginal_price_pool,
-            &[&ctx.accounts.marginal_price_pool_token_0_account, &ctx.accounts.marginal_price_pool_token_1_account],
-        )?;
+        let payer = &ctx.accounts.payer.key();
+        ctx.accounts.fee_tracking.validate(propeller, payer, ctx.program_id)?;
         msg!("Passed PropellerCreateOwnerTokenAccounts::accounts() check");
         Ok(())
     }
@@ -561,76 +411,13 @@ impl<'info> Fees<'info> for PropellerCreateOwnerSwimUsdAta<'info> {
         Ok(fees_in_lamports)
     }
 
-    fn get_marginal_prices(&self) -> Result<[BorshDecimal; TOKEN_COUNT]> {
-        let result = two_pool::cpi::marginal_prices(CpiContext::new(
-            self.two_pool_program.to_account_info(),
-            two_pool::cpi::accounts::MarginalPrices {
-                pool: self.marginal_price_pool.to_account_info(),
-                pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
-                pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
-                lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
-            },
-        ))?;
-        Ok(result.get())
-    }
-
-    fn convert_fees_to_swim_usd_atomic(&self, fee_in_lamports: u64) -> Result<u64> {
-        msg!("fee_in_lamports: {:?}", fee_in_lamports);
-        let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
-
-        let propeller = &self.propeller;
-        let max_staleness = propeller.max_staleness;
-        let swim_usd_mint_key = propeller.swim_usd_mint;
-        // let marginal_prices = get_marginal_prices(cpi_ctx)?;
-
-        let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
-            &self.marginal_price_pool,
-            &self.get_marginal_prices()?,
-            propeller,
-            &marginal_price_pool_lp_mint.key(),
-        )?;
-
-        msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
-
-        let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-        msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-
-        let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, max_staleness)?;
-        let fee_in_swim_usd_decimal = lamports_intermediate_token_price
-            .checked_mul(fee_in_lamports_decimal)
-            .and_then(|x| x.checked_div(intermediate_token_price_decimal))
-            .ok_or(PropellerError::IntegerOverflow)?;
-
-        let swim_usd_decimals =
-            get_swim_usd_mint_decimals(&swim_usd_mint_key, &self.marginal_price_pool, &marginal_price_pool_lp_mint)?;
-        msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
-
-        let ten_pow_decimals =
-            Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-        let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
-            .checked_mul(ten_pow_decimals)
-            .and_then(|v| v.to_u64())
-            .ok_or(PropellerError::ConversionError)?;
-
-        msg!(
-            "fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}",
-            fee_in_swim_usd_decimal,
-            fee_in_swim_usd_atomic
-        );
-        Ok(fee_in_swim_usd_atomic)
-    }
-
-    fn track_and_transfer_fees(&mut self, fees_in_swim_usd: u64) -> Result<()> {
-        let fee_tracker = &mut self.fee_tracker;
-        fee_tracker.fees_owed =
-            fee_tracker.fees_owed.checked_add(fees_in_swim_usd).ok_or(PropellerError::IntegerOverflow)?;
-
+    fn transfer_fees_to_vault(&mut self, fees_in_swim_usd: u64) -> Result<()> {
         token::transfer(
             CpiContext::new_with_signer(
                 self.token_program.to_account_info(),
                 Transfer {
                     from: self.redeemer_escrow.to_account_info(),
-                    to: self.fee_vault.to_account_info(),
+                    to: self.fee_tracking.fee_vault.to_account_info(),
                     authority: self.redeemer.to_account_info(),
                 },
                 &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
@@ -641,24 +428,25 @@ impl<'info> Fees<'info> for PropellerCreateOwnerSwimUsdAta<'info> {
 }
 
 pub fn handle_propeller_create_owner_swim_usd_ata(ctx: Context<PropellerCreateOwnerSwimUsdAta>) -> Result<()> {
-    let create_user_swim_usd_ata_fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
+    let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
     let swim_payload_owner = ctx.accounts.swim_payload_message.owner;
 
     if swim_payload_owner != ctx.accounts.payer.key() {
-        let create_user_swim_usd_ata_fees_in_swim_usd_atomic =
-            ctx.accounts.convert_fees_to_swim_usd_atomic(create_user_swim_usd_ata_fees_in_lamports)?;
+        // let create_user_swim_usd_ata_fees_in_swim_usd_atomic =
+        //     ctx.accounts.convert_fees_to_swim_usd_atomic(create_user_swim_usd_ata_fees_in_lamports)?;
+        let propeller = &ctx.accounts.propeller;
+        let fees_in_swim_usd_atomic = ctx.accounts.fee_tracking.track_fees(fees_in_lamports, propeller)?;
 
-        ctx.accounts.track_and_transfer_fees(create_user_swim_usd_ata_fees_in_swim_usd_atomic)?;
+        ctx.accounts.transfer_fees_to_vault(fees_in_swim_usd_atomic)?;
 
         let transfer_amount = ctx.accounts.swim_payload_message.transfer_amount;
-        let new_transfer_amount = transfer_amount
-            .checked_sub(create_user_swim_usd_ata_fees_in_swim_usd_atomic)
-            .ok_or(error!(PropellerError::InsufficientFunds))?;
+        let new_transfer_amount =
+            transfer_amount.checked_sub(fees_in_swim_usd_atomic).ok_or(error!(PropellerError::InsufficientFunds))?;
 
         msg!(
             "transfer_amount: {} - fees_in_swim_usd: {} = {}",
             transfer_amount,
-            create_user_swim_usd_ata_fees_in_swim_usd_atomic,
+            fees_in_swim_usd_atomic,
             new_transfer_amount
         );
         ctx.accounts.swim_payload_message.transfer_amount = new_transfer_amount;

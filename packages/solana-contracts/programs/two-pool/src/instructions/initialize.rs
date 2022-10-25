@@ -67,6 +67,7 @@ pub struct Initialize<'info> {
     payer = payer,
     associated_token::mint = lp_mint,
     associated_token::authority = governance_account,
+    address = get_associated_token_address(&governance_account.key(), &lp_mint.key()),
     )]
     pub governance_fee_account: Box<Account<'info, TokenAccount>>,
 
@@ -77,6 +78,7 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
 
     //explicitly needed for initializing associated token accounts
+    // setting it last so it can be removed once version after 0.25.0 is released
     pub rent: Sysvar<'info, Rent>,
 }
 

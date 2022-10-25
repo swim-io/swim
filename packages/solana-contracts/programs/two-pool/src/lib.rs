@@ -60,7 +60,7 @@ solana_security_txt::security_txt! {
 
 #[program]
 pub mod two_pool {
-    use super::*;
+    use {super::*, crate::instructions::defi::add_or_remove::AddOrRemove};
 
     #[access_control(Initialize::accounts(&ctx))]
     pub fn initialize(
@@ -72,13 +72,19 @@ pub mod two_pool {
         handle_initialize(ctx, amp_factor, lp_fee, governance_fee)
     }
 
-    #[access_control(Add::accounts(&ctx))]
-    pub fn add(
-        ctx: Context<Add>,
-        input_amounts: [u64; TOKEN_COUNT],
-        minimum_mint_amount: u64,
-        // params: AddParams
-    ) -> Result<u64> {
+    // #[access_control(Add::accounts(&ctx))]
+    // pub fn add(
+    //     ctx: Context<Add>,
+    //     input_amounts: [u64; TOKEN_COUNT],
+    //     minimum_mint_amount: u64,
+    //     // params: AddParams
+    // ) -> Result<u64> {
+    //     let params = AddParams { input_amounts, minimum_mint_amount };
+    //     handle_add_old(ctx, params)
+    //     // handle_add(ctx, input_amounts, minimum_mint_amount)
+    // }
+
+    pub fn add(ctx: Context<AddOrRemove>, input_amounts: [u64; TOKEN_COUNT], minimum_mint_amount: u64) -> Result<u64> {
         let params = AddParams { input_amounts, minimum_mint_amount };
         handle_add(ctx, params)
         // handle_add(ctx, input_amounts, minimum_mint_amount)

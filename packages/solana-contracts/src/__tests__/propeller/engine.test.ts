@@ -52,9 +52,9 @@ import {
   bscTokenBridge,
   commitment,
   completeWithPayloadFee,
-  ethRoutingContract,
   ethTokenBridge,
   evmOwner,
+  evmRoutingContractBuffer,
   gasKickstartAmount,
   governanceFee,
   initAtaFee,
@@ -75,6 +75,7 @@ import {
   usdtPoolTokenIndex,
 } from "../consts";
 import {
+  getAddOrRemoveAccounts,
   getOwnerAtaAddrsForPool,
   getPoolUserBalances,
   printPoolUserBalances,
@@ -82,11 +83,12 @@ import {
   setupUserAssociatedTokenAccts,
 } from "../twoPool/poolTestUtils";
 
-import type { WormholeAddresses } from "./propellerUtils";
+import type { FeeTrackingAccounts, WormholeAddresses } from "./propellerUtils";
 import {
   encodeSwimPayload,
   generatePropellerEngineTxns,
   getFeeTrackerPda,
+  getFeeTrackingAccounts,
   getPropellerPda,
   getPropellerRedeemerPda,
   getSwimClaimPda,
@@ -191,7 +193,7 @@ let userUsdcAtaAddr: web3.PublicKey;
 let userUsdtAtaAddr: web3.PublicKey;
 let userSwimUsdAtaAddr: web3.PublicKey;
 
-let flagshipPool: web3.PublicKey;
+let swimUsdPool: web3.PublicKey;
 // let flagshipPoolData: SwimPoolState;
 // let poolAuth: web3.PublicKey;
 const swimUsdMint: web3.PublicKey = swimUsdKeypair.publicKey;
@@ -202,7 +204,7 @@ const metapoolMint1Authority = userKeypair;
 const metapoolMint1Decimal = 8;
 const metapoolMintKeypairs = [metapoolMint0Keypair, metapoolMint1Keypair];
 const metapoolMintDecimals = [mintDecimal, metapoolMint1Decimal];
-// const metapoolMintAuthorities = [flagshipPool, metapoolMint1Authority];
+// const metapoolMintAuthorities = [swimUsdPool, metapoolMint1Authority];
 
 const metapoolLpMintKeypair = web3.Keypair.generate();
 // const metapoolLpMint = metapoolLpMintKeypair.publicKey;
@@ -257,6 +259,7 @@ let propellerEngineSwimUsdFeeAccount: web3.PublicKey;
 
 let aggregatorAccount: AggregatorAccount;
 let aggregator: PublicKey;
+let feeTrackingAccts: FeeTrackingAccounts;
 
 describe("propeller", () => {
   beforeAll(async () => {
@@ -281,7 +284,7 @@ describe("propeller", () => {
 
     console.info(`initializing two pool v2`);
     ({
-      poolPubkey: flagshipPool,
+      poolPubkey: swimUsdPool,
       poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
       governanceFeeAccount: flagshipPoolGovernanceFeeAcct,
     } = await setupPoolPrereqs(
@@ -320,10 +323,10 @@ describe("propeller", () => {
     }
     const pool = pubkeys.pool;
     console.info(
-      `poolKey: ${pool.toBase58()}, expected: ${flagshipPool.toBase58()}`,
+      `poolKey: ${pool.toBase58()}, expected: ${swimUsdPool.toBase58()}`,
     );
 
-    // expect(pool.toBase58()).toEqual(flagshipPool.toBase58());
+    // expect(pool.toBase58()).toEqual(swimUsdPool.toBase58());
     const initFlagshipPoolTxnSig: string = await initFlagshipPoolTxn.rpc(
       rpcCommitmentConfig,
     );
@@ -335,7 +338,7 @@ describe("propeller", () => {
       `flagshipPoolData: ${JSON.stringify(flagshipPoolData, null, 2)}`,
     );
 
-    marginalPricePool = flagshipPool;
+    marginalPricePool = swimUsdPool;
 
     // const calculatedSwimPoolPda = await web3.PublicKey.createProgramAddress(
     //   [
@@ -346,7 +349,7 @@ describe("propeller", () => {
     //   ],
     //   twoPoolProgram.programId,
     // );
-    // expect(flagshipPool.toBase58()).toEqual(calculatedSwimPoolPda.toBase58());
+    // expect(swimUsdPool.toBase58()).toEqual(calculatedSwimPoolPda.toBase58());
 
     console.info(`setting up user token accounts for flagship pool`);
     ({
@@ -377,7 +380,7 @@ describe("propeller", () => {
       }
     `);
 
-    const seedFlagshipPoolAmounts = [
+    const seedSwimUsdPoolAmounts = [
       new BN(50_000_000_000_000),
       new BN(50_000_000_000_000),
     ];
@@ -387,30 +390,26 @@ describe("propeller", () => {
     //   inputAmounts,
     //   minimumMintAmount,
     // };
-    const [flagshipPoolAddApproveIxs, flagshipPoolAddRevokeIxs] =
+    const [seedSwimUsdPoolApproveIxs, seedSwimUsdPoolRevokeIxs] =
       await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
-        seedFlagshipPoolAmounts,
+        seedSwimUsdPoolAmounts,
         userTransferAuthority.publicKey,
         payer,
       );
+    const seedFlagshipAccts = await getAddOrRemoveAccounts(
+      swimUsdPool,
+      provider.publicKey,
+      userTransferAuthority.publicKey,
+      twoPoolProgram,
+    );
 
     const addTxn = twoPoolProgram.methods
-      .add(seedFlagshipPoolAmounts, minimumMintAmount)
-      .accounts({
-        poolTokenAccount0: poolUsdcAtaAddr,
-        poolTokenAccount1: poolUsdtAtaAddr,
-        lpMint: swimUsdKeypair.publicKey,
-        governanceFee: flagshipPoolGovernanceFeeAcct,
-        userTransferAuthority: userTransferAuthority.publicKey,
-        userTokenAccount0: userUsdcAtaAddr,
-        userTokenAccount1: userUsdtAtaAddr,
-        userLpTokenAccount: userSwimUsdAtaAddr,
-        tokenProgram: splToken.programId,
-      })
-      .preInstructions([...flagshipPoolAddApproveIxs])
-      .postInstructions([...flagshipPoolAddRevokeIxs])
+      .add(seedSwimUsdPoolAmounts, minimumMintAmount)
+      .accounts(seedFlagshipAccts)
+      .preInstructions([...seedSwimUsdPoolApproveIxs])
+      .postInstructions([...seedSwimUsdPoolRevokeIxs])
       .signers([userTransferAuthority]);
     // .rpc(rpcCommitmentConfig);
 
@@ -421,7 +420,7 @@ describe("propeller", () => {
 
     console.info(`addTxSig: ${addTxnSig}`);
 
-    marginalPricePool = flagshipPool;
+    marginalPricePool = swimUsdPool;
     marginalPricePoolToken0Account = poolUsdcAtaAddr;
     marginalPricePoolToken1Account = poolUsdtAtaAddr;
     marginalPricePoolLpMint = swimUsdKeypair.publicKey;
@@ -446,7 +445,7 @@ describe("propeller", () => {
       splToken,
       metapoolMintKeypairs,
       metapoolMintDecimals,
-      [flagshipPool, metapoolMint1Authority.publicKey],
+      [swimUsdPool, metapoolMint1Authority.publicKey],
       // [metapoolMint1Keypair],
       // [metapoolMint1Decimal],
       // [metapoolMint1Authority.publicKey],
@@ -588,20 +587,15 @@ describe("propeller", () => {
       userTransferAuthority.publicKey,
       payer,
     );
+    const seedMetapoolAccts = await getAddOrRemoveAccounts(
+      metapool,
+      provider.publicKey,
+      userTransferAuthority.publicKey,
+      twoPoolProgram,
+    );
     const seedMetapoolTxn = await twoPoolProgram.methods
       .add(inputAmounts, minimumMintAmount)
-      .accounts({
-        // propeller: propeller,
-        poolTokenAccount0: metapoolPoolToken0Ata,
-        poolTokenAccount1: metapoolPoolToken1Ata,
-        lpMint: metapoolLpMintKeypair.publicKey,
-        governanceFee: metapoolGovernanceFeeAta,
-        userTransferAuthority: userTransferAuthority.publicKey,
-        userTokenAccount0: userMetapoolTokenAccount0,
-        userTokenAccount1: userMetapoolTokenAccount1,
-        userLpTokenAccount: userMetapoolLpTokenAccount,
-        tokenProgram: splToken.programId,
-      })
+      .accounts(seedMetapoolAccts)
       .preInstructions([...approveIxs])
       .postInstructions([...revokeIxs])
       .signers([userTransferAuthority])
@@ -827,7 +821,7 @@ describe("propeller", () => {
                 swimUsdKeypair.publicKey.toBuffer(),
                 CHAIN_ID_SOLANA,
                 propellerProgram.programId,
-                ethRoutingContract,
+                evmRoutingContractBuffer,
                 encodeSwimPayload(swimPayload),
               ),
             );
@@ -926,22 +920,24 @@ describe("propeller", () => {
                     tokenProgram: splToken.programId,
                     tokenBridge,
                   },
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
+                  feeTracking: feeTrackingAccts,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // aggregator,
                   // marginalPricePool: {
                   //   pool: marginalPricePool,
                   //   poolToken0Account: marginalPricePoolToken0Account,
                   //   poolToken1Account: marginalPricePoolToken1Account,
                   //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
                   // },
                   // twoPoolProgram: twoPoolProgram.programId,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
-                  twoPoolProgram: twoPoolProgram.programId,
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  // twoPoolProgram: twoPoolProgram.programId,
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx]);
@@ -1153,7 +1149,7 @@ describe("propeller", () => {
           });
 
           it("creates owner token accounts(no-op)", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolToken0Mint = usdcKeypair.publicKey;
             const poolToken1Mint = usdtKeypair.publicKey;
             const lpMint = swimUsdMint;
@@ -1178,8 +1174,7 @@ describe("propeller", () => {
                 payer: propellerEngineKeypair.publicKey,
                 redeemer: propellerRedeemer,
                 redeemerEscrow: propellerRedeemerEscrowAccount,
-                feeVault: propellerFeeVault,
-                feeTracker: propellerEngineFeeTracker,
+
                 claim: wormholeClaim,
                 swimPayloadMessage,
                 // tokenIdMap: ?
@@ -1195,12 +1190,22 @@ describe("propeller", () => {
                 systemProgram: web3.SystemProgram.programId,
                 tokenProgram: splToken.programId,
                 memo: MEMO_PROGRAM_ID,
-                aggregator,
-                marginalPricePool: marginalPricePool,
-                marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-                marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-                marginalPricePoolLpMint: marginalPricePoolLpMint,
-                twoPoolProgram: twoPoolProgram.programId,
+                feeTracking: feeTrackingAccts,
+                // feeVault: propellerFeeVault,
+                // feeTracker: propellerEngineFeeTracker,
+                // aggregator,
+                // // marginalPricePool: marginalPricePool,
+                // // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+                // // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+                // // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                // // twoPoolProgram: twoPoolProgram.programId,
+                // marginalPricePool: {
+                //   pool: marginalPricePool,
+                //   poolToken0Account: marginalPricePoolToken0Account,
+                //   poolToken1Account: marginalPricePoolToken1Account,
+                //   lpMint: marginalPricePoolLpMint,
+                //   twoPoolProgram: twoPoolProgram.programId,
+                // },
               })
               .preInstructions([setComputeUnitLimitIx])
               .rpc();
@@ -1225,7 +1230,7 @@ describe("propeller", () => {
           });
 
           it("processes swim payload", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolTokenAccount0 = poolUsdcAtaAddr;
             const poolTokenAccount1 = poolUsdtAtaAddr;
             const lpMint = swimUsdMint;
@@ -1308,15 +1313,35 @@ describe("propeller", () => {
                 )
                 .accounts({
                   processSwimPayload: processSwimPayloadPubkeys,
-                  feeVault: propellerFeeVault,
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  // feeVault: propellerFeeVault,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // aggregator,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
+                  // },
+                  feeTracking: feeTrackingAccts,
+                  // fees: {
+                  //   feeVault: propellerFeeVault,
+                  //   feeTracker: propellerEngineFeeTracker,
+                  //   aggregator,
+                  //   marginalPricePool: {
+                  //     pool: marginalPricePool,
+                  //     poolToken0Account: marginalPricePoolToken0Account,
+                  //     poolToken1Account: marginalPricePoolToken1Account,
+                  //     lpMint: marginalPricePoolLpMint,
+                  //     twoPoolProgram: twoPoolProgram.programId,
+                  //   },
+                  // },
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
                   owner,
                   memo: MEMO_PROGRAM_ID,
                 })
@@ -1521,7 +1546,7 @@ describe("propeller", () => {
                 swimUsdKeypair.publicKey.toBuffer(),
                 CHAIN_ID_SOLANA,
                 propellerProgram.programId,
-                ethRoutingContract,
+                evmRoutingContractBuffer,
                 encodeSwimPayload(swimPayload),
               ),
             );
@@ -1610,22 +1635,24 @@ describe("propeller", () => {
                     tokenProgram: splToken.programId,
                     tokenBridge,
                   },
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
+                  feeTracking: feeTrackingAccts,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // aggregator,
                   // marginalPricePool: {
                   //   pool: marginalPricePool,
                   //   poolToken0Account: marginalPricePoolToken0Account,
                   //   poolToken1Account: marginalPricePoolToken1Account,
                   //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
                   // },
                   // twoPoolProgram: twoPoolProgram.programId,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
-                  twoPoolProgram: twoPoolProgram.programId,
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  // twoPoolProgram: twoPoolProgram.programId,
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
@@ -1833,7 +1860,7 @@ describe("propeller", () => {
           });
 
           it("creates owner token accounts", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolToken0Mint = usdcKeypair.publicKey;
             const poolToken1Mint = usdtKeypair.publicKey;
             const lpMint = swimUsdMint;
@@ -1877,8 +1904,7 @@ describe("propeller", () => {
                 payer: propellerEngineKeypair.publicKey,
                 redeemer: propellerRedeemer,
                 redeemerEscrow: propellerRedeemerEscrowAccount,
-                feeVault: propellerFeeVault,
-                feeTracker: propellerEngineFeeTracker,
+
                 claim: wormholeClaim,
                 swimPayloadMessage,
                 // tokenIdMap: ?
@@ -1897,12 +1923,22 @@ describe("propeller", () => {
                 systemProgram: web3.SystemProgram.programId,
                 tokenProgram: splToken.programId,
                 memo: MEMO_PROGRAM_ID,
-                aggregator,
-                marginalPricePool: marginalPricePool,
-                marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-                marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-                marginalPricePoolLpMint: marginalPricePoolLpMint,
-                twoPoolProgram: twoPoolProgram.programId,
+                feeTracking: feeTrackingAccts,
+                // aggregator,
+                // feeVault: propellerFeeVault,
+                // feeTracker: propellerEngineFeeTracker,
+                // marginalPricePool: {
+                //   pool: marginalPricePool,
+                //   poolToken0Account: marginalPricePoolToken0Account,
+                //   poolToken1Account: marginalPricePoolToken1Account,
+                //   lpMint: marginalPricePoolLpMint,
+                //   twoPoolProgram: twoPoolProgram.programId,
+                // },
+                // marginalPricePool: marginalPricePool,
+                // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+                // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+                // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                // twoPoolProgram: twoPoolProgram.programId,
               })
               .preInstructions([setComputeUnitLimitIx])
               .rpc();
@@ -1996,7 +2032,7 @@ describe("propeller", () => {
           });
 
           it("processes swim payload", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolTokenAccount0 = poolUsdcAtaAddr;
             const poolTokenAccount1 = poolUsdtAtaAddr;
             const lpMint = swimUsdMint;
@@ -2115,15 +2151,35 @@ describe("propeller", () => {
                   //   systemProgram: web3.SystemProgram.programId,
                   // },
                   processSwimPayload: processSwimPayloadPubkeys,
-                  feeVault: propellerFeeVault,
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  feeTracking: feeTrackingAccts,
+                  // fees: {
+                  //   feeVault: propellerFeeVault,
+                  //   feeTracker: propellerEngineFeeTracker,
+                  //   aggregator,
+                  //   marginalPricePool: {
+                  //     pool: marginalPricePool,
+                  //     poolToken0Account: marginalPricePoolToken0Account,
+                  //     poolToken1Account: marginalPricePoolToken1Account,
+                  //     lpMint: marginalPricePoolLpMint,
+                  //     twoPoolProgram: twoPoolProgram.programId,
+                  //   },
+                  // },
+                  // feeVault: propellerFeeVault,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // aggregator,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
+                  // },
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
                   owner,
                   memo: MEMO_PROGRAM_ID,
                 })
@@ -2386,7 +2442,7 @@ describe("propeller", () => {
               swimUsdKeypair.publicKey.toBuffer(),
               CHAIN_ID_SOLANA,
               propellerProgram.programId,
-              ethRoutingContract,
+              evmRoutingContractBuffer,
               encodeSwimPayload(swimPayload),
             ),
           );
@@ -2467,14 +2523,21 @@ describe("propeller", () => {
                   tokenProgram: splToken.programId,
                   tokenBridge,
                 },
-                feeTracker: propellerEngineFeeTracker,
-                aggregator,
-
-                marginalPricePool: marginalPricePool,
-                marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-                marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-                marginalPricePoolLpMint: marginalPricePoolLpMint,
-                twoPoolProgram: twoPoolProgram.programId,
+                feeTracking: feeTrackingAccts,
+                // feeTracker: propellerEngineFeeTracker,
+                // aggregator,
+                // marginalPricePool: {
+                //   pool: marginalPricePool,
+                //   poolToken0Account: marginalPricePoolToken0Account,
+                //   poolToken1Account: marginalPricePoolToken1Account,
+                //   lpMint: marginalPricePoolLpMint,
+                //   twoPoolProgram: twoPoolProgram.programId,
+                // },
+                // marginalPricePool: marginalPricePool,
+                // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+                // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+                // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                // twoPoolProgram: twoPoolProgram.programId,
                 memo: MEMO_PROGRAM_ID,
               })
               .preInstructions([setComputeUnitLimitIx])
@@ -2687,8 +2750,7 @@ describe("propeller", () => {
               payer: propellerEngineKeypair.publicKey,
               redeemer: propellerRedeemer,
               redeemerEscrow: propellerRedeemerEscrowAccount,
-              feeVault: propellerFeeVault,
-              feeTracker: propellerEngineFeeTracker,
+
               claim: wormholeClaim,
               swimPayloadMessage,
               tokenIdMap: invalidTokenIdMapAddr,
@@ -2699,12 +2761,15 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
               tokenProgram: splToken.programId,
               memo: MEMO_PROGRAM_ID,
-              aggregator,
-              marginalPricePool: marginalPricePool,
-              marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-              marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-              marginalPricePoolLpMint: marginalPricePoolLpMint,
-              twoPoolProgram: twoPoolProgram.programId,
+              // aggregator,
+              // feeVault: propellerFeeVault,
+              // feeTracker: propellerEngineFeeTracker,
+              // marginalPricePool: marginalPricePool,
+              // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+              // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+              // marginalPricePoolLpMint: marginalPricePoolLpMint,
+              // twoPoolProgram: twoPoolProgram.programId,
+              feeTracking: feeTrackingAccts,
               rent: web3.SYSVAR_RENT_PUBKEY,
             })
             .preInstructions([setComputeUnitLimitIx])
@@ -2778,15 +2843,18 @@ describe("propeller", () => {
                 userSwimUsdAta: ownerSwimUsdAta,
                 tokenProgram: splToken.programId,
                 memo: MEMO_PROGRAM_ID,
-                twoPoolProgram: twoPoolProgram.programId,
+
                 systemProgram: web3.SystemProgram.programId,
-                feeVault: propellerFeeVault,
-                feeTracker: propellerEngineFeeTracker,
-                aggregator,
-                marginalPricePool: marginalPricePool,
-                marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-                marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-                marginalPricePoolLpMint: marginalPricePoolLpMint,
+                feeTracking: feeTrackingAccts,
+
+                // aggregator,
+                // feeVault: propellerFeeVault,
+                // feeTracker: propellerEngineFeeTracker,
+                // marginalPricePool: marginalPricePool,
+                // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+                // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+                // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                // twoPoolProgram: twoPoolProgram.programId,
                 owner,
               })
               .preInstructions([setComputeUnitLimitIx])
@@ -2998,7 +3066,7 @@ describe("propeller", () => {
       //         swimUsdKeypair.publicKey.toBuffer(),
       //         CHAIN_ID_SOLANA,
       //         propellerProgram.programId,
-      //         ethRoutingContract,
+      //         evmRoutingContractBuffer,
       //         encodeSwimPayload(swimPayload),
       //       ),
       //     );
@@ -3190,7 +3258,7 @@ describe("propeller", () => {
       //
       // eslint-disable-next-line jest/no-commented-out-tests
       //   it("processes swim payload", async () => {
-      //     const pool = flagshipPool;
+      //     const pool = swimUsdPool;
       //     const poolTokenAccount0 = poolUsdcAtaAddr;
       //     const poolTokenAccount1 = poolUsdtAtaAddr;
       //     const lpMint = swimUsdMint;
@@ -3414,7 +3482,7 @@ describe("propeller", () => {
       //         swimUsdKeypair.publicKey.toBuffer(),
       //         CHAIN_ID_SOLANA,
       //         propellerProgram.programId,
-      //         ethRoutingContract,
+      //         evmRoutingContractBuffer,
       //         encodeSwimPayload(swimPayload),
       //       ),
       //     );
@@ -3828,7 +3896,7 @@ describe("propeller", () => {
                 swimUsdKeypair.publicKey.toBuffer(),
                 CHAIN_ID_SOLANA,
                 propellerProgram.programId,
-                ethRoutingContract,
+                evmRoutingContractBuffer,
                 encodeSwimPayload(swimPayload),
               ),
             );
@@ -3927,22 +3995,24 @@ describe("propeller", () => {
                     tokenProgram: splToken.programId,
                     tokenBridge,
                   },
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
+                  feeTracking: feeTrackingAccts,
+                  // aggregator,
+                  // feeTracker: propellerEngineFeeTracker,
                   // marginalPricePool: {
                   //   pool: marginalPricePool,
                   //   poolToken0Account: marginalPricePoolToken0Account,
                   //   poolToken1Account: marginalPricePoolToken1Account,
                   //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
                   // },
                   // twoPoolProgram: twoPoolProgram.programId,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
-                  twoPoolProgram: twoPoolProgram.programId,
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  // twoPoolProgram: twoPoolProgram.programId,
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
@@ -4152,7 +4222,7 @@ describe("propeller", () => {
           });
 
           it("creates owner token accounts", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolToken0Mint = usdcKeypair.publicKey;
             const poolToken1Mint = usdtKeypair.publicKey;
             const lpMint = swimUsdMint;
@@ -4180,8 +4250,7 @@ describe("propeller", () => {
                 payer: propellerEngineKeypair.publicKey,
                 redeemer: propellerRedeemer,
                 redeemerEscrow: propellerRedeemerEscrowAccount,
-                feeVault: propellerFeeVault,
-                feeTracker: propellerEngineFeeTracker,
+
                 claim: wormholeClaim,
                 swimPayloadMessage,
                 // tokenIdMap: ?
@@ -4200,12 +4269,22 @@ describe("propeller", () => {
                 systemProgram: web3.SystemProgram.programId,
                 tokenProgram: splToken.programId,
                 memo: MEMO_PROGRAM_ID,
-                aggregator,
-                marginalPricePool: marginalPricePool,
-                marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-                marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-                marginalPricePoolLpMint: marginalPricePoolLpMint,
-                twoPoolProgram: twoPoolProgram.programId,
+                feeTracking: feeTrackingAccts,
+                // aggregator,
+                // feeVault: propellerFeeVault,
+                // feeTracker: propellerEngineFeeTracker,
+                // marginalPricePool: {
+                //   pool: marginalPricePool,
+                //   poolToken0Account: marginalPricePoolToken0Account,
+                //   poolToken1Account: marginalPricePoolToken1Account,
+                //   lpMint: marginalPricePoolLpMint,
+                //   twoPoolProgram: twoPoolProgram.programId,
+                // },
+                // marginalPricePool: marginalPricePool,
+                // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+                // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+                // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                // twoPoolProgram: twoPoolProgram.programId,
               })
               .preInstructions([setComputeUnitLimitIx])
               .rpc();
@@ -4251,7 +4330,7 @@ describe("propeller", () => {
           });
 
           it("processes swim payload", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolTokenAccount0 = poolUsdcAtaAddr;
             const poolTokenAccount1 = poolUsdtAtaAddr;
             const lpMint = swimUsdMint;
@@ -4326,15 +4405,35 @@ describe("propeller", () => {
                 )
                 .accounts({
                   processSwimPayload: processSwimPayloadPubkeys,
-                  feeVault: propellerFeeVault,
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  feeTracking: feeTrackingAccts,
+                  // fees: {
+                  //   feeVault: propellerFeeVault,
+                  //   feeTracker: propellerEngineFeeTracker,
+                  //   aggregator,
+                  //   marginalPricePool: {
+                  //     pool: marginalPricePool,
+                  //     poolToken0Account: marginalPricePoolToken0Account,
+                  //     poolToken1Account: marginalPricePoolToken1Account,
+                  //     lpMint: marginalPricePoolLpMint,
+                  //     twoPoolProgram: twoPoolProgram.programId,
+                  //   },
+                  // },
+                  // feeVault: propellerFeeVault,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // aggregator,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
+                  // },
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
                   owner,
                   memo: MEMO_PROGRAM_ID,
                 })
@@ -4613,7 +4712,7 @@ describe("propeller", () => {
               swimUsdKeypair.publicKey.toBuffer(),
               CHAIN_ID_SOLANA,
               propellerProgram.programId,
-              ethRoutingContract,
+              evmRoutingContractBuffer,
               encodeSwimPayload(swimPayload),
             ),
           );
@@ -4900,7 +4999,7 @@ describe("propeller", () => {
           //     getAssociatedTokenAddress(swimUsdKeypair.publicKey, owner),
           //   ]);
           const userPoolAtas = await getOwnerAtaAddrsForPool(
-            flagshipPool,
+            swimUsdPool,
             owner,
             twoPoolProgram,
           );
@@ -4965,7 +5064,7 @@ describe("propeller", () => {
           );
           const userBalanceBefore = await connection.getBalance(owner);
           const userPoolAtas = await getOwnerAtaAddrsForPool(
-            flagshipPool,
+            swimUsdPool,
             owner,
             twoPoolProgram,
           );
@@ -5170,7 +5269,7 @@ describe("propeller", () => {
               swimUsdKeypair.publicKey.toBuffer(),
               CHAIN_ID_SOLANA,
               propellerProgram.programId,
-              ethRoutingContract,
+              evmRoutingContractBuffer,
               encodeSwimPayload(swimPayload),
             ),
           );
@@ -5723,7 +5822,7 @@ describe("propeller", () => {
                 swimUsdKeypair.publicKey.toBuffer(),
                 CHAIN_ID_SOLANA,
                 propellerProgram.programId,
-                ethRoutingContract,
+                evmRoutingContractBuffer,
                 encodeSwimPayload(swimPayload),
               ),
             );
@@ -5811,16 +5910,23 @@ describe("propeller", () => {
                     tokenProgram: splToken.programId,
                     tokenBridge,
                   },
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
-
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
-                  twoPoolProgram: twoPoolProgram.programId,
+                  feeTracking: feeTrackingAccts,
+                  // aggregator,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
+                  // },
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  // twoPoolProgram: twoPoolProgram.programId,
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
@@ -6019,7 +6125,7 @@ describe("propeller", () => {
           });
 
           it("creates owner token accounts", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolToken0Mint = usdcKeypair.publicKey;
             const poolToken1Mint = usdtKeypair.publicKey;
             const lpMint = swimUsdMint;
@@ -6048,8 +6154,7 @@ describe("propeller", () => {
                   payer: propellerEngineKeypair.publicKey,
                   redeemer: propellerRedeemer,
                   redeemerEscrow: propellerRedeemerEscrowAccount,
-                  feeVault: propellerFeeVault,
-                  feeTracker: propellerEngineFeeTracker,
+
                   claim: wormholeClaim,
                   swimPayloadMessage,
                   // tokenIdMap: ?
@@ -6068,14 +6173,24 @@ describe("propeller", () => {
                   systemProgram: web3.SystemProgram.programId,
                   tokenProgram: splToken.programId,
                   memo: MEMO_PROGRAM_ID,
-                  aggregator,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
-                  twoPoolProgram: twoPoolProgram.programId,
+                  feeTracking: feeTrackingAccts,
+                  // aggregator,
+                  // feeVault: propellerFeeVault,
+                  // feeTracker: propellerEngineFeeTracker,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  //   twoPoolProgram: twoPoolProgram.programId,
+                  // },
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  // twoPoolProgram: twoPoolProgram.programId,
                 })
                 .preInstructions([setComputeUnitLimitIx])
                 .rpc();
@@ -6122,7 +6237,7 @@ describe("propeller", () => {
           });
 
           it("processes swim payload", async () => {
-            const pool = flagshipPool;
+            const pool = swimUsdPool;
             const poolTokenAccount0 = poolUsdcAtaAddr;
             const poolTokenAccount1 = poolUsdtAtaAddr;
             const lpMint = swimUsdMint;
@@ -6200,15 +6315,25 @@ describe("propeller", () => {
                 )
                 .accounts({
                   processSwimPayload: processSwimPayloadPubkeys,
-                  feeVault: propellerFeeVault,
-                  feeTracker: propellerEngineFeeTracker,
-                  aggregator,
-                  marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
-                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  feeTracking: feeTrackingAccts,
+                  // fees: {
+                  //   feeVault: propellerFeeVault,
+                  //   feeTracker: propellerEngineFeeTracker,
+                  //   aggregator,
+                  //   marginalPricePool: {
+                  //     pool: marginalPricePool,
+                  //     poolToken0Account: marginalPricePoolToken0Account,
+                  //     poolToken1Account: marginalPricePoolToken1Account,
+                  //     lpMint: marginalPricePoolLpMint,
+                  //     twoPoolProgram: twoPoolProgram.programId,
+                  //   },
+                  // },
+                  // marginalPricePool: marginalPricePool,
+                  // marginalPricePoolToken0Account:
+                  //   marginalPricePoolToken0Account,
+                  // marginalPricePoolToken1Account:
+                  //   marginalPricePoolToken1Account,
+                  // marginalPricePoolLpMint: marginalPricePoolLpMint,
                   owner,
                   memo: MEMO_PROGRAM_ID,
                 })
@@ -6554,7 +6679,7 @@ describe("propeller", () => {
 //
 // const setupFlagshipPool = async () => {
 //   ({
-//     poolPubkey: flagshipPool,
+//     poolPubkey: swimUsdPool,
 //     poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
 //     governanceFeeAccount: flagshipPoolGovernanceFeeAcct,
 //   } = await setupPoolPrereqs(
@@ -6594,10 +6719,10 @@ describe("propeller", () => {
 //   }
 //   const pool = pubkeys.pool;
 //   console.info(
-//     `poolKey: ${pool.toBase58()}, expected: ${flagshipPool.toBase58()}`,
+//     `poolKey: ${pool.toBase58()}, expected: ${swimUsdPool.toBase58()}`,
 //   );
 //
-//   expect(pool.toBase58()).toBe(flagshipPool.toBase58());
+//   expect(pool.toBase58()).toBe(swimUsdPool.toBase58());
 //   const initFlagshipPoolTxnSig = await initFlagshipPoolTxn.rpc(
 //     rpcCommitmentConfig,
 //   );
@@ -6609,7 +6734,7 @@ describe("propeller", () => {
 //     `flagshipPoolData: ${JSON.stringify(flagshipPoolData, null, 2)}`,
 //   );
 //
-//   marginalPricePool = flagshipPool;
+//   marginalPricePool = swimUsdPool;
 //   marginalPricePoolToken0Account = poolUsdcAtaAddr;
 //   marginalPricePoolToken1Account = poolUsdtAtaAddr;
 //   marginalPricePoolLpMint = swimUsdKeypair.publicKey;
@@ -6623,7 +6748,7 @@ describe("propeller", () => {
 //     ],
 //     twoPoolProgram.programId,
 //   );
-//   expect(flagshipPool.toBase58()).toBe(calculatedSwimPoolPda.toBase58());
+//   expect(swimUsdPool.toBase58()).toBe(calculatedSwimPoolPda.toBase58());
 //
 //   console.info(`setting up user token accounts for flagship pool`);
 //   ({
@@ -6646,7 +6771,7 @@ describe("propeller", () => {
 //     `done setting up flagship pool and relevant user token accounts`,
 //   );
 //   console.info(`
-//       flagshipPool: ${JSON.stringify(flagshipPoolData, null, 2)}
+//       swimUsdPool: ${JSON.stringify(flagshipPoolData, null, 2)}
 //       user: {
 //         userUsdcAtaAddr: ${userUsdcAtaAddr.toBase58()}
 //         userUsdtAtaAddr: ${userUsdtAtaAddr.toBase58()}
@@ -6717,7 +6842,7 @@ describe("propeller", () => {
 //     splToken,
 //     metapoolMintKeypairs,
 //     metapoolMintDecimals,
-//     [flagshipPool, metapoolMint1Authority.publicKey],
+//     [swimUsdPool, metapoolMint1Authority.publicKey],
 //     // [metapoolMintKeypair1],
 //     // [metapoolMint1Decimal],
 //     // [metapoolMint1Authority.publicKey],
@@ -6911,7 +7036,7 @@ const initializePropeller = async () => {
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       systemProgram: web3.SystemProgram.programId,
       rent: web3.SYSVAR_RENT_PUBKEY,
-      pool: flagshipPool,
+      pool: swimUsdPool,
       poolTokenMint0: usdcKeypair.publicKey,
       poolTokenMint1: usdtKeypair.publicKey,
       lpMint: swimUsdKeypair.publicKey,
@@ -6972,23 +7097,29 @@ const initializePropeller = async () => {
 			propellerRedeemer: ${propellerRedeemer.toBase58()}
 			propellerRedeemerEscrowAccount: ${propellerRedeemerEscrowAccount.toBase58()}
 		`);
+  feeTrackingAccts = await getFeeTrackingAccounts(
+    propeller,
+    propellerEngineKeypair.publicKey,
+    propellerEnginePropellerProgram,
+    twoPoolProgram,
+  );
 };
 
 const createTokenIdMaps = async () => {
   const swimUsdTokenNumberMap = {
-    pool: flagshipPool,
+    pool: swimUsdPool,
     poolTokenIndex: 0,
     poolTokenMint: swimUsdKeypair.publicKey,
     toTokenStep: { transfer: {} },
   };
   const usdcTokenNumberMap = {
-    pool: flagshipPool,
+    pool: swimUsdPool,
     poolTokenIndex: usdcPoolTokenIndex,
     poolTokenMint: usdcKeypair.publicKey,
     toTokenStep: { removeExactBurn: {} },
   };
   const usdtTokenNumberMap = {
-    pool: flagshipPool,
+    pool: swimUsdPool,
     poolTokenIndex: usdtPoolTokenIndex,
     poolTokenMint: usdtKeypair.publicKey,
     toTokenStep: { removeExactBurn: {} },

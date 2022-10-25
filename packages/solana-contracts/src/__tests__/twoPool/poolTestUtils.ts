@@ -1,6 +1,7 @@
 import type { BN, Program, Program, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
 import {
+  TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
@@ -472,4 +473,51 @@ export const getUserAtaBalancesForPool = async (
     splToken,
   );
   return userTokenAccounts.map((ata) => ata.amount);
+};
+
+export const getSwapAccounts = async (
+  pool: web3.PublicKey,
+  user: web3.PublicKey,
+  userTransferAuthority: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+) => {
+  const poolData = await twoPoolProgram.account.twoPool.fetch(pool);
+  const [userTokenAccount0, userTokenAccount1] = await getOwnerAtaAddrsForPool(
+    pool,
+    user,
+    twoPoolProgram,
+  );
+  return {
+    pool,
+    poolTokenAccount0: poolData.tokenKeys[0],
+    poolTokenAccount1: poolData.tokenKeys[1],
+    lpMint: poolData.lpMintKey,
+    governanceFee: poolData.governanceFeeKey,
+    userTransferAuthority,
+    userTokenAccount0,
+    userTokenAccount1,
+    tokenProgram: TOKEN_PROGRAM_ID,
+  };
+};
+
+export const getAddOrRemoveAccounts = async (
+  pool: web3.PublicKey,
+  user: web3.PublicKey,
+  userTransferAuthority: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+) => {
+  const swapAccounts = await getSwapAccounts(
+    pool,
+    user,
+    userTransferAuthority,
+    twoPoolProgram,
+  );
+  const userLpTokenAccount = await getAssociatedTokenAddress(
+    swapAccounts.lpMint,
+    user,
+  );
+  return {
+    swap: { ...swapAccounts },
+    userLpTokenAccount,
+  };
 };

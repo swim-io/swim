@@ -73,11 +73,6 @@ pub struct SwapExactInput<'info> {
     )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
-    // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
-    // //  payer could be the same as user_auth if user manually completing the txn but still need
-    // //  to have a separate field to account for it
-    // #[account(mut)]
-    // pub payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 

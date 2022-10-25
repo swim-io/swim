@@ -1,12 +1,12 @@
-use crate::{get_memo_as_utf8, validate_marginal_prices_pool_accounts, wormhole::SwimPayload, Fees};
+use crate::{
+    get_memo_as_utf8, marginal_price_pool::*, validate_marginal_prices_pool_accounts, wormhole::SwimPayload, Fees,
+};
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*,
-        get_lamports_intermediate_token_price, get_marginal_price_decimal, get_marginal_prices, get_message_data,
-        get_swim_usd_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
-        instructions::fee_tracker::FeeTracker, state::SwimPayloadMessage, Address, ChainID, ClaimData, MessageData,
-        PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, TokenBridge, Wormhole,
-        COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, TOKEN_COUNT,
+        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*, fees::*, get_message_data,
+        get_transfer_with_payload_from_message_account, hash_vaa, instructions::fee_tracker::FeeTracker,
+        state::SwimPayloadMessage, Address, ChainID, ClaimData, MessageData, PayloadTransferWithPayload, PostVAAData,
+        PostedVAAData, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, TOKEN_COUNT,
     },
     anchor_lang::{
         prelude::*,
@@ -75,7 +75,7 @@ pub struct CompleteNativeWithPayload<'info> {
     //     hash_vaa(&vaa).as_ref()
     //   ],
     //   bump,
-    //   seeds::program = propeller.wormhole()?
+    //   seeds::program = propeller.wormhole()
     // )]
     // pub message: Box<Account<'info, PostedMessageData>>,
     #[account(
@@ -103,7 +103,7 @@ pub struct CompleteNativeWithPayload<'info> {
     //     vaa.sequence.to_be_bytes().as_ref(),
     //   ],
     //   bump,
-    //   seeds::program = propeller.wormhole()?
+    //   seeds::program = propeller.wormhole()
     // )]
     #[account(mut)]
     /// CHECK: wormhole claim account to prevent double spending
@@ -131,10 +131,7 @@ pub struct CompleteNativeWithPayload<'info> {
     ///    and that the `redeemer` account will be the PDA derived from ["redeemer"], seeds::program = propeller::id()
     pub redeemer: SystemAccount<'info>,
 
-    #[account(
-        mut,
-        token::mint = propeller.swim_usd_mint,
-    )]
+    #[account(mut)]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
     /// this is only used in `propellerCompleteNativeWithPayload`.
@@ -264,33 +261,6 @@ impl<'info> CompleteNativeWithPayload<'info> {
         Ok(transfer_with_payload)
     }
 
-    // fn write_swim_payload_message(
-    //     &mut self,
-    //     bump: u8,
-    //     message_data: &MessageData,
-    //     transfer_amount: u64,
-    //     swim_payload: &RawSwimPayload,
-    // ) -> Result<()> {
-    //     let swim_payload_message = &mut self.swim_payload_message;
-    //     swim_payload_message.bump = bump;
-    //     swim_payload_message.claim = self.claim.key();
-    //     // swim_payload_message.claim_bump = *ctx.bumps.get("claim").unwrap();
-    //     swim_payload_message.swim_payload_message_payer = self.payer.key();
-    //     // swim_payload_message.wh_message_bump = *ctx.bumps.get("message").unwrap();
-    //     swim_payload_message.vaa_emitter_address = message_data.emitter_address;
-    //     swim_payload_message.vaa_emitter_chain = message_data.emitter_chain;
-    //     swim_payload_message.vaa_sequence = message_data.sequence;
-    //     swim_payload_message.transfer_amount = transfer_amount;
-    //     swim_payload_message.swim_payload_version = swim_payload.swim_payload_version;
-    //     swim_payload_message.max_fee = swim_payload.max_fee;
-    //     swim_payload_message.target_token_id = swim_payload.target_token_id;
-    //     swim_payload_message.owner = Pubkey::new_from_array(swim_payload.owner);
-    //     swim_payload_message.memo = swim_payload.memo;
-    //     swim_payload_message.propeller_enabled = swim_payload.propeller_enabled;
-    //     swim_payload_message.gas_kickstart = swim_payload.gas_kickstart;
-    //     Ok(())
-    // }
-
     fn write_swim_payload_message(
         &mut self,
         bump: u8,
@@ -357,50 +327,9 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
 // #[instruction(vaa: PostVAAData)]
 pub struct PropellerCompleteNativeWithPayload<'info> {
     pub complete_native_with_payload: CompleteNativeWithPayload<'info>,
-    // pub marginal_price_pool: MarginalPricePool<'info>,
-    #[account(
-    mut,
-    seeds = [
-    b"propeller".as_ref(),
-    b"fee".as_ref(),
-    complete_native_with_payload.swim_usd_mint.key().as_ref(),
-    complete_native_with_payload.payer.key().as_ref()
-    ],
-    bump = fee_tracker.bump
-    )]
-    pub fee_tracker: Account<'info, FeeTracker>,
+    // note - fee_vault is repeated in here but txn size-wise it should only take an additional byte not 32.
+    pub fee_tracking: FeeTracking<'info>,
 
-    #[account(
-    constraint =
-    *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
-    )]
-    pub aggregator: AccountLoader<'info, AggregatorAccountData>,
-
-    #[account(
-    mut,
-    seeds = [
-    b"two_pool".as_ref(),
-    marginal_price_pool_token_0_account.mint.as_ref(),
-    marginal_price_pool_token_1_account.mint.as_ref(),
-    marginal_price_pool_lp_mint.key().as_ref(),
-    ],
-    bump = marginal_price_pool.bump,
-    seeds::program = two_pool_program.key()
-    )]
-    pub marginal_price_pool: Box<Account<'info, TwoPool>>,
-    #[account(
-    address = marginal_price_pool.token_keys[0],
-    )]
-    pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
-    #[account(
-    address = marginal_price_pool.token_keys[1],
-    )]
-    pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
-    #[account(
-    address = marginal_price_pool.lp_mint_key,
-    )]
-    pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
-    pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
@@ -409,14 +338,7 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
 impl<'info> PropellerCompleteNativeWithPayload<'info> {
     pub fn accounts(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<()> {
         let propeller = &ctx.accounts.complete_native_with_payload.propeller;
-        validate_marginal_prices_pool_accounts(
-            &propeller,
-            &ctx.accounts.marginal_price_pool,
-            &[&ctx.accounts.marginal_price_pool_token_0_account, &ctx.accounts.marginal_price_pool_token_1_account],
-        )?;
-        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_vault.key(), propeller.fee_vault);
-        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_vault.owner, propeller.key());
-        require_keys_eq!(ctx.accounts.aggregator.key(), propeller.aggregator, PropellerError::InvalidAggregator);
+        ctx.accounts.fee_tracking.marginal_price_pool.validate(&propeller)?;
         Ok(())
     }
 
@@ -470,70 +392,7 @@ impl<'info> Fees<'info> for PropellerCompleteNativeWithPayload<'info> {
         Ok(fee_in_lamports)
     }
 
-    fn get_marginal_prices(&self) -> Result<[BorshDecimal; TOKEN_COUNT]> {
-        let result = two_pool::cpi::marginal_prices(CpiContext::new(
-            self.two_pool_program.to_account_info(),
-            two_pool::cpi::accounts::MarginalPrices {
-                pool: self.marginal_price_pool.to_account_info(),
-                pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
-                pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
-                lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
-            },
-        ))?;
-        Ok(result.get())
-    }
-
-    fn convert_fees_to_swim_usd_atomic(&self, fee_in_lamports: u64) -> Result<u64> {
-        msg!("fee_in_lamports: {:?}", fee_in_lamports);
-        let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
-
-        let propeller = &self.complete_native_with_payload.propeller;
-        let max_staleness = propeller.max_staleness;
-        let swim_usd_mint_key = propeller.swim_usd_mint;
-        // let marginal_prices = get_marginal_prices(cpi_ctx)?;
-
-        let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
-            &self.marginal_price_pool,
-            &self.get_marginal_prices()?,
-            propeller,
-            &marginal_price_pool_lp_mint.key(),
-        )?;
-
-        msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
-
-        let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-        msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-
-        let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, max_staleness)?;
-        let fee_in_swim_usd_decimal = lamports_intermediate_token_price
-            .checked_mul(fee_in_lamports_decimal)
-            .and_then(|x| x.checked_div(intermediate_token_price_decimal))
-            .ok_or(PropellerError::IntegerOverflow)?;
-
-        let swim_usd_decimals =
-            get_swim_usd_mint_decimals(&swim_usd_mint_key, &self.marginal_price_pool, &marginal_price_pool_lp_mint)?;
-        msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
-
-        let ten_pow_decimals =
-            Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-        let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
-            .checked_mul(ten_pow_decimals)
-            .and_then(|v| v.to_u64())
-            .ok_or(PropellerError::ConversionError)?;
-
-        msg!(
-            "fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}",
-            fee_in_swim_usd_decimal,
-            fee_in_swim_usd_atomic
-        );
-        Ok(fee_in_swim_usd_atomic)
-    }
-
-    fn track_and_transfer_fees(&mut self, fees_in_swim_usd: u64) -> Result<()> {
-        let fee_tracker = &mut self.fee_tracker;
-        fee_tracker.fees_owed =
-            fee_tracker.fees_owed.checked_add(fees_in_swim_usd).ok_or(PropellerError::IntegerOverflow)?;
-
+    fn transfer_fees_to_vault(&mut self, fees_in_swim_usd: u64) -> Result<()> {
         token::transfer(
             CpiContext::new_with_signer(
                 self.complete_native_with_payload.token_program.to_account_info(),
@@ -582,13 +441,14 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     // Only tracking & converting fee from SOL -> swimUSD if the payer isn't the actual logical owner.
     // This is for if the propeller engine is unavailable and the user is manually calling
     // this ix. They should use the `CompleteNativeWithPayload` ix instead but adding this just in case.\
-    // TODO: if swim payload owner calling though they will need a fee tracker account already.
+    // if swim payload owner calling though they will need a fee tracker account already.
     let swim_payload_owner = Pubkey::new_from_array(swim_payload.owner);
     let token_program = &ctx.accounts.complete_native_with_payload.token_program;
     if swim_payload_owner != ctx.accounts.complete_native_with_payload.payer.key() {
         let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
-        let fees_in_swim_usd_atomic = ctx.accounts.convert_fees_to_swim_usd_atomic(fees_in_lamports)?;
-        ctx.accounts.track_and_transfer_fees(fees_in_swim_usd_atomic)?;
+        // let fees_in_swim_usd_atomic = ctx.accounts.convert_fees_to_swim_usd_atomic(fees_in_lamports)?;
+        let fees_in_swim_usd_atomic = ctx.accounts.fee_tracking.track_fees(fees_in_lamports, propeller)?;
+        ctx.accounts.transfer_fees_to_vault(fees_in_swim_usd_atomic)?;
         msg!("fees_in_swim_usd_atomic: {:?}", fees_in_swim_usd_atomic);
         transfer_amount =
             transfer_amount.checked_sub(fees_in_swim_usd_atomic).ok_or(error!(PropellerError::InsufficientFunds))?;

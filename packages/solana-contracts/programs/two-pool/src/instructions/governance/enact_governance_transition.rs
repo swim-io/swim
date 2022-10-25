@@ -1,7 +1,5 @@
 use {
-    crate::{
-        common_governance::*, error::*, get_current_ts,
-    },
+    crate::{common_governance::*, error::*, get_current_ts},
     anchor_lang::prelude::*,
 };
 
@@ -20,6 +18,7 @@ impl<'info> EnactGovernanceTransition<'info> {
 pub fn handle_enact_governance_transition(ctx: Context<EnactGovernanceTransition>) -> Result<()> {
     let pool = &mut ctx.accounts.common_governance.pool;
     require_neq!(pool.governance_transition_ts, 0i64, PoolError::InvalidEnact);
+    require_keys_neq!(pool.prepared_governance_key, Pubkey::default(), PoolError::InvalidEnact);
 
     let current_ts = get_current_ts()?;
 

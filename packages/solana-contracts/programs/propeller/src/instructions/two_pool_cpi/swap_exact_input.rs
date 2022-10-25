@@ -1,6 +1,6 @@
 use {
     crate::{
-        constants::{PROPELLER_MINIMUM_OUTPUT_AMOUNT, SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX},
+        constants::{METAPOOL_SWIM_USD_INDEX, PROPELLER_MINIMUM_OUTPUT_AMOUNT},
         Propeller, PropellerError,
     },
     anchor_lang::{prelude::*, solana_program::program::invoke},
@@ -31,7 +31,7 @@ pub struct SwapExactInput<'info> {
     bump = pool.bump,
     seeds::program = two_pool_program.key()
     )]
-    pub pool: Account<'info, TwoPool>,
+    pub pool: Box<Account<'info, TwoPool>>,
     #[account(
     mut,
     token::mint = pool.token_mint_keys[0],
@@ -145,12 +145,8 @@ pub fn handle_cross_chain_swap_exact_input(
         },
     );
 
-    let result = two_pool::cpi::swap_exact_input(
-        cpi_ctx,
-        exact_input_amounts,
-        SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX,
-        minimum_output_amount,
-    )?;
+    let result =
+        two_pool::cpi::swap_exact_input(cpi_ctx, exact_input_amounts, METAPOOL_SWIM_USD_INDEX, minimum_output_amount)?;
     let return_val = result.get();
     anchor_lang::prelude::msg!("swap_exact_input return_val: {:?}", return_val);
     Ok(return_val)
@@ -181,7 +177,7 @@ pub fn handle_propeller_swap_exact_input(
     let result = two_pool::cpi::swap_exact_input(
         cpi_ctx,
         exact_input_amounts,
-        SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX,
+        METAPOOL_SWIM_USD_INDEX,
         PROPELLER_MINIMUM_OUTPUT_AMOUNT,
     )?;
     let output_amount = result.get();

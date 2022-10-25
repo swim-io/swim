@@ -9,6 +9,7 @@ import {
   tryNativeToHexString,
   tryUint8ArrayToNative,
 } from "@certusone/wormhole-sdk";
+import { uint8ArrayToHex } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import type { AnchorProvider, Program, SplToken } from "@project-serum/anchor";
 import { BN, web3 } from "@project-serum/anchor";
 import { MEMO_PROGRAM_ID, createMemoInstruction } from "@solana/spl-memo";
@@ -333,16 +334,16 @@ export const formatSwimPayload = (
     ...swimPayload,
     owner: tryUint8ArrayToNative(swimPayload.owner, chain),
   };
-  const formattedMemo = swimPayload.memo
-    ? { memo: swimPayload.memo.toString() }
-    : {};
   const formattedMaxFee = swimPayload.maxFee
     ? { maxFee: swimPayload.maxFee.toString() }
     : {};
+  const formattedMemo = swimPayload.memo
+    ? { memo: uint8ArrayToHex(swimPayload.memo) }
+    : {};
   return {
     ...formattedBaseSwimPayload,
-    ...formattedMemo,
     ...formattedMaxFee,
+    ...formattedMemo,
   };
 };
 
@@ -396,7 +397,7 @@ export const getToTokenNumberMapAddr = async (
   );
 };
 
-export const getTargetChainIdMapAddr = async (
+export const getTargetChainMapAddr = async (
   propeller: web3.PublicKey,
   targetChain: number,
   propellerProgramId: web3.PublicKey,
@@ -579,6 +580,12 @@ export const generatePropellerEngineTxns = async (
   console.info(`
     completePubkeys: ${JSON.stringify(completePubkeys, null, 2)}
   `);
+  const feeTrackingAccts = await getFeeTrackingAccounts(
+    propeller,
+    payer.publicKey,
+    propellerProgram,
+    twoPoolProgram,
+  );
 
   const completeNativeWithPayloadIxs = propellerProgram.methods
     .propellerCompleteNativeWithPayload()
@@ -586,19 +593,21 @@ export const generatePropellerEngineTxns = async (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       completeNativeWithPayload: completePubkeys,
-      feeTracker: propellerEngineFeeTracker,
-      aggregator,
+      feeTracking: feeTrackingAccts,
+      // aggregator,
+      // feeTracker: propellerEngineFeeTracker,
       // marginalPricePool: {
       //   pool: marginalPricePoolInfo.pool,
       //   poolToken0Account: marginalPricePoolInfo.token0Account,
       //   poolToken1Account: marginalPricePoolInfo.token1Account,
       //   lpMint: marginalPricePoolInfo.lpMint,
+      //   twoPoolProgram: twoPoolProgram.programId,
       // },
-      marginalPricePool: marginalPricePoolInfo.pool,
-      marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
-      marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
-      marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
-      twoPoolProgram: twoPoolProgram.programId,
+      // marginalPricePool: marginalPricePoolInfo.pool,
+      // marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
+      // marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
+      // marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
+      // twoPoolProgram: twoPoolProgram.programId,
       memo: MEMO_PROGRAM_ID,
     })
     .preInstructions([setComputeUnitLimitIx])
@@ -657,8 +666,7 @@ export const generatePropellerEngineTxns = async (
           payer: payer.publicKey,
           redeemer: propellerRedeemer,
           redeemerEscrow: propellerRedeemerEscrowAccount,
-          feeVault: propellerFeeVault,
-          feeTracker: propellerEngineFeeTracker,
+
           claim: wormholeClaim,
           swimPayloadMessage,
           tokenIdMap: tokenNumberMapAddr,
@@ -669,12 +677,15 @@ export const generatePropellerEngineTxns = async (
           systemProgram: web3.SystemProgram.programId,
           tokenProgram: splToken.programId,
           memo: MEMO_PROGRAM_ID,
-          aggregator,
-          marginalPricePool: marginalPricePoolInfo.pool,
-          marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
-          marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
-          marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
-          twoPoolProgram: twoPoolProgram.programId,
+          feeTracking: feeTrackingAccts,
+          // aggregator,
+          // feeVault: propellerFeeVault,
+          // feeTracker: propellerEngineFeeTracker,
+          // marginalPricePool: marginalPricePoolInfo.pool,
+          // marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
+          // marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
+          // marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
+          // twoPoolProgram: twoPoolProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction();
@@ -697,15 +708,16 @@ export const generatePropellerEngineTxns = async (
           userSwimUsdAta: userSwimUsdAta,
           tokenProgram: splToken.programId,
           memo: MEMO_PROGRAM_ID,
-          twoPoolProgram: twoPoolProgram.programId,
           systemProgram: web3.SystemProgram.programId,
-          feeVault: propellerFeeVault,
-          feeTracker: propellerEngineFeeTracker,
-          aggregator,
-          marginalPricePool: marginalPricePoolInfo.pool,
-          marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
-          marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
-          marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
+          feeTracking: feeTrackingAccts,
+          // feeVault: propellerFeeVault,
+          // feeTracker: propellerEngineFeeTracker,
+          // aggregator,
+          // marginalPricePool: marginalPricePoolInfo.pool,
+          // marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
+          // marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
+          // marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
+          // twoPoolProgram: twoPoolProgram.programId,
           owner,
         })
         .preInstructions([setComputeUnitLimitIx])
@@ -714,22 +726,16 @@ export const generatePropellerEngineTxns = async (
     txns = [...txns, propellerProcessSwimPayloadFallbackTxn];
   } else {
     const tokenIdMapPoolAddr = tokenNumberMapData.pool;
-    const tokenIdMapPoolData = await twoPoolProgram.account.twoPool.fetch(
+    const tokenNumberMapPoolData = await twoPoolProgram.account.twoPool.fetch(
       tokenIdMapPoolAddr,
     );
-    const tokenIdMapPoolInfo = {
+    const tokenNumberMapPoolInfo = {
       pool: tokenIdMapPoolAddr,
-      tokenMints: tokenIdMapPoolData.tokenMintKeys,
-      tokenAccounts: tokenIdMapPoolData.tokenKeys,
-      lpMint: tokenIdMapPoolData.lpMintKey,
-      governanceFeeAcct: tokenIdMapPoolData.governanceFeeKey,
+      tokenMints: tokenNumberMapPoolData.tokenMintKeys,
+      tokenAccounts: tokenNumberMapPoolData.tokenKeys,
+      lpMint: tokenNumberMapPoolData.lpMintKey,
+      governanceFeeAcct: tokenNumberMapPoolData.governanceFeeKey,
     };
-    // const mints = [...tokenIdMapPoolInfo.tokenMints, tokenIdMapPoolInfo.lpMint];
-    // const ownerAtaAddrs = await Promise.all(
-    //   mints.map(async (mint) => {
-    //     return await getAssociatedTokenAddress(mint, owner);
-    //   }),
-    // );
     const ownerAtaAddrs = await getOwnerAtaAddrsForPool(
       tokenIdMapPoolAddr,
       owner,
@@ -757,15 +763,14 @@ export const generatePropellerEngineTxns = async (
           payer: payer.publicKey,
           redeemer: propellerRedeemer,
           redeemerEscrow: propellerRedeemerEscrowAccount,
-          feeVault: propellerFeeVault,
-          feeTracker: propellerEngineFeeTracker,
+
           claim: wormholeClaim,
           swimPayloadMessage,
           tokenNumberMap: tokenNumberMapAddr,
-          pool: tokenIdMapPoolInfo.pool,
-          poolToken0Mint: tokenIdMapPoolInfo.tokenMints[0],
-          poolToken1Mint: tokenIdMapPoolInfo.tokenMints[1],
-          poolLpMint: tokenIdMapPoolInfo.lpMint,
+          pool: tokenNumberMapPoolInfo.pool,
+          poolToken0Mint: tokenNumberMapPoolInfo.tokenMints[0],
+          poolToken1Mint: tokenNumberMapPoolInfo.tokenMints[1],
+          poolLpMint: tokenNumberMapPoolInfo.lpMint,
           user: owner,
           userPoolToken0Account: ownerAtaAddrs[0],
           userPoolToken1Account: ownerAtaAddrs[1],
@@ -774,12 +779,22 @@ export const generatePropellerEngineTxns = async (
           systemProgram: web3.SystemProgram.programId,
           tokenProgram: splToken.programId,
           memo: MEMO_PROGRAM_ID,
-          aggregator,
-          marginalPricePool: marginalPricePoolInfo.pool,
-          marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
-          marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
-          marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
-          twoPoolProgram: twoPoolProgram.programId,
+          feeTracking: feeTrackingAccts,
+          // aggregator,
+          // feeVault: propellerFeeVault,
+          // feeTracker: propellerEngineFeeTracker,
+          // marginalPricePool: {
+          //   pool: marginalPricePoolInfo.pool,
+          //   poolToken0Account: marginalPricePoolInfo.token0Account,
+          //   poolToken1Account: marginalPricePoolInfo.token1Account,
+          //   lpMint: marginalPricePoolInfo.lpMint,
+          //   twoPoolProgram: twoPoolProgram.programId,
+          // },
+          // marginalPricePool: marginalPricePoolInfo.pool,
+          // marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
+          // marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
+          // marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
+          // twoPoolProgram: twoPoolProgram.programId,
         })
         .preInstructions([setComputeUnitLimitIx])
         .transaction();
@@ -797,11 +812,11 @@ export const generatePropellerEngineTxns = async (
         redeemer: propellerRedeemer,
         redeemerEscrow: propellerRedeemerEscrowAccount,
         // tokenIdMap: ?
-        pool: tokenIdMapPoolInfo.pool,
-        poolTokenAccount0: tokenIdMapPoolInfo.tokenAccounts[0],
-        poolTokenAccount1: tokenIdMapPoolInfo.tokenAccounts[1],
-        lpMint: tokenIdMapPoolInfo.lpMint,
-        governanceFee: tokenIdMapPoolInfo.governanceFeeAcct,
+        pool: tokenNumberMapPoolInfo.pool,
+        poolTokenAccount0: tokenNumberMapPoolInfo.tokenAccounts[0],
+        poolTokenAccount1: tokenNumberMapPoolInfo.tokenAccounts[1],
+        lpMint: tokenNumberMapPoolInfo.lpMint,
+        governanceFee: tokenNumberMapPoolInfo.governanceFeeAcct,
         userTokenAccount0: ownerAtaAddrs[0],
         userTokenAccount1: ownerAtaAddrs[1],
         userLpTokenAccount: ownerAtaAddrs[2],
@@ -810,19 +825,14 @@ export const generatePropellerEngineTxns = async (
         systemProgram: web3.SystemProgram.programId,
       })
       .pubkeys();
+
     const propellerProcessSwimPayloadTxn = await propellerProgram.methods
       .propellerProcessSwimPayload(toTokenNumber)
       .accounts({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         processSwimPayload: processSwimPayloadPubkeys,
-        feeVault: propellerFeeVault,
-        feeTracker: propellerEngineFeeTracker,
-        aggregator,
-        marginalPricePool: marginalPricePoolInfo.pool,
-        marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
-        marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
-        marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
+        feeTracking: feeTrackingAccts,
         owner,
         memo: MEMO_PROGRAM_ID,
       })
@@ -1211,33 +1221,35 @@ export const getPropellerCompleteNativeWithPayloadTxn = async (
   // }
   const completeNativeWithPayloadPubkeys =
     await completeNativeWithPayload.pubkeys();
-  const [feeTracker] = await getFeeTrackerPda(
-    swimUsdMint,
-    propellerProgram.provider.publicKey!,
-    propellerProgram.programId,
-  );
-  const aggregator = propellerData.aggregator;
-  const marginalPricePool = propellerData.marginalPricePool;
-  const marginalPricePoolData = await twoPoolProgram.account.twoPool.fetch(
-    marginalPricePool,
-  );
-  const marginalPricePoolToken0Account = marginalPricePoolData.tokenKeys[0];
-  const marginalPricePoolToken1Account = marginalPricePoolData.tokenKeys[1];
-  const marginalPricePoolLpMint = marginalPricePoolData.lpMintKey;
 
+
+  const feeTrackingAccts = await getFeeTrackingAccounts(
+    propeller,
+    propellerProgram.provider.publicKey!,
+    propellerProgram,
+    twoPoolProgram,
+  );
   return propellerProgram.methods
     .propellerCompleteNativeWithPayload()
     .accounts({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       completeNativeWithPayload: completeNativeWithPayloadPubkeys,
-      feeTracker: feeTracker,
-      aggregator,
-      marginalPricePool: marginalPricePool,
-      marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-      marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-      marginalPricePoolLpMint: marginalPricePoolLpMint,
-      twoPoolProgram: twoPoolProgram.programId,
+      feeTracking: feeTrackingAccts,
+      // feeTracker: feeTracker,
+      // aggregator,
+      // marginalPricePool: {
+      //   pool: marginalPricePool,
+      //   poolToken0Account: marginalPricePoolToken0Account,
+      //   poolToken1Account: marginalPricePoolToken1Account,
+      //   lpMint: marginalPricePoolLpMint,
+      //   twoPoolProgram: twoPoolProgram.programId,
+      // },
+      // marginalPricePool: marginalPricePool,
+      // marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+      // marginalPricePoolToken1Account: marginalPricePoolToken1Account,
+      // marginalPricePoolLpMint: marginalPricePoolLpMint,
+      // twoPoolProgram: twoPoolProgram.programId,
       memo: MEMO_PROGRAM_ID,
     })
     .preInstructions([setComputeUnitLimitIx])
@@ -1335,6 +1347,60 @@ export const getWormholeAddressesForMint = async (
     custodySigner,
   };
 };
+
+export interface FeeTrackingAccounts {
+  readonly feeVault: web3.PublicKey;
+  readonly feeTracker: web3.PublicKey;
+  readonly aggregator: web3.PublicKey;
+  readonly marginalPricePool: MarginalPricePoolAccounts;
+}
+
+export interface MarginalPricePoolAccounts {
+  readonly pool: web3.PublicKey;
+  readonly poolToken0Account: web3.PublicKey;
+  readonly poolToken1Account: web3.PublicKey;
+  readonly lpMint: web3.PublicKey;
+  readonly twoPoolProgram: web3.PublicKey;
+}
+
+//Note: should be able to just use the propellerProgram.provider as payer
+// but just being explicit here for safety.
+export const getFeeTrackingAccounts = async (
+  propeller: web3.PublicKey,
+  payer: web3.PublicKey,
+  propellerProgram: Program<Propeller>,
+  twoPoolProgram: Program<TwoPool>,
+): Promise<FeeTrackingAccounts> => {
+  const propellerData = await propellerProgram.account.propeller.fetch(
+    propeller,
+  );
+  const feeVault = propellerData.feeVault;
+  const swimUsdMint = propellerData.swimUsdMint;
+  const [feeTracker] = await getFeeTrackerPda(
+    swimUsdMint,
+    payer,
+    propellerProgram.programId,
+  );
+  const aggregator = propellerData.aggregator;
+  const marginalPricePool = propellerData.marginalPricePool;
+  const marginalPricePoolData = await twoPoolProgram.account.twoPool.fetch(
+    marginalPricePool,
+  );
+  return {
+    feeVault,
+    feeTracker,
+    aggregator,
+    marginalPricePool: {
+      pool: marginalPricePool,
+      poolToken0Account: marginalPricePoolData.tokenKeys[0],
+      poolToken1Account: marginalPricePoolData.tokenKeys[1],
+      lpMint: marginalPricePoolData.lpMintKey,
+      twoPoolProgram: twoPoolProgram.programId,
+    },
+  };
+};
+
+
 
 export const postVaaToSolana = async (
   tokenTransferWithPayloadSignedVaa: Buffer,

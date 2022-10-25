@@ -24,9 +24,14 @@ interface ITokenBridge {
   ) external payable returns (uint64 sequence);
 
   function completeTransfer(bytes memory encodedVm) external;
-  function completeTransferWithPayload(bytes memory encodedVm) external returns (bytes memory);
 
-  function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress) external view returns (address);
+  function completeTransferWithPayload(bytes memory encodedVm)
+    external returns (bytes memory tokenbridgePayload);
+
+  function createWrapped(bytes memory encodedVm) external returns (address token);
+
+  function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress)
+    external view returns (address token);
 
   function wormhole() external view returns (IWormhole);
 }

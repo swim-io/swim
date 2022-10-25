@@ -4,6 +4,9 @@ pragma solidity ^0.8.15;
 import "./Equalize.sol";
 import "./Invariant.sol";
 
+uint constant FEE_DECIMALS = 6; //enough to represent 100th of a bip
+uint constant FEE_MULTIPLIER = 10**FEE_DECIMALS;
+
 //The code in here is less readable than I'd like because I had to inline a couple of variables to
 // avoid solc's "Stack too deep, try removing local variables" error message
 library PoolMath {

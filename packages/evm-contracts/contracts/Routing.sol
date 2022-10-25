@@ -23,17 +23,7 @@ contract Routing is
   OwnableUpgradeable,
   UUPSUpgradeable
 {
-  struct TokenInfo {
-    uint16  tokenNumber;
-    address tokenAddress;
-    address poolAddress;
-    uint8   tokenIndexInPool;
-  }
-
-  enum GasTokenPriceMethod {
-    FixedPrice,
-    UniswapOracle
-  }
+  using SafeERC20 for IERC20;
 
   //uses two slots
   struct UniswapOracleParams {
@@ -46,28 +36,34 @@ contract Routing is
 
   struct PropellerFeeConfig {
     GasTokenPriceMethod   method;
-    uint64                serviceFee; //specified in swimUSD
+    //service fee specified in swimUSD
+    uint64                serviceFee;
+    //specified in atomic with 18 decimals, i.e. how many atomic swimUSD per 1 wei?
+    // assuming a gas token price of 1 (human) swimUSD / 1 (human) gas token where swimUSD has
+    // 6 decimals and gas token has 18 decimals means 10^-12 atomic swimUSD per 1 wei gas token
+    // and thus taking 18 decimals into account fixedSwimUsdPerGasToken would equal 10^6
     uint                  fixedSwimUsdPerGasToken;
     UniswapOracleParams   uniswap;
   }
 
-  using SafeERC20 for IERC20;
-
-  uint private constant PRECISION = 18;
-  uint private constant GAS_COST_BASE = 85000;
-  uint private constant GAS_COST_POOL_SWAP = 125000;
+  uint private constant PRECISION = ROUTING_PRECISION;
+  uint private constant PRECISION_MULTIPLIER = 10 ** PRECISION;
+  uint private constant GAS_COST_BASE = 79900;
+  uint private constant GAS_COST_POOL_SWAP = 80000;
   uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
-  uint private constant PROPELLER_GAS_TIP = 1 gwei;
+
+  uint private constant BNB_MAINNET_CHAINID = 56;
+  uint private constant BNB_TESTNET_CHAINID = 97;
+  uint private constant BNB_GAS_PRICE = 5 gwei;
 
   uint private constant BIT224 = 1 << 224;
   uint private constant BIT128 = 1 << 128;
   uint private constant BIT96  = 1 << 96;
 
-  //slot0
+  //slot[0]
   address public /*immutable*/ swimUsdAddress;
-  //slot1
+  //slot[1]
   ITokenBridge public /*immutable*/ tokenBridge;
-  uint32       public wormholeNonce;
   //remaining slots
   PropellerFeeConfig public propellerFeeConfig;
   uint256[20]        private reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
@@ -83,7 +79,6 @@ contract Routing is
     __Pausable_init();
     __Ownable_init();
     _transferOwnership(owner_);
-    wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
     if (swimUsdAddress == address(0))
@@ -181,7 +176,8 @@ contract Routing is
       inputAmount,
       firstMinimumOutputAmount,
       wormholeRecipientChain,
-      toOwner
+      toOwner,
+      0 //wormholeNonce
     );
   }
 
@@ -198,7 +194,46 @@ contract Routing is
       inputAmount,
       firstMinimumOutputAmount,
       wormholeRecipientChain,
-      toOwner
+      toOwner,
+      0 //wormholeNonce
+    );
+    emit MemoInteraction(memo);
+  }
+
+  function crossChainInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    uint32 wormholeNonce
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _crossChainInitiate(
+      fromToken,
+      inputAmount,
+      firstMinimumOutputAmount,
+      wormholeRecipientChain,
+      toOwner,
+      wormholeNonce
+    );
+  }
+
+  function crossChainInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    uint32 wormholeNonce,
+    bytes16 memo
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _crossChainInitiate(
+      fromToken,
+      inputAmount,
+      firstMinimumOutputAmount,
+      wormholeRecipientChain,
+      toOwner,
+      wormholeNonce
     );
     emit MemoInteraction(memo);
   }
@@ -208,7 +243,8 @@ contract Routing is
     uint inputAmount,
     uint firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
-    bytes32 toOwner
+    bytes32 toOwner,
+    uint32 wormholeNonce
   ) internal returns (uint swimUsdAmount, uint64 wormholeSequence) {
     address swimUsdAddress_ = swimUsdAddress;
     swimUsdAmount = acquireAndMaybeSwap(
@@ -243,6 +279,7 @@ contract Routing is
       swimUsdAmount,
       wormholeRecipientChain,
       SwimPayloadConversion.encode(toOwner),
+      wormholeNonce,
       swimUsdAddress_
     );
     // }
@@ -256,7 +293,7 @@ contract Routing is
     bool gasKickstart,
     uint64 maxPropellerFee,
     uint16 toTokenNumber
-  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence) {
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
     (swimUsdAmount, wormholeSequence) = _propellerInitiate(
       fromToken,
       inputAmount,
@@ -265,6 +302,7 @@ contract Routing is
       gasKickstart,
       maxPropellerFee,
       toTokenNumber,
+      0, //wormholeNonce
       bytes16(0)
     );
   }
@@ -287,6 +325,55 @@ contract Routing is
       gasKickstart,
       maxPropellerFee,
       toTokenNumber,
+      0, //wormholeNonce
+      memo
+    );
+    emit MemoInteraction(memo);
+  }
+
+  function propellerInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber,
+    uint32 wormholeNonce
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _propellerInitiate(
+      fromToken,
+      inputAmount,
+      wormholeRecipientChain,
+      toOwner,
+      gasKickstart,
+      maxPropellerFee,
+      toTokenNumber,
+      wormholeNonce,
+      bytes16(0)
+    );
+  }
+
+  function propellerInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber,
+    uint32 wormholeNonce,
+    bytes16 memo
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _propellerInitiate(
+      fromToken,
+      inputAmount,
+      wormholeRecipientChain,
+      toOwner,
+      gasKickstart,
+      maxPropellerFee,
+      toTokenNumber,
+      wormholeNonce,
       memo
     );
     emit MemoInteraction(memo);
@@ -300,6 +387,7 @@ contract Routing is
     bool gasKickstart,
     uint64 maxPropellerFee,
     uint16 toTokenNumber,
+    uint32 wormholeNonce,
     bytes16 memo
   ) internal returns (uint swimUsdAmount, uint64 wormholeSequence) {
     address swimUsdAddress_ = swimUsdAddress;
@@ -313,6 +401,7 @@ contract Routing is
       swimUsdAmount,
       wormholeRecipientChain,
       encodedPayload,
+      wormholeNonce,
       swimUsdAddress_
     );
   }
@@ -376,6 +465,9 @@ contract Routing is
     (uint swimUsdAmount, SwimPayload memory swimPayload) = wormholeCompleteTransfer(encodedVm);
     address swimUsdAddress_ = swimUsdAddress;
 
+    if (!swimPayload.propellerEnabled)
+      revert NotAPropellerTransaction();
+
     if (swimPayload.gasKickstart) {
       if (msg.value != GAS_KICKSTART_AMOUNT)
         revert IncorrectMessageValue(msg.value, GAS_KICKSTART_AMOUNT);
@@ -393,11 +485,15 @@ contract Routing is
       toTokenInfo = tokenNumberMapping[swimPayload.toTokenNumber];
       if (toTokenInfo.tokenNumber != 0) {
         //if toTokenNumber in swimPayload was invalid for whatever reason then just return
-        //swimUsd to prevent propeller transaction from getting stuck
+        // swimUsd to prevent propeller transaction from getting stuck
         toTokenNumber = toTokenInfo.tokenNumber; //same as swimPayload.toTokenNumber
         outputToken = toTokenInfo.tokenAddress;
       }
     }
+
+    //emit here instead of at the end to have it included in dynamic gas cost calculation
+    if (swimPayload.memo != bytes16(0))
+      emit MemoInteraction(swimPayload.memo);
 
     uint swimUsdPerGasToken = propellerFeeConfig.method == GasTokenPriceMethod.UniswapOracle
       ? swimUsdPerGasTokenUniswap()
@@ -433,14 +529,10 @@ contract Routing is
             0 //no slippage for propeller
           )
         : swimUsdAmount - feeAmount;
-
       IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
     }
     else
       outputAmount = 0;
-
-    if (swimPayload.memo != bytes16(0))
-      emit MemoInteraction(swimPayload.memo);
   }}
 
   // ----------------------------- ENGINE ----------------------------------------------------------
@@ -458,6 +550,9 @@ contract Routing is
     address tokenAddress,
     address poolAddress
   ) external onlyOwner {
+    if (tokenNumber == 0 || tokenAddress == address(0) || poolAddress == address(0))
+      revert InvalidZeroValue();
+
     uint8 tokenIndexInPool = 0;
     PoolState memory state = IPool(poolAddress).getState();
     //skip first token because it's always swimUSD
@@ -476,6 +571,13 @@ contract Routing is
     token.poolAddress = poolAddress;
     token.tokenIndexInPool = tokenIndexInPool;
 
+    address oldTokenAddress = tokenNumberMapping[tokenNumber].tokenAddress;
+    uint16 oldTokenNumber = tokenAddressMapping[tokenAddress].tokenNumber;
+    if (oldTokenAddress != address(0) && oldTokenAddress != tokenAddress)
+      delete tokenAddressMapping[oldTokenAddress];
+    if (oldTokenNumber != 0 && oldTokenNumber != tokenNumber)
+      delete tokenNumberMapping[oldTokenNumber];
+
     tokenNumberMapping[tokenNumber] = token;
     tokenAddressMapping[tokenAddress] = token;
 
@@ -484,13 +586,19 @@ contract Routing is
 
   function adjustPropellerServiceFee(uint64 serviceFee) external onlyOwner {
     propellerFeeConfig.serviceFee = serviceFee;
+
+    emit PropellerServiceFeeChanged(serviceFee);
   }
 
   function usePropellerFixedGasTokenPrice(
-    uint fixedSwimUsdPerGasToken
+    Decimal calldata fixedSwimUsdPerGasToken //atomic swimUsd per wei ETH
   ) external onlyOwner {
-    propellerFeeConfig.method = GasTokenPriceMethod.FixedPrice;
-    propellerFeeConfig.fixedSwimUsdPerGasToken = fixedSwimUsdPerGasToken;
+    updatePropellerGasTokenPriceMethod(GasTokenPriceMethod.FixedPrice);
+    propellerFeeConfig.fixedSwimUsdPerGasToken = fixedSwimUsdPerGasToken.decimals < PRECISION
+      ? fixedSwimUsdPerGasToken.value * 10 ** (PRECISION - fixedSwimUsdPerGasToken.decimals)
+      : fixedSwimUsdPerGasToken.value / 10 ** (fixedSwimUsdPerGasToken.decimals - PRECISION);
+
+    emit PropellerFixedSwimUsdPerGasTokenChanged(fixedSwimUsdPerGasToken);
   }
 
   function usePropellerUniswapOracle(
@@ -498,7 +606,6 @@ contract Routing is
     address uniswapPoolAddress
   ) external onlyOwner {
     (IPool swimPool, uint8 swimIntermediateIndex) = getPoolAndIndex(intermediateToken);
-
     IUniswapV3Pool uniswapPool = IUniswapV3Pool(uniswapPoolAddress);
 
     bool uniswapIntermediateIsFirst;
@@ -509,11 +616,13 @@ contract Routing is
     else
       revert TokenNotInPool(intermediateToken, uniswapPoolAddress);
 
-    propellerFeeConfig.method = GasTokenPriceMethod.UniswapOracle;
+    updatePropellerGasTokenPriceMethod(GasTokenPriceMethod.UniswapOracle);
     propellerFeeConfig.uniswap.swimPool = swimPool;
     propellerFeeConfig.uniswap.swimIntermediateIndex = swimIntermediateIndex;
     propellerFeeConfig.uniswap.uniswapPool = uniswapPool;
     propellerFeeConfig.uniswap.uniswapIntermediateIsFirst = uniswapIntermediateIsFirst;
+
+    emit PropellerUniswapFeeConfigChanged(intermediateToken, uniswapPoolAddress);
   }
 
   function pause() public onlyOwner {
@@ -565,6 +674,7 @@ contract Routing is
     uint swimUsdAmount,
     uint16 wormholeRecipientChain,
     bytes memory swimPayload,
+    uint32 wormholeNonce,
     address swimUsdAddress_
   ) internal returns (uint64 wormholeSequence) {
     IERC20(swimUsdAddress_).safeApprove(address(tokenBridge), swimUsdAmount);
@@ -585,10 +695,12 @@ contract Routing is
     returns (uint64 wormholeSequence_) {
       wormholeSequence = wormholeSequence_;
     }
+    catch Panic(uint errorCode) {
+      revert WormholeInteractionFailed(abi.encode(errorCode));
+    }
     catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
-    ++wormholeNonce;
   }
 
   function wormholeCompleteTransfer(
@@ -612,14 +724,24 @@ contract Routing is
           WORMHOLE_SOLANA_CHAIN_ID
         );
     }
+    catch Panic(uint errorCode) {
+      revert WormholeInteractionFailed(abi.encode(errorCode));
+    }
     catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
   }
 
+  function updatePropellerGasTokenPriceMethod(GasTokenPriceMethod newMethod) internal {
+    if (propellerFeeConfig.method != newMethod) {
+      propellerFeeConfig.method = newMethod;
+      emit PropellerGasTokenPriceMethodChanged(newMethod);
+    }
+  }
+
   // ----------------------------- INTERNAL VIEW/PURE ----------------------------------------------
 
-  // @return swimUsdPerGasToken with 18 decimals
+  // @return swimUsdPerGasToken with PRECISION decimals
   function swimUsdPerGasTokenUniswap() internal view returns (uint swimUsdPerGasToken) { unchecked {
     //this function is a bit of a clusterfuck due to the wide range of prices that can
     // _theoretically_ be returned by our oracles (swimPool and Uniswap) and because uniswap pools
@@ -696,7 +818,14 @@ contract Routing is
     uint consumedGas = startGas;
 
     unchecked {
-      uint remuneratedGasPrice = block.basefee + PROPELLER_GAS_TIP;
+      uint remuneratedGasPrice =
+        block.chainid == BNB_MAINNET_CHAINID || block.chainid == BNB_TESTNET_CHAINID
+        ? BNB_GAS_PRICE
+        : block.basefee + PROPELLER_GAS_TIP;
+
+      //gas is not an intended source of profit for engines
+      if (remuneratedGasPrice > tx.gasprice)
+        remuneratedGasPrice = tx.gasprice;
 
       consumedGas += GAS_COST_BASE;
       if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)
@@ -707,8 +836,7 @@ contract Routing is
       consumedGas -= gasleft();
       gasTokenCost += remuneratedGasPrice * consumedGas;
     }
-
-    swimUsdGasFee = (gasTokenCost * swimUsdPerGasToken) / MARGINAL_PRICE_MULTIPLIER; //SafeMath!
+    swimUsdGasFee = (gasTokenCost * swimUsdPerGasToken) / PRECISION_MULTIPLIER; //SafeMath!
   }
 
   function getPoolAndIndex(address token) internal view returns (IPool, uint8) {

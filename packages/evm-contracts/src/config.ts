@@ -51,13 +51,23 @@ export type ChainConfig = {
   readonly pools?: readonly PoolConfig[];
 };
 
-export const SWIM_FACTORY_ADDRESS = "0x36E284788aaA29C16cc227E09477C8e73D96ffD3";
-export const SWIM_USD_SOLANA_ADDRESS =
-  "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719";
-export const ROUTING_CONTRACT_SOLANA_ADDRESS = "0x" + "00".repeat(32); //TBD
+//"fixed" constants (either can't be changed by us or implementation critically relies on them):
 export const WORMHOLE_SOLANA_CHAIN_ID = 1;
 export const POOL_PRECISION = 6;
+export const ROUTING_PRECISION = 18;
 export const SWIM_USD_DECIMALS = 6;
+export const SWIM_USD_TOKEN_INDEX = 0;
+export const SWIM_USD_TOKEN_NUMBER = 0;
+
+//"variable" constants:
+export const SWIM_FACTORY_ADDRESS = "0xDef312467D48bdDED813de11C3ee4c257e6eD7aD";
+export const ROUTING_CONTRACT_SOLANA_ADDRESS =
+  "0x857d8c691b9e9a1a1e98d010a36d6401a9099ce89d821751410623ad7c2a20d2";
+export const SWIM_USD_SOLANA_ADDRESS =
+  "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719";
+export const PROPELLER_GAS_TIP = "10000000000"; //i.e. 1e9, i.e. 1 gwei
+
+export const GAS_TOKEN_DECIMALS = 18; //1e18 wei in 1 ETH or BNB, or AVAX, ...
 
 export const TOKEN_NUMBERS: Record<TokenSymbol, number> = {
   swimUSD: 0,
@@ -156,8 +166,67 @@ const BNB_TESTNET = {
   ],
 };
 
+const AVALANCHE_TESTNET = {
+  name: "Avalanche Fuji Testnet",
+  routing: {
+    wormholeTokenBridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+  },
+  pools: [
+    {
+      salt: "0x" + "00".repeat(31) + "01",
+      lpSalt: "0x" + "00".repeat(31) + "11",
+      lpName: "Test Pool LP",
+      lpSymbol: "LP",
+      tokens: [
+        { symbol: "USDC" as const, address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC" },
+        { symbol: "USDT" as const, address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3" },
+      ],
+    },
+  ],
+};
+
+const POLYGON_TESTNET = {
+  name: "Polygon Mumbai Testnet",
+  routing: {
+    wormholeTokenBridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
+  },
+  pools: [
+    {
+      salt: "0x" + "00".repeat(31) + "01",
+      lpSalt: "0x" + "00".repeat(31) + "11",
+      lpName: "Test Pool LP",
+      lpSymbol: "LP",
+      tokens: [
+        { symbol: "USDC" as const, address: "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1" },
+        { symbol: "USDT" as const, address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F" },
+      ],
+    },
+  ],
+};
+
+const FANTOM_TESTNET = {
+  name: "Fantom Testnet",
+  routing: {
+    wormholeTokenBridge: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",
+  },
+  pools: [
+    {
+      salt: "0x" + "00".repeat(31) + "01",
+      lpSalt: "0x" + "00".repeat(31) + "11",
+      lpName: "Test Pool LP",
+      lpSymbol: "LP",
+      tokens: [
+        { symbol: "USDC" as const, address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC" },
+      ],
+    },
+  ],
+};
+
 export const CHAINS: { readonly [chainId: number]: ChainConfig | undefined } = {
   5: GOERLI,
   97: BNB_TESTNET,
   31337: LOCAL,
+  43113: AVALANCHE_TESTNET,
+  80001: POLYGON_TESTNET,
+  4002: FANTOM_TESTNET,
 };

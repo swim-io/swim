@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenConfig } from "../config";
-import { ECOSYSTEM_LIST, isEcosystemEnabled } from "../config";
+import { ECOSYSTEM_LIST, isEcosystemEnabled, isSwimUsd } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useUserBalanceAmount } from "../hooks";
@@ -40,6 +40,7 @@ interface Props {
   readonly handleSelectEcosystem: (ecosystemId: EcosystemId) => void;
   readonly tokenOptionIds: readonly string[];
   readonly selectedEcosystemId: EcosystemId;
+  readonly showSwimUsd?: boolean;
 }
 
 interface TokenProps {
@@ -63,6 +64,7 @@ export const TokenSearchModal = ({
   handleSelectEcosystem,
   selectedEcosystemId,
   tokenOptionIds,
+  showSwimUsd = false,
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const { tokens } = useEnvironment(selectConfig, shallow);
@@ -81,7 +83,8 @@ export const TokenSearchModal = ({
   const filteredTokens = tokens.filter(
     (token) =>
       tokenOptionIds.includes(token.id) &&
-      token.nativeEcosystemId === selectedEcosystemId,
+      (token.nativeEcosystemId === selectedEcosystemId ||
+        (showSwimUsd && isSwimUsd(token))),
   );
 
   const options = filteredTokens.map((token) => {

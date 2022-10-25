@@ -2,6 +2,7 @@ import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_SOLANA,
   createNonce,
+  createPostVaaInstructionSolana,
   getBridgeFeeIx,
   importCoreWasm,
   importTokenWasm,
@@ -10,11 +11,13 @@ import {
 import { createApproveInstruction } from "@solana/spl-token";
 import type {
   Connection,
+  Keypair,
   ParsedTransactionWithMeta,
   Transaction,
   VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import type { WrappedTokenInfo } from "@swim-io/core/types";
 
 import { createMemoIx, createTx } from "./utils";
 
@@ -48,8 +51,7 @@ export interface CreateTransferFromSolanaTxParams {
   readonly amount: bigint;
   readonly targetAddress: Uint8Array;
   readonly targetChainId: ChainId;
-  readonly originAddress?: Uint8Array;
-  readonly originChain?: ChainId;
+  readonly wrappedTokenInfo?: WrappedTokenInfo;
   readonly fromOwnerAddress?: string;
 }
 export const createTransferFromSolanaTx = async ({
@@ -64,34 +66,32 @@ export const createTransferFromSolanaTx = async ({
   amount,
   targetAddress,
   targetChainId,
-  originAddress,
-  originChain,
+  wrappedTokenInfo,
   fromOwnerAddress,
 }: CreateTransferFromSolanaTxParams): Promise<Transaction> => {
   const nonce = createNonce().readUInt32LE(0);
-  const fee = BigInt(0); // for now, this won't do anything, we may add later
+  const fee = BigInt(0); // not currently used
   const bridgeFeeIx = await getBridgeFeeIx(
     connection,
     bridgeAddress,
     payerAddress,
   );
+
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
+    approval_authority_address,
     transfer_native_ix,
     transfer_wrapped_ix,
-    approval_authority_address,
   } = await importTokenWasm();
   const approvalIx = createApproveInstruction(
     new PublicKey(fromAddress),
     new PublicKey(approval_authority_address(portalAddress)),
-    new PublicKey(fromOwnerAddress || payerAddress),
+    new PublicKey(fromOwnerAddress ?? payerAddress),
     amount,
   );
   const isSolanaNative =
-    originChain === undefined || originChain === CHAIN_ID_SOLANA;
-  if (!isSolanaNative && !originAddress) {
-    throw new Error("originAddress is required when specifying originChain");
-  }
+    wrappedTokenInfo === undefined ||
+    wrappedTokenInfo.originChainId === CHAIN_ID_SOLANA;
   const transferIx = ixFromRust(
     isSolanaNative
       ? transfer_native_ix(
@@ -114,8 +114,8 @@ export const createTransferFromSolanaTx = async ({
           auxiliarySignerAddress,
           fromAddress,
           fromOwnerAddress || payerAddress,
-          originChain as number, // checked by isSolanaNative
-          originAddress as Uint8Array, // checked by throw
+          wrappedTokenInfo.originChainId,
+          wrappedTokenInfo.originAddress,
           nonce,
           amount,
           fee,
@@ -123,10 +123,37 @@ export const createTransferFromSolanaTx = async ({
           targetChainId,
         ),
   );
+
+  const memoIx = createMemoIx(interactionId, []);
+  return createTx({
+    feePayer: new PublicKey(payerAddress),
+  }).add(bridgeFeeIx, approvalIx, transferIx, memoIx);
+};
+
+export interface CreatePostVaaTxParams {
+  readonly interactionId: string;
+  readonly bridgeAddress: string;
+  readonly payerAddress: string;
+  readonly vaa: Uint8Array;
+  readonly auxiliarySigner: Keypair;
+}
+export const createPostVaaTx = async ({
+  interactionId,
+  bridgeAddress,
+  payerAddress,
+  vaa,
+  auxiliarySigner,
+}: CreatePostVaaTxParams): Promise<Transaction> => {
+  const postVaaIx = await createPostVaaInstructionSolana(
+    bridgeAddress,
+    payerAddress,
+    Buffer.from(vaa),
+    auxiliarySigner,
+  );
   const memoIx = createMemoIx(interactionId, []);
   const tx = createTx({
     feePayer: new PublicKey(payerAddress),
-  }).add(bridgeFeeIx, approvalIx, transferIx, memoIx);
+  }).add(postVaaIx, memoIx);
   return tx;
 };
 

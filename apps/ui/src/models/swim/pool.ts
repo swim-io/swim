@@ -77,7 +77,7 @@ export const isPoolTx = (
   if (!isSolanaTx(tx)) {
     return false;
   }
-  const { message } = tx.parsedTx.transaction;
+  const { message } = tx.original.transaction;
   return message.instructions.some(
     (ix) => ix.programId.toBase58() === poolContractAddress,
   );

@@ -37,9 +37,9 @@ import {
   useMultipleUserBalances,
   usePool,
   usePoolMath,
-  useSplTokenAccountsQuery,
   useUserBalanceAmount,
   useUserNativeBalances,
+  useUserSolanaTokenAccountsQuery,
   useWallets,
 } from "../hooks";
 import {
@@ -206,7 +206,7 @@ export const AddForm = ({
     poolTokens,
     poolSpec.isLegacyPool ? undefined : poolSpec.ecosystem,
   );
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = null } = useUserSolanaTokenAccountsQuery();
   const startNewInteraction = useStartNewInteraction(() => {
     setFormInputAmounts(poolTokens.map(() => "0"));
   });

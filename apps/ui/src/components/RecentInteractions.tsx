@@ -9,7 +9,7 @@ import { Fragment, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useEnvironment, useInteractionState } from "../core/store";
-import { useSplTokenAccountsQuery, useWallets } from "../hooks";
+import { useUserSolanaTokenAccountsQuery, useWallets } from "../hooks";
 import { isEveryAddressConnected } from "../models";
 import type { InteractionType } from "../models";
 
@@ -34,7 +34,8 @@ export const RecentInteractions = ({
     loadInteractionStatesFromIdb(env).catch(console.error);
   }, [env, loadInteractionStatesFromIdb]);
 
-  const { isSuccess: didLoadSplTokenAccounts } = useSplTokenAccountsQuery();
+  const { isSuccess: didLoadSplTokenAccounts } =
+    useUserSolanaTokenAccountsQuery();
   const wallets = useWallets();
   // Don’t display current interaction
   const { recentInteractionId, interactionStates } = useInteractionState();

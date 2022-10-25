@@ -27,7 +27,7 @@ const findEvmInteractionId = (
   return dataHex.slice(-INTERACTION_ID_LENGTH_HEX);
 };
 
-export const fetchEvmTxForInteractionId = async (
+export const fetchEvmTxsForInteractionId = async (
   interactionId: string,
   queryClient: QueryClient,
   env: Env,
@@ -87,7 +87,7 @@ const addSolanaInteractionId = async (
   const tx = await solanaClient.getTx(signatureInfo.signature);
   // NOTE: Getting the ID from the log is more brittle but simpler than getting it from the instructions
   const memoLog =
-    tx.parsedTx.meta?.logMessages?.find((log) => MEMO_LOG_REGEXP.test(log)) ??
+    tx.original.meta?.logMessages?.find((log) => MEMO_LOG_REGEXP.test(log)) ??
     null;
   const match = memoLog?.match(MEMO_LOG_REGEXP);
   const interactionId = match?.groups?.[INTERACTION_ID_MATCH_GROUP] ?? null;

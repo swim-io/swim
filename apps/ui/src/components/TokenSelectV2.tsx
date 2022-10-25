@@ -1,11 +1,12 @@
-import { EuiButton } from "@elastic/eui";
+import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
+import type { TokenConfig } from "../config";
 import type { TokenOption } from "../models";
 
 import { TokenConfigIcon } from "./TokenIcon";
-import { TokenSearchModalV2 } from "./TokenSearchModalV2";
+import { TokenSearchModal } from "./TokenSearchModal";
 
 interface Props {
   readonly onSelectTokenOption: (tokenOption: TokenOption) => void;
@@ -19,23 +20,52 @@ export const TokenSelectV2 = ({
   selectedTokenOption,
 }: Props): ReactElement => {
   const [showModal, setShowModal] = useState(false);
+  const [selectedEcosystemId, setSelectedEcosystemId] = useState(
+    selectedTokenOption.ecosystemId,
+  );
+
+  const tokenOptionIds = useMemo(
+    () => tokenOptions.map(({ tokenConfig }) => tokenConfig.id),
+    [tokenOptions],
+  );
+
+  const handleSelectToken = useCallback(
+    (tokenConfig: TokenConfig) =>
+      onSelectTokenOption({
+        tokenConfig,
+        ecosystemId: selectedEcosystemId,
+      }),
+    [onSelectTokenOption, selectedEcosystemId],
+  );
 
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);
   const closeModal = useCallback(() => setShowModal(false), [setShowModal]);
 
   return (
     <>
-      <EuiButton onClick={openModal} fullWidth>
-        <TokenConfigIcon
-          token={selectedTokenOption.tokenConfig}
-          ecosystem={selectedTokenOption.ecosystemId}
-        />
+      <EuiButton
+        iconType="arrowDown"
+        iconSide="right"
+        onClick={openModal}
+        fullWidth
+      >
+        <EuiFlexGroup alignItems="center" justifyContent="center">
+          <EuiFlexItem>
+            <TokenConfigIcon
+              token={selectedTokenOption.tokenConfig}
+              ecosystem={selectedTokenOption.ecosystemId}
+            />
+          </EuiFlexItem>
+        </EuiFlexGroup>
       </EuiButton>
       {showModal && (
-        <TokenSearchModalV2
+        <TokenSearchModal
           handleClose={closeModal}
-          handleSelectTokenOption={onSelectTokenOption}
-          tokenOptions={tokenOptions}
+          handleSelectToken={handleSelectToken}
+          handleSelectEcosystem={setSelectedEcosystemId}
+          selectedEcosystemId={selectedEcosystemId}
+          tokenOptionIds={tokenOptionIds}
+          showSwimUsd
         />
       )}
     </>

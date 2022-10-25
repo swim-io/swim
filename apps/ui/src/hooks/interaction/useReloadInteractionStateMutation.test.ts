@@ -12,12 +12,12 @@ import {
   SOLANA_TXS_FOR_RELOAD_INTERACTION,
 } from "../../fixtures/tx/useReloadInteractionStateMutationFixture";
 import {
-  fetchEvmTxForInteractionId,
+  fetchEvmTxsForInteractionId,
   fetchSolanaTxsForInteractionId,
 } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useEvmWallet } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaWallet, useUserSolanaTokenAccountsQuery } from "../solana";
 
 import { useReloadInteractionStateMutation } from "./useReloadInteractionStateMutation";
 
@@ -33,18 +33,20 @@ const useEvmWalletMock = mockOf(useEvmWallet);
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaWallet: jest.fn(),
-  useSplTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
 }));
 const useSolanaWalletMock = mockOf(useSolanaWallet);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 
 jest.mock("../../models", () => ({
   ...jest.requireActual("../../models"),
-  fetchEvmTxForInteractionId: jest.fn(),
+  fetchEvmTxsForInteractionId: jest.fn(),
   fetchSolanaTxsForInteractionId: jest.fn(),
   EvmConnection: jest.fn(),
 }));
-const fetchEvmTxForInteractionIdMock = mockOf(fetchEvmTxForInteractionId);
+const fetchEvmTxsForInteractionIdMock = mockOf(fetchEvmTxsForInteractionId);
 const fetchSolanaTxsForInteractionIdMock = mockOf(
   fetchSolanaTxsForInteractionId,
 );
@@ -68,7 +70,7 @@ describe("useReloadInteractionStateMutation", () => {
   });
 
   it("should reload recent tx and recover interaction state", async () => {
-    useSplTokenAccountsQueryMock.mockReturnValue({
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
       data: [
         {
           mint: new PublicKey("7Lf95y8NuCU5RRC95oUtbBtckPAtbr9ubTgrCiyZ1kEf"),
@@ -90,7 +92,7 @@ describe("useReloadInteractionStateMutation", () => {
     useEvmWalletMock.mockReturnValue({
       address: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
     });
-    fetchEvmTxForInteractionIdMock.mockReturnValue(
+    fetchEvmTxsForInteractionIdMock.mockReturnValue(
       Promise.resolve(EVM_TXS_FOR_RELOAD_INTERACTION),
     );
     fetchSolanaTxsForInteractionIdMock.mockReturnValue(

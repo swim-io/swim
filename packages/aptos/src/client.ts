@@ -1,5 +1,5 @@
 import { isSortedSymbols } from "@pontem/liquidswap-sdk/dist/tsc/utils/contracts.js";
-import type { PoolState, TokenDetails } from "@swim-io/core";
+import type { PoolState, TokenDetails, TxGeneratorResult } from "@swim-io/core";
 import { Client } from "@swim-io/core";
 import { atomicToHuman, findOrThrow } from "@swim-io/utils";
 import type { Types } from "aptos";
@@ -13,7 +13,12 @@ import Decimal from "decimal.js";
 
 import type { PoolResource } from "./liquidswap";
 import { DAO_FEE_DECIMALS, FEE_DECIMALS } from "./liquidswap";
-import type { AptosChainConfig, AptosEcosystemId, AptosTx } from "./protocol";
+import type {
+  AptosChainConfig,
+  AptosEcosystemId,
+  AptosTx,
+  AptosTxType,
+} from "./protocol";
 import { APTOS_ECOSYSTEM_ID } from "./protocol";
 import type { AptosWalletAdapter } from "./walletAdapters";
 
@@ -55,6 +60,8 @@ interface CoinResource {
 export class AptosClient extends Client<
   AptosEcosystemId,
   AptosChainConfig,
+  any,
+  AptosTxType,
   AptosTx,
   AptosWalletAdapter
 > {
@@ -138,11 +145,23 @@ export class AptosClient extends Client<
     throw new Error("Not implemented");
   }
 
-  public initiateWormholeTransfer(): Promise<void> {
+  public generateInitiatePortalTransferTxs(): AsyncGenerator<
+    TxGeneratorResult<any, AptosTx, AptosTxType>
+  > {
     throw new Error("Not implemented");
   }
 
-  public completeWormholeTransfer(): Promise<void> {
+  public generateCompletePortalTransferTxs(): AsyncGenerator<
+    TxGeneratorResult<any, AptosTx, AptosTxType>
+  > {
+    throw new Error("Not implemented");
+  }
+
+  public generateInitiatePropellerTxs(): AsyncGenerator<
+    TxGeneratorResult<any, AptosTx, AptosTxType>,
+    any,
+    AptosTxType
+  > {
     throw new Error("Not implemented");
   }
 

@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
-import { EvmEcosystemId } from "@swim-io/evm";
-import type { TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { EvmEcosystemId, EvmTxType } from "@swim-io/evm";
+import type { SolanaTx, TokenAccount } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, SolanaTxType } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
@@ -14,7 +14,7 @@ import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
@@ -42,10 +42,12 @@ const getSignedVaaWithRetryMock = mockOf(getSignedVaaWithRetry);
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaClient: jest.fn(),
-  useSplTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
 }));
 const useSolanaClientMock = mockOf(useSolanaClient);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 
 describe("useToSolanaTransferMutation", () => {
   beforeEach(() => {
@@ -60,7 +62,7 @@ describe("useToSolanaTransferMutation", () => {
   });
 
   it("should handle the transfer and patch interactionState with txIds", async () => {
-    useSplTokenAccountsQueryMock.mockReturnValue({
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
       data: [
         {
           mint: new PublicKey("9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr"),
@@ -75,19 +77,26 @@ describe("useToSolanaTransferMutation", () => {
           mint,
         } as unknown as TokenAccount),
       ),
-      generateCompleteWormholeTransferTxIds: jest
-        .fn()
-        .mockReturnValue([
-          Promise.resolve(
-            "3o1NH8sMDs5m9DMoVcqD5eZRny2JrrFBohn9TwEKHXhX4Xxg6uQV7JrupVuDJcwaHBuP8fCZhv1HWBYicMixsSPg",
-          ),
-          Promise.resolve(
-            "3ok2VJpHqZ2EqoDGVMyugENdKawTjNbmM4sm4tHpsoF6T8BHx78fk5vZBXH7KRpgX7P43vhnMnN5zb5NSogUfCsj",
-          ),
-          Promise.resolve(
-            "5rYoqeehFL7j5MbMqzE8NruiUeBaRVhwFpCKsdXUnuAr6NNcPiX3XUxq72SA2MtPhtEhEDU2ZPVP9m4rmkHgy2cC",
-          ),
-        ] as Partial<AsyncGenerator<string>>),
+      generateCompletePortalTransferTxs: jest.fn().mockReturnValue([
+        Promise.resolve({
+          tx: {
+            id: "3o1NH8sMDs5m9DMoVcqD5eZRny2JrrFBohn9TwEKHXhX4Xxg6uQV7JrupVuDJcwaHBuP8fCZhv1HWBYicMixsSPg",
+          },
+          type: SolanaTxType.WormholeVerifySignatures,
+        }),
+        Promise.resolve({
+          tx: {
+            id: "3ok2VJpHqZ2EqoDGVMyugENdKawTjNbmM4sm4tHpsoF6T8BHx78fk5vZBXH7KRpgX7P43vhnMnN5zb5NSogUfCsj",
+          },
+          type: SolanaTxType.WormholePostVaa,
+        }),
+        Promise.resolve({
+          tx: {
+            id: "5rYoqeehFL7j5MbMqzE8NruiUeBaRVhwFpCKsdXUnuAr6NNcPiX3XUxq72SA2MtPhtEhEDU2ZPVP9m4rmkHgy2cC",
+          },
+          type: SolanaTxType.PortalRedeem,
+        }),
+      ] as Partial<AsyncGenerator<SolanaTx>>),
     });
     useWalletsMock.mockReturnValue({
       [EvmEcosystemId.Bnb]: {
@@ -109,14 +118,14 @@ describe("useToSolanaTransferMutation", () => {
             id: hash,
           }),
         ),
-        initiateWormholeTransfer: jest.fn(() => {
-          return Promise.resolve({
-            approvalResponses: [],
-            transferResponse: {
-              hash: "0xd528c49eedda9d5a5a7f04a00355b7b124a30502b46532503cc83891844715b9",
+        generateInitiatePortalTransferTxs: jest.fn().mockReturnValue([
+          Promise.resolve({
+            tx: {
+              id: "0xd528c49eedda9d5a5a7f04a00355b7b124a30502b46532503cc83891844715b9",
             },
-          });
-        }),
+            type: EvmTxType.PortalTransferTokens,
+          }),
+        ]),
         provider: {
           getTransaction: jest.fn(() =>
             Promise.resolve({

@@ -14,12 +14,12 @@ import {
   useErc20BalanceQuery,
   useGetSwapFormErrors,
   useSolanaClient,
-  useSolanaLiquidityQueries,
-  useSplTokenAccountsQuery,
-  useSplUserBalance,
+  useSolanaTokenAccountQueries,
   useStartNewInteraction,
   useSwapFeesEstimationQuery,
   useUserNativeBalances,
+  useUserSolanaTokenAccountsQuery,
+  useUserSolanaTokenBalance,
 } from "../../hooks";
 import { mockOf, renderWithAppContext } from "../../testUtils";
 
@@ -37,9 +37,9 @@ jest.mock(
 
 jest.mock("../../hooks/solana", () => ({
   ...jest.requireActual("../../hooks/solana"),
-  useSplTokenAccountsQuery: jest.fn(),
-  useSplUserBalance: jest.fn(),
-  useSolanaLiquidityQueries: jest.fn(),
+  useUserSolanaTokenAccountsQuery: jest.fn(),
+  useUserSolanaTokenBalance: jest.fn(),
+  useSolanaTokenAccountQueries: jest.fn(),
 }));
 
 jest.mock("../../hooks/solana/useSolanaClient", () => ({
@@ -66,13 +66,15 @@ jest.mock("../../hooks", () => ({
 
 const useGetSwapFormErrorsMock = mockOf(useGetSwapFormErrors);
 const useSolanaClientMock = mockOf(useSolanaClient);
-const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useUserSolanaTokenAccountsQueryMock = mockOf(
+  useUserSolanaTokenAccountsQuery,
+);
 const useStartNewInteractionMock = mockOf(useStartNewInteraction);
 const useSwapFeesEstimationQueryMock = mockOf(useSwapFeesEstimationQuery);
 const useErc20BalanceQueryMock = mockOf(useErc20BalanceQuery);
 const useUserNativeBalancesMock = mockOf(useUserNativeBalances);
-const useSplUserBalanceMock = mockOf(useSplUserBalance);
-const useSolanaLiquidityQueriesMock = mockOf(useSolanaLiquidityQueries);
+const useUserSolanaTokenBalanceMock = mockOf(useUserSolanaTokenBalance);
+const useSolanaTokenAccountQueriesMock = mockOf(useSolanaTokenAccountQueries);
 
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
 const findToTokenButton = () => screen.queryAllByRole("button")[3];
@@ -86,7 +88,7 @@ describe("SwapForm", () => {
         },
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
-    useSplTokenAccountsQueryMock.mockReturnValue({
+    useUserSolanaTokenAccountsQueryMock.mockReturnValue({
       data: [],
     });
 
@@ -107,8 +109,8 @@ describe("SwapForm", () => {
     useSwapFeesEstimationQueryMock.mockReturnValue(null);
     useGetSwapFormErrorsMock.mockReturnValue(() => []);
     useErc20BalanceQueryMock.mockReturnValue({ data: zero });
-    useSplUserBalanceMock.mockReturnValue(zero);
-    useSolanaLiquidityQueriesMock.mockReturnValue([
+    useUserSolanaTokenBalanceMock.mockReturnValue(zero);
+    useSolanaTokenAccountQueriesMock.mockReturnValue([
       { data: [] },
     ] as unknown as readonly UseQueryResult<readonly TokenAccount[], Error>[]);
   });

@@ -41,7 +41,7 @@ describe("models - Wormhole utils", () => {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedSwimSwapTx.blockTime ?? null,
         id: parsedSwimSwapTx.transaction.signatures[0],
-        parsedTx: parsedSwimSwapTx,
+        original: parsedSwimSwapTx,
       };
 
       expect(
@@ -76,7 +76,7 @@ describe("models - Wormhole utils", () => {
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           timestamp: parsedTx.blockTime!,
           id: parsedTx.transaction.signatures[0],
-          parsedTx,
+          original: parsedTx,
         };
 
         const result = isPostVaaSolanaTx(
@@ -101,7 +101,7 @@ describe("models - Wormhole utils", () => {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
         id: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
-        parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
+        original: parsedWormholeRedeemEvmUnlockWrappedTx,
       };
 
       const result = isPostVaaSolanaTx(
@@ -132,7 +132,7 @@ describe("models - Wormhole utils", () => {
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           timestamp: parsedTx.blockTime!,
           id: parsedTx.transaction.signatures[0],
-          parsedTx,
+          original: parsedTx,
         };
 
         const result = isRedeemOnSolanaTx(
@@ -160,7 +160,7 @@ describe("models - Wormhole utils", () => {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
         id: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
-        parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
+        original: parsedWormholeRedeemEvmUnlockWrappedTx,
       };
 
       const result = isRedeemOnSolanaTx(

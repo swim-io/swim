@@ -91,18 +91,18 @@ const getTransferredAmount = (
   mintAddress: string,
   walletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
-  tx: SolanaTx,
+  { original }: SolanaTx,
 ): Decimal =>
   inputOperationSpec.instruction === SwimDefiInstruction.Add
     ? getAmountMintedToAccountByMint(
         splTokenAccounts,
-        tx.parsedTx,
+        original,
         mintAddress,
         walletAddress,
       )
     : getAmountTransferredToAccountByMint(
         splTokenAccounts,
-        tx.parsedTx,
+        original,
         mintAddress,
         walletAddress,
       );

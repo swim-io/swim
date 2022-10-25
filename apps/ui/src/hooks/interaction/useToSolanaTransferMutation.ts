@@ -3,7 +3,13 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
+import type { EvmTx } from "@swim-io/evm";
+import { EvmTxType } from "@swim-io/evm";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SolanaTxType,
+  findTokenAccountForMint,
+} from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 import { useMutation } from "react-query";
@@ -26,10 +32,10 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 export const useToSolanaTransferMutation = () => {
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const { chains, wormhole } = useEnvironment(selectConfig, shallow);
   const getEvmClient = useGetEvmClient();
   const solanaClient = useSolanaClient();
@@ -62,7 +68,7 @@ export const useToSolanaTransferMutation = () => {
     );
     const evmClients = fromEcosystems.map(getEvmClient);
 
-    let transferTxIds: readonly string[] = [];
+    let transferTxs: readonly EvmTx[] = [];
     for (const [index, transfer] of toSolanaTransfers.entries()) {
       const { token, value, txIds } = transfer;
       const fromEcosystem = getFromEcosystemOfToSolanaTransfer(
@@ -71,12 +77,12 @@ export const useToSolanaTransferMutation = () => {
       );
       // Transfer completed, skip
       if (txIds.approveAndTransferEvmToken.length > 0) {
-        transferTxIds = [
-          ...transferTxIds,
+        const transferTx = await evmClients[index].getTx(
           txIds.approveAndTransferEvmToken[
             txIds.approveAndTransferEvmToken.length - 1
           ],
-        ];
+        );
+        transferTxs = [...transferTxs, transferTx];
         continue;
       }
       const evmWallet = wallets[fromEcosystem].wallet;
@@ -94,9 +100,9 @@ export const useToSolanaTransferMutation = () => {
       }
 
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } = await evmClients[
+      const evmTxGenerator = evmClients[
         index
-      ].initiateWormholeTransfer({
+      ].generateInitiatePortalTransferTxs({
         atomicAmount: humanDecimalToAtomicString(value, token, fromEcosystem),
         interactionId,
         targetAddress: formatWormholeAddress(
@@ -109,31 +115,35 @@ export const useToSolanaTransferMutation = () => {
         wrappedTokenInfo: getWrappedTokenInfo(token, fromEcosystem),
       });
 
-      // Update transfer state with txId
-      const approveAndTransferEvmTokenTxIds = [
-        ...approvalResponses,
-        transferResponse,
-      ].map(({ hash }) => hash);
-      updateInteractionState(interactionId, (draft) => {
-        draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
-          approveAndTransferEvmTokenTxIds;
-      });
-      transferTxIds = [...transferTxIds, transferResponse.hash];
+      for await (const result of evmTxGenerator) {
+        switch (result.type) {
+          case EvmTxType.PortalTransferTokens:
+          case EvmTxType.Erc20Approve:
+            if (result.type === EvmTxType.PortalTransferTokens) {
+              transferTxs = [...transferTxs, result.tx];
+            }
+            updateInteractionState(interactionId, (draft) => {
+              draft.toSolanaTransfers[
+                index
+              ].txIds.approveAndTransferEvmToken.push(result.tx.id);
+            });
+            break;
+          default:
+            throw new Error(`Unexpected transaction type: ${result.tx.id}`);
+        }
+      }
     }
 
-    const sequences = await Promise.all(
-      toSolanaTransfers.map(async (transfer, index) => {
-        // Claim token completed, skip
-        if (transfer.txIds.claimTokenOnSolana !== null) {
-          return null;
-        }
-        const transferTx = await evmClients[index].getTx(transferTxIds[index]);
-        return parseSequenceFromLogEth(
-          transferTx.receipt,
-          evmChains[index].wormhole.bridge,
-        );
-      }),
-    );
+    const sequences = toSolanaTransfers.map((transfer, index) => {
+      // Claim token completed, skip
+      if (transfer.txIds.claimTokenOnSolana !== null) {
+        return null;
+      }
+      return parseSequenceFromLogEth(
+        transferTxs[index].original,
+        evmChains[index].wormhole.bridge,
+      );
+    });
 
     for (const [index, transfer] of toSolanaTransfers.entries()) {
       const fromEcosystem = getFromEcosystemOfToSolanaTransfer(
@@ -167,25 +177,32 @@ export const useToSolanaTransferMutation = () => {
         retries,
       );
       const unlockSplTokenTxIdsGenerator =
-        solanaClient.generateCompleteWormholeTransferTxIds({
+        solanaClient.generateCompletePortalTransferTxs({
           interactionId,
           vaa,
           wallet: solanaWallet,
           auxiliarySigner,
         });
-      let unlockSplTokenTxIds: readonly string[] = [];
-      for await (const txId of unlockSplTokenTxIdsGenerator) {
-        unlockSplTokenTxIds = [...unlockSplTokenTxIds, txId];
+      for await (const result of unlockSplTokenTxIdsGenerator) {
+        switch (result.type) {
+          case SolanaTxType.WormholeVerifySignatures:
+          case SolanaTxType.WormholePostVaa:
+            updateInteractionState(interactionId, (draft) => {
+              draft.toSolanaTransfers[index].txIds.postVaaOnSolana.push(
+                result.tx.id,
+              );
+            });
+            break;
+          case SolanaTxType.PortalRedeem:
+            updateInteractionState(interactionId, (draft) => {
+              draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =
+                result.tx.id;
+            });
+            break;
+          default:
+            throw new Error(`Unexpected transaction type: ${result.tx.id}`);
+        }
       }
-      // Update transfer state with txId
-      const postVaaOnSolanaTxIds = unlockSplTokenTxIds.slice(0, -1);
-      const [claimTokenOnSolanaTxId] = unlockSplTokenTxIds.slice(-1);
-      updateInteractionState(interactionId, (draft) => {
-        draft.toSolanaTransfers[index].txIds.postVaaOnSolana =
-          postVaaOnSolanaTxIds;
-        draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =
-          claimTokenOnSolanaTxId;
-      });
     }
   });
 };

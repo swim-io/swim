@@ -17,7 +17,7 @@ import {
 import type { AddInteractionState } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
 
 export const useAddInteractionMutation = () => {
   const queryClient = useQueryClient();
@@ -26,7 +26,8 @@ export const useAddInteractionMutation = () => {
   const wallets = useWallets();
   const solanaClient = useSolanaClient();
   const getEvmClient = useGetEvmClient();
-  const { data: existingSplTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: existingSplTokenAccounts = [] } =
+    useUserSolanaTokenAccountsQuery();
   const { updateInteractionState } = useInteractionStateV2();
 
   const tokensByPoolId = getTokensByPool(config);
@@ -123,24 +124,21 @@ export const useAddInteractionMutation = () => {
             if (tokenDetails === null) {
               throw new Error("Missing token detail");
             }
-            const responses = await evmClient.approveTokenAmount({
+            const approveTxGenerator = evmClient.generateErc20ApproveTxs({
               atomicAmount: amount.toAtomicString(ecosystem),
               wallet,
               mintAddress: tokenDetails.address,
               spenderAddress: poolSpec.address,
             });
 
-            await Promise.all(
-              responses.map(async (response) => {
-                const tx = await evmClient.getTx(response);
-                updateInteractionState(interaction.id, (draft) => {
-                  if (draft.interactionType !== interaction.type) {
-                    throw new Error("Interaction type mismatch");
-                  }
-                  draft.approvalTxIds = [...draft.approvalTxIds, tx.id];
-                });
-              }),
-            );
+            for await (const result of approveTxGenerator) {
+              updateInteractionState(interaction.id, (draft) => {
+                if (draft.interactionType !== interaction.type) {
+                  throw new Error("Interaction type mismatch");
+                }
+                draft.approvalTxIds.push(result.tx.id);
+              });
+            }
           }),
         );
 

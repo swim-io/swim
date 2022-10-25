@@ -11,12 +11,12 @@ import { useEnvironment } from "../../core/store";
 import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
-export const getSplTokenAccountsQueryKey = (
+export const getUserSolanaTokenAccountsQueryKey = (
   env: Env,
   address: string | null,
-) => [env, "tokenAccounts", address];
+) => [env, "userSolanaTokenAccounts", address];
 
-export const useSplTokenAccountsQuery = (
+export const useUserSolanaTokenAccountsQuery = (
   owner?: string,
   options?: UseQueryOptions<readonly TokenAccount[], Error>,
 ): UseQueryResult<readonly TokenAccount[], Error> => {
@@ -25,7 +25,7 @@ export const useSplTokenAccountsQuery = (
   const { address: userAddress } = useSolanaWallet();
   const address = owner ?? userAddress;
 
-  const queryKey = getSplTokenAccountsQueryKey(env, address);
+  const queryKey = getUserSolanaTokenAccountsQueryKey(env, address);
   return useQuery<readonly TokenAccount[], Error>(
     queryKey,
     async () => {

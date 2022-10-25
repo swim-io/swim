@@ -1,6 +1,11 @@
+import { Spl } from "@project-serum/anchor";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import type {
+  ParsedTransactionWithMeta,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import { BN } from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenAccount } from "../serialization";
@@ -22,6 +27,31 @@ export const findTokenAccountForMint = (
           associatedTokenAccountAddress.toBase58(),
     ) ?? null
   );
+};
+
+export const createApproveAndRevokeIxs = async (
+  tokenAccount: PublicKey,
+  amount: string,
+  delegate: PublicKey,
+  authority: PublicKey,
+): Promise<readonly [TransactionInstruction, TransactionInstruction]> => {
+  const splToken = Spl.token();
+  const approveIx = splToken.methods
+    .approve(new BN(amount))
+    .accounts({
+      source: tokenAccount,
+      delegate,
+      authority,
+    })
+    .instruction();
+  const revokeIx = splToken.methods
+    .revoke()
+    .accounts({
+      source: tokenAccount,
+      authority,
+    })
+    .instruction();
+  return Promise.all([approveIx, revokeIx]);
 };
 
 interface ParsedSplTokenTransferInstruction {

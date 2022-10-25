@@ -6,18 +6,21 @@ import {
 } from "@certusone/wormhole-sdk";
 import { Client, getTokenDetails } from "@swim-io/core";
 import type {
-  CompleteWormholeTransferParams,
-  InitiateWormholeTransferParams,
+  CompletePortalTransferParams,
+  InitiatePortalTransferParams,
+  InitiatePropellerParams,
   PoolState,
   TokenDetails,
+  TxGeneratorResult,
 } from "@swim-io/core";
-import { ERC20__factory } from "@swim-io/evm-contracts";
+import { ERC20__factory, Routing__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ethers, providers } from "ethers";
 import { utils as ethersUtils } from "ethers";
 
 import type { EvmChainConfig, EvmEcosystemId, EvmTx } from "./protocol";
+import { EvmTxType } from "./protocol";
 import { appendHexDataToEvmTx } from "./utils";
 import type { EvmWalletAdapter } from "./walletAdapters";
 
@@ -63,6 +66,8 @@ export interface EvmClientOptions {
 export class EvmClient extends Client<
   EvmEcosystemId,
   EvmChainConfig,
+  TransactionReceipt,
+  EvmTxType,
   EvmTx,
   EvmWalletAdapter
 > {
@@ -94,18 +99,11 @@ export class EvmClient extends Client<
     txIdOrResponse: TransactionResponse | string,
   ): Promise<EvmTx> {
     const response = typeof txIdOrResponse === "string" ? null : txIdOrResponse;
-    const id =
-      typeof txIdOrResponse === "string" ? txIdOrResponse : txIdOrResponse.hash;
-    const receipt = await this.getTxReceipt(txIdOrResponse);
-
-    if (receipt === null) {
-      throw new Error(`Transaction not found: ${id}`);
-    }
-
+    const receipt = await this.getTxReceiptOrThrow(txIdOrResponse);
     return {
       id: receipt.transactionHash,
       ecosystemId: this.ecosystemId,
-      receipt,
+      original: receipt,
       timestamp: response?.timestamp ?? null,
       interactionId: null,
     };
@@ -155,7 +153,7 @@ export class EvmClient extends Client<
     );
   }
 
-  public async initiateWormholeTransfer({
+  public async *generateInitiatePortalTransferTxs({
     atomicAmount,
     interactionId,
     targetAddress,
@@ -163,24 +161,31 @@ export class EvmClient extends Client<
     tokenProjectId,
     wallet,
     wrappedTokenInfo,
-  }: InitiateWormholeTransferParams<EvmWalletAdapter>): Promise<{
-    readonly approvalResponses: readonly ethers.providers.TransactionResponse[];
-    readonly transferResponse: ethers.providers.TransactionResponse;
-  }> {
+  }: InitiatePortalTransferParams<EvmWalletAdapter>): AsyncGenerator<
+    TxGeneratorResult<
+      TransactionReceipt,
+      EvmTx,
+      EvmTxType.Erc20Approve | EvmTxType.PortalTransferTokens
+    >
+  > {
     const mintAddress =
       wrappedTokenInfo?.wrappedAddress ??
       getTokenDetails(this.chainConfig, tokenProjectId).address;
 
     await wallet.switchNetwork(this.chainConfig.chainId);
 
-    const approvalResponses = await this.approveTokenAmount({
+    const approvalGenerator = this.generateErc20ApproveTxs({
       atomicAmount,
       mintAddress,
       spenderAddress: this.chainConfig.wormhole.portal,
       wallet,
     });
 
-    const transferResponse = await this.transferToken({
+    for await (const approvalTxResult of approvalGenerator) {
+      yield approvalTxResult;
+    }
+
+    const tx = await this.transferToken({
       interactionId,
       mintAddress,
       atomicAmount,
@@ -188,27 +193,26 @@ export class EvmClient extends Client<
       targetAddress,
       wallet,
     });
-
-    if (transferResponse === null) {
-      throw new Error(
-        `Transaction not found (lock/burn from ${this.chainConfig.name})`,
-      );
-    }
-
-    return {
-      approvalResponses,
-      transferResponse,
+    yield {
+      tx,
+      type: EvmTxType.PortalTransferTokens,
     };
   }
 
   /**
    * Adapted from https://github.com/certusone/wormhole/blob/2998031b164051a466bb98c71d89301ed482b4c5/sdk/js/src/token_bridge/redeem.ts#L24-L33
    */
-  public async completeWormholeTransfer({
+  public async *generateCompletePortalTransferTxs({
     interactionId,
     vaa,
     wallet,
-  }: CompleteWormholeTransferParams<EvmWalletAdapter>): Promise<ethers.providers.TransactionResponse | null> {
+  }: CompletePortalTransferParams<EvmWalletAdapter>): AsyncGenerator<
+    TxGeneratorResult<
+      TransactionReceipt,
+      EvmTx,
+      EvmTxType.PortalCompleteTransfer
+    >
+  > {
     const { signer } = wallet;
     if (!signer) {
       throw new Error("No EVM signer");
@@ -219,16 +223,89 @@ export class EvmClient extends Client<
     );
     const populatedTx = await bridge.populateTransaction.completeTransfer(vaa);
     const txRequest = appendHexDataToEvmTx(interactionId, populatedTx);
-    return signer.sendTransaction(txRequest);
+    const completeResponse = await signer.sendTransaction(txRequest);
+    const tx = await this.getTx(completeResponse);
+    yield {
+      tx,
+      type: EvmTxType.PortalCompleteTransfer,
+    };
   }
 
-  public async approveTokenAmount({
+  public async *generateInitiatePropellerTxs({
+    wallet,
+    interactionId,
+    sourceTokenId,
+    targetWormholeChainId,
+    targetTokenNumber,
+    targetWormholeAddress,
+    inputAmount,
+    maxPropellerFeeAtomic,
+    gasKickStart,
+  }: InitiatePropellerParams<EvmWalletAdapter>): AsyncGenerator<
+    TxGeneratorResult<
+      ethers.providers.TransactionReceipt,
+      EvmTx,
+      EvmTxType.Erc20Approve | EvmTxType.SwimInitiatePropeller
+    >,
+    any,
+    unknown
+  > {
+    const { signer } = wallet;
+    if (signer === null) {
+      throw new Error("Missing EVM wallet");
+    }
+
+    await wallet.switchNetwork(this.chainConfig.chainId);
+
+    const sourceTokenDetails = getTokenDetails(this.chainConfig, sourceTokenId);
+    const inputAmountAtomic = ethersUtils.parseUnits(
+      inputAmount.toString(),
+      sourceTokenDetails.decimals,
+    );
+
+    const approvalGenerator = this.generateErc20ApproveTxs({
+      atomicAmount: inputAmountAtomic.toString(),
+      mintAddress: sourceTokenDetails.address,
+      spenderAddress: this.chainConfig.routingContractAddress,
+      wallet,
+    });
+
+    for await (const approvalTxResult of approvalGenerator) {
+      yield approvalTxResult;
+    }
+
+    const memo = Buffer.from(interactionId, "hex");
+    const routingContract = Routing__factory.connect(
+      this.chainConfig.routingContractAddress,
+      signer,
+    );
+    const initiatePropellerResponse = await routingContract[
+      "propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16,bytes16)"
+    ](
+      sourceTokenDetails.address,
+      inputAmountAtomic,
+      targetWormholeChainId,
+      targetWormholeAddress,
+      gasKickStart,
+      maxPropellerFeeAtomic,
+      targetTokenNumber,
+      memo,
+      // overrides, // TODO: allow EVM overrides?
+    );
+    const initiatePropellerTx = await this.getTx(initiatePropellerResponse);
+    yield {
+      tx: initiatePropellerTx,
+      type: EvmTxType.SwimInitiatePropeller,
+    };
+  }
+
+  public async *generateErc20ApproveTxs({
     atomicAmount,
     mintAddress,
     spenderAddress,
     wallet,
-  }: ApproveTokenAmountParams): Promise<
-    readonly ethers.providers.TransactionResponse[]
+  }: ApproveTokenAmountParams): AsyncGenerator<
+    TxGeneratorResult<TransactionReceipt, EvmTx, EvmTxType.Erc20Approve>
   > {
     const { signer } = wallet;
     if (!signer) {
@@ -236,47 +313,40 @@ export class EvmClient extends Client<
     }
 
     await wallet.switchNetwork(this.chainConfig.chainId);
-
     const allowance = await getAllowanceEth(
       spenderAddress,
       mintAddress,
       signer,
     );
 
-    let approvalResponses: readonly ethers.providers.TransactionResponse[] = [];
     if (allowance.lt(atomicAmount)) {
       if (!allowance.isZero()) {
         // Reset to 0 to avoid a race condition allowing Wormhole to steal funds
         // See https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
         // Note this is required by some ERC20 implementations such as USDT
         // See line 205 here: https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7#code
-        const resetApprovalResponse = await this.approveErc20Token({
+        const resetTx = await this.approveErc20Token({
           atomicAmount: "0",
           mintAddress,
           signer,
           spenderAddress,
         });
-        approvalResponses = resetApprovalResponse
-          ? [...approvalResponses, resetApprovalResponse]
-          : approvalResponses;
+        yield {
+          tx: resetTx,
+          type: EvmTxType.Erc20Approve,
+        };
       }
-      const approvalResponse = await this.approveErc20Token({
+      const tx = await this.approveErc20Token({
         atomicAmount,
         mintAddress,
         signer,
         spenderAddress,
       });
-      approvalResponses = approvalResponse
-        ? [...approvalResponses, approvalResponse]
-        : approvalResponses;
-
-      // Wait for approvalResponse to be mined, otherwise the transfer might fail ("transfer amount exceeds allowance")
-      if (approvalResponse) {
-        await this.getTxReceiptOrThrow(approvalResponse);
-      }
+      yield {
+        tx,
+        type: EvmTxType.Erc20Approve,
+      };
     }
-
-    return approvalResponses;
   }
 
   public getPoolState(poolId: string): Promise<PoolState> {
@@ -326,11 +396,15 @@ export class EvmClient extends Client<
   }
 
   private async getTxReceiptOrThrow(
-    txResponse: TransactionResponse,
+    txIdOrResponse: string | TransactionResponse,
   ): Promise<TransactionReceipt> {
-    const txReceipt = await this.getTxReceipt(txResponse);
+    const txReceipt = await this.getTxReceipt(txIdOrResponse);
     if (txReceipt === null) {
-      throw new Error(`Transaction not found: ${txResponse.hash}`);
+      const id =
+        typeof txIdOrResponse === "string"
+          ? txIdOrResponse
+          : txIdOrResponse.hash;
+      throw new Error(`Transaction not found: ${id}`);
     }
     return txReceipt;
   }
@@ -340,9 +414,10 @@ export class EvmClient extends Client<
     signer,
     spenderAddress,
     mintAddress,
-  }: ApproveErc20TokenParams): Promise<ethers.providers.TransactionResponse | null> {
+  }: ApproveErc20TokenParams): Promise<EvmTx> {
     const token = ERC20__factory.connect(mintAddress, signer);
-    return token.approve(spenderAddress, atomicAmount);
+    const txResponse = await token.approve(spenderAddress, atomicAmount);
+    return await this.getTx(txResponse);
   }
 
   /**
@@ -355,7 +430,7 @@ export class EvmClient extends Client<
     targetChainId,
     mintAddress,
     wallet,
-  }: TransferTokenParams): Promise<ethers.providers.TransactionResponse | null> {
+  }: TransferTokenParams): Promise<EvmTx> {
     const { signer } = wallet;
     if (!signer) {
       throw new Error("No EVM signer");
@@ -374,6 +449,7 @@ export class EvmClient extends Client<
       createNonce(),
     );
     const txRequest = appendHexDataToEvmTx(interactionId, populatedTx);
-    return signer.sendTransaction(txRequest);
+    const txResponse = await signer.sendTransaction(txRequest);
+    return await this.getTx(txResponse);
   }
 }

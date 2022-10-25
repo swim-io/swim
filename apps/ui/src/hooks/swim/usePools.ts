@@ -15,9 +15,9 @@ import {
   isEvmPoolState,
 } from "../../models";
 import {
-  useSolanaLiquidityQueries,
+  useSolanaTokenAccountQueries,
   useSolanaWallet,
-  useSplTokenAccountsQuery,
+  useUserSolanaTokenAccountsQuery,
 } from "../solana";
 
 import { usePoolLpMints } from "./usePoolLpMint";
@@ -139,13 +139,13 @@ const constructPool = (
 export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   const { pools, tokens: allTokens } = useEnvironment(selectConfig, shallow);
   const { address: walletAddress } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = null } = useUserSolanaTokenAccountsQuery();
   const poolSpecs = poolIds.map((poolId) =>
     findOrThrow(pools, (pool) => pool.id === poolId),
   );
   const poolStates = usePoolStateQueries(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
-  const liquidityQueries = useSolanaLiquidityQueries(
+  const liquidityQueries = useSolanaTokenAccountQueries(
     poolSpecs.map((poolSpec) =>
       poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID
         ? [...poolSpec.tokenAccounts.values()]

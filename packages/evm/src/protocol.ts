@@ -46,10 +46,14 @@ export interface EvmEcosystemConfig<E extends EvmEcosystemId = EvmEcosystemId>
   readonly chains: Partial<ReadonlyRecord<Env, EvmChainConfig<E>>>;
 }
 
-export interface EvmTx extends Tx {
-  readonly ecosystemId: EvmEcosystemId;
-  readonly receipt: ethers.providers.TransactionReceipt;
+export enum EvmTxType {
+  Erc20Approve = "erc20:approve",
+  PortalTransferTokens = "portal:transferTokens",
+  PortalCompleteTransfer = "portal:completeTransfer",
+  SwimInitiatePropeller = "swim:initiatePropeller",
 }
 
-export const isEvmTx = (tx: Tx): tx is EvmTx =>
+export type EvmTx = Tx<ethers.providers.TransactionReceipt, EvmEcosystemId>;
+
+export const isEvmTx = (tx: Tx<any>): tx is EvmTx =>
   isEvmEcosystemId(tx.ecosystemId);

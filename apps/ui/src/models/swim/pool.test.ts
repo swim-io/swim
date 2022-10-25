@@ -47,7 +47,7 @@ describe("Pool tests", () => {
         id: "string",
         timestamp: 123456789,
         ecosystemId: ecosystemId,
-        receipt: txReceipt,
+        original: txReceipt,
         interactionId: "1",
       };
       expect(isPoolTx(contractAddress, tx)).toBe(false);
@@ -55,34 +55,34 @@ describe("Pool tests", () => {
 
     it("returns false, if not pool Solana tx", () => {
       const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
-      const ptx = {
+      const parsedTx = {
         ...mockDeep<solana.ParsedTransactionWithMeta>(),
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
-      const txs: SolanaTx = {
+      const tx: SolanaTx = {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
-        parsedTx: ptx,
+        original: parsedTx,
         id: "string",
         timestamp: 123456789,
         interactionId: "1",
       };
-      expect(isPoolTx(contractAddress, txs)).toBe(false);
+      expect(isPoolTx(contractAddress, tx)).toBe(false);
     });
 
     it("returns true, if it's pool solana tx", () => {
       const contractAddress = "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb";
-      const ptx = {
+      const parsedTx = {
         ...mockDeep<solana.ParsedTransactionWithMeta>(),
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
-      const txs: SolanaTx = {
+      const tx: SolanaTx = {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
-        parsedTx: ptx,
+        original: parsedTx,
         id: "string",
         timestamp: 123456789,
         interactionId: "1",
       };
-      expect(isPoolTx(contractAddress, txs)).toBe(true);
+      expect(isPoolTx(contractAddress, tx)).toBe(true);
     });
   });
 

@@ -5,8 +5,8 @@ import { useQueryClient } from "react-query";
 
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
-import { useSolBalanceQuery } from "./useSolBalanceQuery";
 import { useSolanaClient } from "./useSolanaClient";
+import { useSolanaGasBalanceQuery } from "./useSolanaGasBalanceQuery";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 jest.mock("./useSolanaClient", () => ({
@@ -23,7 +23,7 @@ jest.mock("./useSolanaWallet", () => ({
 const useSolanaWalletMock = mockOf(useSolanaWallet);
 const useSolanaClientMock = mockOf(useSolanaClient);
 
-describe("useSolBalanceQuery", () => {
+describe("useSolanaGasBalanceQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());
@@ -35,12 +35,10 @@ describe("useSolBalanceQuery", () => {
       connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => 999,
-        onAccountChange: jest.fn(),
-        removeAccountChangeListener: jest.fn(async () => {}),
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
-      useSolBalanceQuery(),
+      useSolanaGasBalanceQuery(),
     );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("0"));
@@ -54,12 +52,10 @@ describe("useSolBalanceQuery", () => {
       connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => 123 * LAMPORTS_PER_SOL,
-        onAccountChange: jest.fn(),
-        removeAccountChangeListener: jest.fn(async () => {}),
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
-      useSolBalanceQuery(),
+      useSolanaGasBalanceQuery(),
     );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("123"));
@@ -75,12 +71,10 @@ describe("useSolBalanceQuery", () => {
         getBalance: async () => {
           throw new Error("Something went wrong");
         },
-        onAccountChange: jest.fn(),
-        removeAccountChangeListener: jest.fn(async () => {}),
       } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
-      useSolBalanceQuery(),
+      useSolanaGasBalanceQuery(),
     );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("0"));

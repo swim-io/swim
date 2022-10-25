@@ -6,8 +6,8 @@ export const getSwimUsdBalanceChange = async (
   solanaClient: SolanaClient,
   swimUsdSplTokenAccount: TokenAccount,
 ): Promise<Decimal> => {
-  const { parsedTx } = await solanaClient.getTx(swapToSwimUsdTxId);
-  const { preTokenBalances, postTokenBalances } = parsedTx.meta ?? {};
+  const { original } = await solanaClient.getTx(swapToSwimUsdTxId);
+  const { preTokenBalances, postTokenBalances } = original.meta ?? {};
   if (!preTokenBalances || !postTokenBalances) {
     throw new Error(`Invalid transaction: ${swapToSwimUsdTxId}`);
   }

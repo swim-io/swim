@@ -7,7 +7,7 @@ import { Protocol, getSolanaTokenDetails } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
-  fetchEvmTxForInteractionId,
+  fetchEvmTxsForInteractionId,
   fetchSolanaTxsForInteractionId,
   getFromEcosystemOfToSolanaTransfer,
   getRequiredEcosystems,
@@ -25,13 +25,13 @@ import { useEvmWallet, useGetEvmClient } from "../evm";
 import {
   useSolanaClient,
   useSolanaWallet,
-  useSplTokenAccountsQuery,
+  useUserSolanaTokenAccountsQuery,
 } from "../solana";
 
 export const useReloadInteractionStateMutation = () => {
   const queryClient = useQueryClient();
   const getEvmClient = useGetEvmClient();
-  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
   const solanaClient = useSolanaClient();
   const { address: solanaAddress } = useSolanaWallet();
   const { address: evmAddress } = useEvmWallet();
@@ -80,7 +80,7 @@ export const useReloadInteractionStateMutation = () => {
     );
 
     // Get other evm tx
-    const evmTxs = await fetchEvmTxForInteractionId(
+    const evmTxs = await fetchEvmTxsForInteractionId(
       interactionId,
       queryClient,
       interaction.env,
@@ -170,7 +170,7 @@ export const useReloadInteractionStateMutation = () => {
         const match = solanaTxs.find(
           (solanaTx) =>
             isPoolTx(poolSpec.contract, solanaTx) &&
-            solanaTx.parsedTx.transaction.message.accountKeys.some(
+            solanaTx.original.transaction.message.accountKeys.some(
               (key) => key.pubkey.toBase58() === poolSpec.address,
             ),
         );

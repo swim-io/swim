@@ -8,7 +8,7 @@ import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
 import { useAptosTokenBalanceQuery } from "../aptos";
 import { useErc20BalanceQuery } from "../evm";
-import { useSplUserBalance } from "../solana";
+import { useUserSolanaTokenBalance } from "../solana";
 
 const useUserBalance = (
   tokenConfig: TokenConfig | null,
@@ -20,7 +20,7 @@ const useUserBalance = (
       (getTokenDetailsForEcosystem(tokenConfig, APTOS_ECOSYSTEM_ID) ?? null),
     { enabled: ecosystemId === APTOS_ECOSYSTEM_ID },
   );
-  const splBalance = useSplUserBalance(
+  const splBalance = useUserSolanaTokenBalance(
     tokenConfig &&
       (getTokenDetailsForEcosystem(tokenConfig, SOLANA_ECOSYSTEM_ID) ?? null),
     { enabled: ecosystemId === SOLANA_ECOSYSTEM_ID },

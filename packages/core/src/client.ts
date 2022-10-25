@@ -14,27 +14,50 @@ export interface WrappedTokenInfo {
   readonly wrappedAddress: string;
 }
 
-export interface InitiateWormholeTransferParams<Wallet> {
-  readonly atomicAmount: string;
+export interface InitiatePortalTransferParams<Wallet> {
+  readonly wallet: Wallet;
   readonly interactionId: string;
+  readonly tokenProjectId: TokenProjectId;
   /** Standardized Wormhole format, ie 32 bytes */
   readonly targetAddress: Uint8Array;
   readonly targetChainId: ChainId;
-  readonly tokenProjectId: TokenProjectId;
-  readonly wallet: Wallet;
+  readonly atomicAmount: string;
   readonly wrappedTokenInfo?: WrappedTokenInfo;
 }
 
-export interface CompleteWormholeTransferParams<Wallet> {
+export interface CompletePortalTransferParams<Wallet> {
+  readonly wallet: Wallet;
   readonly interactionId: string;
   readonly vaa: Uint8Array;
+}
+
+export interface InitiatePropellerParams<Wallet> {
   readonly wallet: Wallet;
+  readonly interactionId: string;
+  readonly sourceTokenId: TokenProjectId;
+  readonly targetWormholeChainId: ChainId;
+  readonly targetTokenNumber: number;
+  readonly targetWormholeAddress: Uint8Array;
+  readonly inputAmount: Decimal;
+  readonly maxPropellerFeeAtomic: string;
+  readonly gasKickStart: boolean;
+}
+
+export interface TxGeneratorResult<
+  OriginalTx,
+  T extends Tx<OriginalTx>,
+  TxType extends string,
+> {
+  readonly tx: T;
+  readonly type: TxType;
 }
 
 export abstract class Client<
   EcosystemId extends string,
   C extends ChainConfig,
-  T extends Tx,
+  OriginalTx,
+  TxType extends string,
+  T extends Tx<OriginalTx>,
   Wallet,
 > {
   public readonly ecosystemId: EcosystemId;
@@ -59,11 +82,15 @@ export abstract class Client<
     owner: string,
     tokenDetails: readonly TokenDetails[],
   ): Promise<readonly Decimal[]>;
-  public abstract initiateWormholeTransfer(
-    params: InitiateWormholeTransferParams<Wallet>,
-  ): Promise<any>;
 
-  public abstract completeWormholeTransfer(
-    params: CompleteWormholeTransferParams<Wallet>,
-  ): Promise<any>;
+  public abstract generateInitiatePortalTransferTxs(
+    params: InitiatePortalTransferParams<Wallet>,
+  ): AsyncGenerator<TxGeneratorResult<OriginalTx, T, TxType>>;
+  public abstract generateCompletePortalTransferTxs(
+    params: CompletePortalTransferParams<Wallet>,
+  ): AsyncGenerator<TxGeneratorResult<OriginalTx, T, TxType>>;
+
+  public abstract generateInitiatePropellerTxs(
+    params: InitiatePropellerParams<Wallet>,
+  ): AsyncGenerator<TxGeneratorResult<OriginalTx, T, TxType>>;
 }

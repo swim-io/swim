@@ -20,10 +20,6 @@ export interface AptosPoolConfig extends PoolConfig {
   readonly owner: Types.Address;
 }
 
-export interface AptosPoolState extends PoolState {
-  readonly ecosystem: AptosEcosystemId;
-}
-
 export interface AptosChainConfig extends ChainConfig {
   readonly pools: readonly AptosPoolConfig[];
 }

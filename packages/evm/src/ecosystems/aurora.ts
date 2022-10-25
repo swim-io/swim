@@ -49,9 +49,27 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
         ],
       ]),
     },
+    // TODO: Delete in favor of USDTe.
     {
       id: "mainnet-aurora-usdt",
       projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "GFhej2oJ1NPLbzSX3D3B9jzYaidff6NoBAUNmu6dLXwU",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-aurora-usdte",
+      projectId: TokenProjectId.Usdte,
       nativeDetails: {
         address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
         decimals: 6,
@@ -118,9 +136,27 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
         ],
       ]),
     },
+    // TODO: Delete in favor of USDTe.
     {
       id: "testnet-aurora-usdt",
       projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-aurora-usdte",
+      projectId: TokenProjectId.Usdte,
       nativeDetails: {
         address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
         decimals: 6,

@@ -1,6 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
-import type { AptosPoolState } from "@swim-io/aptos";
+import type { AptosEcosystemId } from "@swim-io/aptos";
 import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
+import type { PoolState as CorePoolState } from "@swim-io/core";
 import type { EvmClient, EvmEcosystemId } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
@@ -44,6 +45,10 @@ export interface EvmPoolState {
   readonly ampFactor: Decimal;
   readonly lpFee: Decimal;
   readonly governanceFee: Decimal;
+}
+
+export interface AptosPoolState extends CorePoolState {
+  readonly ecosystem: AptosEcosystemId;
 }
 
 export type PoolState = AptosPoolState | SolanaPoolState | EvmPoolState;

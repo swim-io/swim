@@ -1,11 +1,11 @@
 use {
-    crate::{constants::PROPELLER_MINIMUM_OUTPUT_AMOUNT, error::*, Propeller},
-    anchor_lang::{prelude::*, solana_program::program::invoke},
+    crate::{error::*, Propeller},
+    anchor_lang::{prelude::*},
     anchor_spl::{
         associated_token::get_associated_token_address,
         token::{Mint, Token, TokenAccount},
     },
-    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
+    two_pool::{state::TwoPool},
 };
 
 #[derive(Accounts)]

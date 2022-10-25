@@ -4,12 +4,12 @@ use {
         error::*,
         Propeller, TOKEN_COUNT,
     },
-    anchor_lang::{prelude::*, solana_program::program::invoke},
+    anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::get_associated_token_address,
         token::{Mint, Token, TokenAccount},
     },
-    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool},
+    two_pool::state::TwoPool,
 };
 
 #[derive(Accounts)]
@@ -32,9 +32,7 @@ pub struct InitToSwimUsd<'info> {
     seeds::program = two_pool_program.key()
     )]
     pub pool: Box<Account<'info, TwoPool>>,
-    // /// TODO: could be removed if initialized with pool_v2
-    // /// CHECK: checked in CPI
-    // pub pool_auth: UncheckedAccount<'info>,
+
     #[account(
     mut,
     address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[0]),
@@ -90,13 +88,13 @@ impl<'info> InitToSwimUsd<'info> {
     fn determine_to_swim_usd_step(&self) -> Result<ToSwimUsdStep> {
         let pool = &self.pool;
         let swim_usd_mint = self.propeller.swim_usd_mint;
-        return if pool.lp_mint_key == swim_usd_mint {
+        if pool.lp_mint_key == swim_usd_mint {
             Ok(ToSwimUsdStep::Add)
         } else if pool.token_mint_keys[0] == swim_usd_mint {
             Ok(ToSwimUsdStep::SwapExactInput)
         } else {
             err!(PropellerError::InvalidPoolForInitToSwimUsd)
-        };
+        }
     }
 
     fn invoke_pool_ix_for_swim_usd(
@@ -109,42 +107,6 @@ impl<'info> InitToSwimUsd<'info> {
             ToSwimUsdStep::Add => self.invoke_add(input_amounts, minimum_output_amount)?,
             ToSwimUsdStep::SwapExactInput => self.invoke_swap_exact_input(input_amounts, minimum_output_amount)?,
         };
-        Ok(output_amount)
-    }
-
-    fn invoke_swap_exact_input(
-        &self,
-        exact_input_amounts: [u64; TOKEN_COUNT],
-        minimum_output_amount: u64,
-    ) -> Result<u64> {
-        require_eq!(
-            exact_input_amounts[METAPOOL_SWIM_USD_INDEX as usize],
-            0u64,
-            PropellerError::InvalidSwapExactInputInputAmount
-        );
-        let cpi_ctx = CpiContext::new(
-            self.two_pool_program.to_account_info(),
-            two_pool::cpi::accounts::SwapExactInput {
-                pool: self.pool.to_account_info(),
-                pool_token_account_0: self.pool_token_account_0.to_account_info(),
-                pool_token_account_1: self.pool_token_account_1.to_account_info(),
-                lp_mint: self.lp_mint.to_account_info(),
-                governance_fee: self.governance_fee.to_account_info(),
-                user_transfer_authority: self.user_transfer_authority.to_account_info(),
-                user_token_account_0: self.user_token_account_0.to_account_info(),
-                user_token_account_1: self.user_token_account_1.to_account_info(),
-                token_program: self.token_program.to_account_info(),
-            },
-        );
-
-        let result = two_pool::cpi::swap_exact_input(
-            cpi_ctx,
-            exact_input_amounts,
-            METAPOOL_SWIM_USD_INDEX,
-            minimum_output_amount,
-        )?;
-        let output_amount = result.get();
-        msg!("ToSwimUsd[swap_exact_input] - output_amount: {}", output_amount);
         Ok(output_amount)
     }
 
@@ -169,6 +131,42 @@ impl<'info> InitToSwimUsd<'info> {
         let result = two_pool::cpi::add(cpi_ctx, input_amounts, minimum_mint_amount)?;
         let output_amount = result.get();
         msg!("ToSwimUsd(add) - output_amount: {}", output_amount);
+        Ok(output_amount)
+    }
+
+    fn invoke_swap_exact_input(
+        &self,
+        exact_input_amounts: [u64; TOKEN_COUNT],
+        minimum_output_amount: u64,
+    ) -> Result<u64> {
+        require_eq!(
+            exact_input_amounts[METAPOOL_SWIM_USD_INDEX as usize],
+            0u64,
+            PropellerError::InvalidSwapExactInputInputAmount
+        );
+        let cpi_ctx = CpiContext::new(
+            self.two_pool_program.to_account_info(),
+            two_pool::cpi::accounts::Swap {
+                pool: self.pool.to_account_info(),
+                pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                lp_mint: self.lp_mint.to_account_info(),
+                governance_fee: self.governance_fee.to_account_info(),
+                user_transfer_authority: self.user_transfer_authority.to_account_info(),
+                user_token_account_0: self.user_token_account_0.to_account_info(),
+                user_token_account_1: self.user_token_account_1.to_account_info(),
+                token_program: self.token_program.to_account_info(),
+            },
+        );
+
+        let result = two_pool::cpi::swap_exact_input(
+            cpi_ctx,
+            exact_input_amounts,
+            METAPOOL_SWIM_USD_INDEX,
+            minimum_output_amount,
+        )?;
+        let output_amount = result.get();
+        msg!("ToSwimUsd[swap_exact_input] - output_amount: {}", output_amount);
         Ok(output_amount)
     }
 }

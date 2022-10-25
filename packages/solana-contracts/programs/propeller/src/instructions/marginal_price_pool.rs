@@ -1,26 +1,16 @@
-use crate::{get_memo_as_utf8, validate_marginal_prices_pool_accounts, wormhole::SwimPayload, Fees};
+
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*, get_message_data,
-        get_transfer_with_payload_from_message_account, hash_vaa, instructions::fee_tracker::FeeTracker,
-        state::SwimPayloadMessage, Address, ChainID, ClaimData, MessageData, PayloadTransferWithPayload, PostVAAData,
-        PostedVAAData, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, TOKEN_COUNT,
+        error::*, Propeller, TOKEN_COUNT,
     },
     anchor_lang::{
         prelude::*,
-        solana_program::{instruction::Instruction, program::invoke_signed, system_program, sysvar::SysvarId},
     },
     anchor_spl::{
-        associated_token::get_associated_token_address,
-        token,
-        token::{Mint, Token, TokenAccount, Transfer},
+        token::{Mint, TokenAccount},
     },
-    byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
-    num_traits::{FromPrimitive, ToPrimitive},
     // primitive_types::U256,
     rust_decimal::Decimal,
-    solana_program::program::invoke,
-    switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID},
     two_pool::{state::TwoPool, BorshDecimal},
 };
 
@@ -127,7 +117,7 @@ impl<'info> MarginalPricePool<'info> {
         } else if swim_usd_mint == marginal_price_pool.token_mint_keys[1] {
             Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[1])
         } else {
-            return err!(PropellerError::UnableToRetrieveSwimUsdMintDecimals);
+            err!(PropellerError::UnableToRetrieveSwimUsdMintDecimals)
         }
     }
 }

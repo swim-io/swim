@@ -2,7 +2,7 @@ use {
     crate::{error::*, Propeller},
     anchor_lang::prelude::*,
     anchor_spl::{
-        associated_token::{create, AssociatedToken, Create},
+        associated_token::{AssociatedToken},
         token::{Mint, Token, TokenAccount},
     },
     switchboard_v2::{AggregatorAccountData, SWITCHBOARD_PROGRAM_ID},

@@ -1,27 +1,18 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL,
-        deserialize_message_payload,
         error::*,
         fees::*,
-        get_memo_as_utf8, get_message_data, get_transfer_with_payload_from_message_account, hash_vaa,
-        marginal_price_pool::*,
-        state::{SwimClaim, SwimPayloadMessage, *},
-        token_bridge::TokenBridge,
-        token_number_map::{ToTokenStep, TokenNumberMap},
-        ClaimData, FeeTracker, Fees, PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, TOKEN_COUNT,
+        get_memo_as_utf8,
+        state::{SwimPayloadMessage},
+        token_number_map::{TokenNumberMap}, Fees, Propeller,
     },
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::{
         associated_token::{get_associated_token_address, AssociatedToken},
         token::{self, Mint, Token, TokenAccount, Transfer},
     },
-    num_traits::{FromPrimitive, ToPrimitive},
-    rust_decimal::Decimal,
-    solana_program::{instruction::Instruction, program::invoke_signed},
-    std::{convert::TryInto, iter::zip},
-    two_pool::{state::TwoPool, BorshDecimal},
+    two_pool::{state::TwoPool},
 };
 
 #[derive(Accounts)]
@@ -168,11 +159,11 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
             let token_account =
                 TokenAccount::try_deserialize(&mut &**user_unchecked_token_account.data.try_borrow_mut().unwrap())?;
             require_keys_eq!(token_account.owner, user.key(), PropellerError::IncorrectOwnerForCreateTokenAccount);
-            return Ok(0u64);
+            Ok(0u64)
         } else if ata_data_len != 0 {
             //TODO: spl_token_2022?
             // panic!("data_len != 0 && != TokenAcount::LEN");
-            return err!(PropellerError::InvalidTokenAccountDataLen);
+            err!(PropellerError::InvalidTokenAccountDataLen)
         } else {
             let ix = spl_associated_token_account::instruction::create_associated_token_account(
                 &payer.key(),
@@ -244,7 +235,7 @@ impl<'info> Fees<'info> for PropellerCreateOwnerTokenAccounts<'info> {
                     to: self.fee_tracking.fee_vault.to_account_info(),
                     authority: self.redeemer.to_account_info(),
                 },
-                &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+                &[&[(b"redeemer".as_ref()), &[self.propeller.redeemer_bump]]],
             ),
             fees_in_swim_usd,
         )
@@ -420,7 +411,7 @@ impl<'info> Fees<'info> for PropellerCreateOwnerSwimUsdAta<'info> {
                     to: self.fee_tracking.fee_vault.to_account_info(),
                     authority: self.redeemer.to_account_info(),
                 },
-                &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+                &[&[(b"redeemer".as_ref()), &[self.propeller.redeemer_bump]]],
             ),
             fees_in_swim_usd,
         )

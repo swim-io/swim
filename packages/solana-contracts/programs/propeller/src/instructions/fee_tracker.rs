@@ -2,10 +2,9 @@ use {
     crate::{error::*, Propeller},
     anchor_lang::prelude::*,
     anchor_spl::{
-        associated_token::{create, get_associated_token_address, AssociatedToken, Create},
+        associated_token::{get_associated_token_address},
         token::{self, Mint, Token, TokenAccount, Transfer},
     },
-    two_pool::state::TwoPool,
 };
 
 //TODO: need to initialize propeller with a "fee_vault"
@@ -125,7 +124,7 @@ pub fn handle_claim_fees(ctx: Context<ClaimFees>) -> Result<()> {
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
             cpi_accounts,
-            &[&[&b"propeller".as_ref(), ctx.accounts.propeller.swim_usd_mint.as_ref(), &[ctx.accounts.propeller.bump]]],
+            &[&[(b"propeller".as_ref()), ctx.accounts.propeller.swim_usd_mint.as_ref(), &[ctx.accounts.propeller.bump]]],
         ),
         fees_owed,
     )?;

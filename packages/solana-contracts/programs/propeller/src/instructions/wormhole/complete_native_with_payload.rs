@@ -1,12 +1,10 @@
 use crate::{
-    get_memo_as_utf8, marginal_price_pool::*, validate_marginal_prices_pool_accounts, wormhole::SwimPayload, Fees,
+    get_memo_as_utf8, wormhole::SwimPayload, Fees,
 };
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*, fees::*, get_message_data,
-        get_transfer_with_payload_from_message_account, hash_vaa, instructions::fee_tracker::FeeTracker,
-        state::SwimPayloadMessage, Address, ChainID, ClaimData, MessageData, PayloadTransferWithPayload, PostVAAData,
-        PostedVAAData, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, TOKEN_COUNT,
+        error::*, fees::*, get_message_data,
+        state::SwimPayloadMessage, ClaimData, MessageData, PayloadTransferWithPayload, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -17,13 +15,7 @@ use {
         token,
         token::{Mint, Token, TokenAccount, Transfer},
     },
-    byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
-    num_traits::{FromPrimitive, ToPrimitive},
-    // primitive_types::U256,
-    rust_decimal::Decimal,
     solana_program::program::invoke,
-    switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID},
-    two_pool::{state::TwoPool, BorshDecimal},
 };
 
 #[derive(Accounts)]
@@ -188,7 +180,7 @@ impl<'info> CompleteNativeWithPayload<'info> {
 
     //TODO: allow for "user" to call CompleteNativeWithPayload through this program?
     // dependent on if `vaa.to` is this programId for user initiated transfers
-    fn redeemer_check(ctx: &Context<CompleteNativeWithPayload>) -> bool {
+    fn redeemer_check(_ctx: &Context<CompleteNativeWithPayload>) -> bool {
         // if ctx.accounts.redeemer.address == ctx.accounts.message.payload.to_address() {
         // 	return ctx.accounts.redeemer.to_account_info().is_signer;
         // }
@@ -241,7 +233,7 @@ impl<'info> CompleteNativeWithPayload<'info> {
             &complete_transfer_with_payload_ix,
             &wh_complete_native_with_payload_acct_infos,
             // &self.to_account_infos(),
-            &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+            &[&[(b"redeemer".as_ref()), &[self.propeller.redeemer_bump]]],
         )?;
         msg!("successfully invoked self.complete_native_with_payload()");
         Ok(())
@@ -338,7 +330,7 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
 impl<'info> PropellerCompleteNativeWithPayload<'info> {
     pub fn accounts(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<()> {
         let propeller = &ctx.accounts.complete_native_with_payload.propeller;
-        ctx.accounts.fee_tracking.marginal_price_pool.validate(&propeller)?;
+        ctx.accounts.fee_tracking.marginal_price_pool.validate(propeller)?;
         Ok(())
     }
 
@@ -401,7 +393,7 @@ impl<'info> Fees<'info> for PropellerCompleteNativeWithPayload<'info> {
                     to: self.complete_native_with_payload.fee_vault.to_account_info(),
                     authority: self.complete_native_with_payload.redeemer.to_account_info(),
                 },
-                &[&[&b"redeemer".as_ref(), &[self.complete_native_with_payload.propeller.redeemer_bump]]],
+                &[&[(b"redeemer".as_ref()), &[self.complete_native_with_payload.propeller.redeemer_bump]]],
             ),
             fees_in_swim_usd,
         )
@@ -443,7 +435,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     // this ix. They should use the `CompleteNativeWithPayload` ix instead but adding this just in case.\
     // if swim payload owner calling though they will need a fee tracker account already.
     let swim_payload_owner = Pubkey::new_from_array(swim_payload.owner);
-    let token_program = &ctx.accounts.complete_native_with_payload.token_program;
+    let _token_program = &ctx.accounts.complete_native_with_payload.token_program;
     if swim_payload_owner != ctx.accounts.complete_native_with_payload.payer.key() {
         let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
         // let fees_in_swim_usd_atomic = ctx.accounts.convert_fees_to_swim_usd_atomic(fees_in_lamports)?;
@@ -460,7 +452,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         bump,
         &message_data,
         transfer_amount,
-        &swim_payload,
+        swim_payload,
     )?;
     let memo = swim_payload.memo.unwrap_or_default();
 

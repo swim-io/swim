@@ -1,10 +1,6 @@
 use {
     crate::{error::PropellerError, Propeller, TOKEN_COUNT},
     anchor_lang::prelude::*,
-    anchor_spl::{
-        associated_token::{create, AssociatedToken, Create},
-        token::{Mint, Token, TokenAccount},
-    },
     two_pool::state::TwoPool,
 };
 
@@ -83,7 +79,7 @@ pub enum ToTokenStep {
 impl<'info> CreateTokenNumberMap<'info> {
     pub fn accounts(
         ctx: &Context<CreateTokenNumberMap>,
-        to_token_number: u16,
+        _to_token_number: u16,
         pool: Pubkey,
         pool_token_index: u8,
         pool_token_mint: Pubkey,
@@ -118,7 +114,7 @@ pub fn handle_create_token_number_map(
     pool_token_mint: Pubkey,
     to_token_step: ToTokenStep,
 ) -> Result<()> {
-    let mut token_number_map = &mut ctx.accounts.token_number_map;
+    let token_number_map = &mut ctx.accounts.token_number_map;
     token_number_map.to_token_number = to_token_number;
     token_number_map.pool = pool;
     token_number_map.pool_token_index = pool_token_index;
@@ -186,8 +182,8 @@ impl<'info> UpdateTokenNumberMap<'info> {
             &[
                 b"two_pool".as_ref(),
                 pool.token_mint_keys[0].as_ref(),
-                &pool.token_mint_keys[1].as_ref(),
-                &pool.lp_mint_key.as_ref(),
+                (pool.token_mint_keys[1].as_ref()),
+                (pool.lp_mint_key.as_ref()),
                 &[pool.bump],
             ],
             &ctx.accounts.two_pool_program.key(),
@@ -206,7 +202,7 @@ impl<'info> UpdateTokenNumberMap<'info> {
             ToTokenStep::SwapExactInput => {
                 require_keys_eq!(pool.token_mint_keys[0], propeller.swim_usd_mint);
                 require_keys_eq!(pool.token_mint_keys[1], pool_token_mint);
-                require_eq!(pool_token_index, 1 as usize);
+                require_eq!(pool_token_index, 1_usize);
             }
             ToTokenStep::RemoveExactBurn => {
                 require_keys_eq!(pool.lp_mint_key, pool_token_mint);

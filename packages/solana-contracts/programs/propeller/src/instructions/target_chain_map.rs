@@ -1,11 +1,6 @@
 use {
-    crate::{error::PropellerError, Propeller, TOKEN_COUNT},
+    crate::{error::PropellerError, Propeller},
     anchor_lang::prelude::*,
-    anchor_spl::{
-        associated_token::{create, AssociatedToken, Create},
-        token::{Mint, Token, TokenAccount},
-    },
-    two_pool::state::TwoPool,
 };
 
 #[derive(Accounts)]

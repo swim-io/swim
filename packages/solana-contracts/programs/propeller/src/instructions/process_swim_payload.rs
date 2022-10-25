@@ -1,42 +1,19 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
-    crate::{constants::LAMPORTS_PER_SOL_DECIMAL, FeeTracker},
     crate::{
-        deserialize_message_payload,
-        // env::*,
         error::*,
-        get_message_data,
-        get_transfer_with_payload_from_message_account,
-        hash_vaa,
-        marginal_price_pool::*,
-        state::{SwimClaim, SwimPayloadMessage, *},
-        token_bridge::TokenBridge,
+        fees::*,
+        get_memo_as_utf8,
+        state::{SwimClaim, SwimPayloadMessage},
         token_number_map::{ToTokenStep, TokenNumberMap},
-        ClaimData,
-        PayloadTransferWithPayload,
-        PostVAAData,
-        PostedVAAData,
-        Propeller,
-        TOKEN_COUNT,
+        ClaimData, Propeller, TOKEN_COUNT,
     },
-    anchor_lang::system_program,
-    anchor_lang::{prelude::*, solana_program::program::invoke},
+    anchor_lang::{prelude::*, solana_program::program::invoke, system_program},
     anchor_spl::{
-        associated_token::{get_associated_token_address, AssociatedToken},
-        token::Transfer,
+        associated_token::get_associated_token_address,
+        token::{self, Mint, Token, TokenAccount, Transfer},
     },
-    anchor_spl::{
-        token,
-        token::{Mint, Token, TokenAccount},
-    },
-    num_traits::{FromPrimitive, ToPrimitive},
-    rust_decimal::Decimal,
-    std::convert::TryInto,
     two_pool::state::TwoPool,
-};
-use {
-    crate::{fees::*, get_memo_as_utf8},
-    two_pool::BorshDecimal,
 };
 
 pub const SWIM_USD_TO_TOKEN_NUMBER: u16 = 0;
@@ -122,7 +99,7 @@ pub struct ProcessSwimPayload<'info> {
     )]
     pub token_number_map: Account<'info, TokenNumberMap>,
 
-    /*  Pool Used for final swap to get token_id_map.pool_token_mint */
+    /*  Pool Used for final swap to get token_number_map.pool_token_mint */
     #[account(
     mut,
     seeds = [
@@ -209,7 +186,7 @@ impl<'info> ProcessSwimPayload<'info> {
             pool_token_index,
             pool_token_mint,
             &self.redeemer.to_account_info(),
-            &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+            &[&[(b"redeemer".as_ref()), &[self.propeller.redeemer_bump]]],
         )
     }
 
@@ -224,7 +201,7 @@ impl<'info> ProcessSwimPayload<'info> {
         user_transfer_authority: &AccountInfo<'info>,
         signer_seeds: &[&[&[u8]]],
     ) -> Result<u64> {
-        let swim_payload_owner = self.swim_payload_message.owner;
+        let _swim_payload_owner = self.swim_payload_message.owner;
         require_gt!(TOKEN_COUNT, pool_token_index as usize);
         match to_token_step {
             ToTokenStep::RemoveExactBurn => {
@@ -235,17 +212,28 @@ impl<'info> ProcessSwimPayload<'info> {
                 Ok(two_pool::cpi::remove_exact_burn(
                     CpiContext::new_with_signer(
                         self.two_pool_program.to_account_info(),
-                        two_pool::cpi::accounts::RemoveExactBurn {
-                            pool: self.pool.to_account_info(),
-                            pool_token_account_0: self.pool_token_account_0.to_account_info(),
-                            pool_token_account_1: self.pool_token_account_1.to_account_info(),
-                            lp_mint: self.lp_mint.to_account_info(),
-                            governance_fee: self.governance_fee.to_account_info(),
-                            user_transfer_authority: user_transfer_authority.to_account_info(),
-                            user_token_account_0: self.user_token_account_0.to_account_info(),
-                            user_token_account_1: self.user_token_account_1.to_account_info(),
+                        two_pool::cpi::accounts::AddOrRemove {
+                            swap: two_pool::cpi::accounts::Swap {
+                                pool: self.pool.to_account_info(),
+                                pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                                pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                                lp_mint: self.lp_mint.to_account_info(),
+                                governance_fee: self.governance_fee.to_account_info(),
+                                user_transfer_authority: user_transfer_authority.to_account_info(),
+                                user_token_account_0: self.user_token_account_0.to_account_info(),
+                                user_token_account_1: self.user_token_account_1.to_account_info(),
+                                token_program: self.token_program.to_account_info(),
+                            },
+                            // pool: self.pool.to_account_info(),
+                            // pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                            // pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                            // lp_mint: self.lp_mint.to_account_info(),
+                            // governance_fee: self.governance_fee.to_account_info(),
+                            // user_transfer_authority: user_transfer_authority.to_account_info(),
+                            // user_token_account_0: self.user_token_account_0.to_account_info(),
+                            // user_token_account_1: self.user_token_account_1.to_account_info(),
                             user_lp_token_account: self.redeemer_escrow.to_account_info(),
-                            token_program: self.token_program.to_account_info(),
+                            // token_program: self.token_program.to_account_info(),
                         },
                         signer_seeds,
                     ),
@@ -262,7 +250,7 @@ impl<'info> ProcessSwimPayload<'info> {
                 Ok(two_pool::cpi::swap_exact_input(
                     CpiContext::new_with_signer(
                         self.two_pool_program.to_account_info(),
-                        two_pool::cpi::accounts::SwapExactInput {
+                        two_pool::cpi::accounts::Swap {
                             pool: self.pool.to_account_info(),
                             pool_token_account_0: self.pool_token_account_0.to_account_info(),
                             pool_token_account_1: self.pool_token_account_1.to_account_info(),
@@ -332,8 +320,8 @@ pub fn handle_process_swim_payload(
 
     let transfer_amount = ctx.accounts.swim_payload_message.transfer_amount;
 
-    let owner = propeller_message.owner;
-    let token_program = &ctx.accounts.token_program;
+    let _owner = propeller_message.owner;
+    let _token_program = &ctx.accounts.token_program;
     msg!("transfer_amount: {}", transfer_amount);
 
     let output_amount = ctx.accounts.transfer_tokens(to_token_number, transfer_amount, min_output_amount)?;
@@ -465,7 +453,7 @@ impl<'info> Fees<'info> for PropellerProcessSwimPayload<'info> {
                     to: self.fee_tracking.fee_vault.to_account_info(),
                     authority: self.process_swim_payload.redeemer.to_account_info(),
                 },
-                &[&[&b"redeemer".as_ref(), &[self.process_swim_payload.propeller.redeemer_bump]]],
+                &[&[(b"redeemer".as_ref()), &[self.process_swim_payload.propeller.redeemer_bump]]],
             ),
             fees_in_swim_usd,
         )
@@ -492,7 +480,7 @@ TODO:
  */
 pub fn handle_propeller_process_swim_payload(
     ctx: Context<PropellerProcessSwimPayload>,
-    to_token_number: u16,
+    _to_token_number: u16,
 ) -> Result<u64> {
     let swim_payload_message = &ctx.accounts.process_swim_payload.swim_payload_message;
     let is_gas_kickstart = swim_payload_message.gas_kickstart;
@@ -505,9 +493,9 @@ pub fn handle_propeller_process_swim_payload(
 
     let mut transfer_amount = swim_payload_message.transfer_amount;
     let propeller = &ctx.accounts.process_swim_payload.propeller;
-    let redeemer = &ctx.accounts.process_swim_payload.redeemer;
+    let _redeemer = &ctx.accounts.process_swim_payload.redeemer;
     let swim_payload_owner = swim_payload_message.owner;
-    let token_program = &ctx.accounts.process_swim_payload.token_program;
+    let _token_program = &ctx.accounts.process_swim_payload.token_program;
     msg!("original transfer_amount: {:?}", transfer_amount);
     if swim_payload_owner != ctx.accounts.process_swim_payload.payer.key() {
         let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
@@ -743,7 +731,7 @@ impl<'info> Fees<'info> for PropellerProcessSwimPayloadFallback<'info> {
                     to: self.fee_tracking.fee_vault.to_account_info(),
                     authority: self.redeemer.to_account_info(),
                 },
-                &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+                &[&[(b"redeemer".as_ref()), &[self.propeller.redeemer_bump]]],
             ),
             fees_in_swim_usd,
         )
@@ -755,7 +743,7 @@ pub fn handle_propeller_process_swim_payload_fallback(
 ) -> Result<u64> {
     let swim_payload_message = &ctx.accounts.swim_payload_message;
     let is_gas_kickstart = swim_payload_message.gas_kickstart;
-    let target_token_id = swim_payload_message.target_token_id;
+    let _target_token_id = swim_payload_message.target_token_id;
 
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
@@ -765,9 +753,9 @@ pub fn handle_propeller_process_swim_payload_fallback(
     let mut transfer_amount = swim_payload_message.transfer_amount;
     let propeller = &ctx.accounts.propeller;
     let propeller_redeemer_bump = ctx.accounts.propeller.redeemer_bump;
-    let redeemer = &ctx.accounts.redeemer;
+    let _redeemer = &ctx.accounts.redeemer;
     let swim_payload_owner = swim_payload_message.owner;
-    let token_program = &ctx.accounts.token_program;
+    let _token_program = &ctx.accounts.token_program;
     msg!("original transfer_amount: {:?}", transfer_amount);
     if swim_payload_owner != ctx.accounts.payer.key() {
         let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
@@ -786,7 +774,7 @@ pub fn handle_propeller_process_swim_payload_fallback(
     let output_amount = ctx.accounts.transfer_swim_usd_tokens(
         transfer_amount,
         &ctx.accounts.redeemer.to_account_info(),
-        &[&[&b"redeemer".as_ref(), &[propeller_redeemer_bump]]],
+        &[&[(b"redeemer".as_ref()), &[propeller_redeemer_bump]]],
     )?;
 
     let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();

@@ -84,6 +84,8 @@ pub enum PoolError {
     MaxDecimalsExceeded,
     #[msg("Conversion error")]
     ConversionError,
+    #[msg("Burn amount exceeds lp total supply")]
+    BurnAmountExceedsTotalSupply,
 }
 
 // impl From<PoolError> for ProgramError {

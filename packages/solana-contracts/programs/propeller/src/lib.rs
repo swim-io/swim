@@ -1,11 +1,9 @@
 use {
     crate::two_pool_cpi::{
-        add::*,
         init_to_swim_usd::*,
-        swap_exact_input::*,
         // remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_output::*,
     },
-    anchor_lang::{prelude::*, solana_program},
+    anchor_lang::{prelude::*},
     // crate::two_pool_cpi::*,
     constants::TOKEN_COUNT,
     fees::*,
@@ -22,7 +20,7 @@ mod state;
 mod token_bridge;
 mod wormhole;
 
-use two_pool::state::TwoPool;
+
 pub use {error::*, instructions::*};
 
 declare_id!("9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK");
@@ -49,7 +47,7 @@ pub mod propeller {
         handle_prepare_governance_transition(ctx, upcoming_governance_key)
     }
 
-    pub fn enact_governance_transition(ctx: Context<Governance>) -> Result<()> {
+    pub fn enact_governance_transition(_ctx: Context<Governance>) -> Result<()> {
         Ok(())
     }
 

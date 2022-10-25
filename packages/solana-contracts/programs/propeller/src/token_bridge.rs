@@ -1,9 +1,8 @@
 use {
     anchor_lang::{
         prelude::*,
-        solana_program::{declare_id, pubkey},
+        solana_program::{pubkey},
     },
-    borsh::{BorshDeserialize, BorshSerialize},
 };
 // mod token_bridge {
 //     use super::*;
@@ -57,8 +56,6 @@ pub const TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION: u8 = 12;
 mod test {
     use {
         super::*,
-        // crate::TOKEN_BRIDGE_ID,
-        std::str::FromStr,
     };
 
     #[test]

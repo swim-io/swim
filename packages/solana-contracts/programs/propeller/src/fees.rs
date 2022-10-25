@@ -1,16 +1,14 @@
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, marginal_price_pool::*, FeeTracker, Propeller, PropellerError, TOKEN_COUNT,
+        constants::LAMPORTS_PER_SOL_DECIMAL, marginal_price_pool::*, FeeTracker, Propeller, PropellerError,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
-        token,
-        token::{Token, TokenAccount, Transfer},
+        token::{TokenAccount},
     },
     num_traits::{FromPrimitive, ToPrimitive},
     rust_decimal::Decimal,
-    switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID},
-    two_pool::BorshDecimal,
+    switchboard_v2::{AggregatorAccountData, SWITCHBOARD_PROGRAM_ID},
 };
 
 pub trait Fees<'info> {
@@ -75,7 +73,7 @@ impl<'info> FeeTracking<'info> {
 
     fn convert_fees_to_swim_usd_atomic(&self, fee_in_lamports: u64, propeller: &Propeller) -> Result<u64> {
         let intermediate_token_price_decimal: Decimal =
-            self.marginal_price_pool.get_marginal_price_decimal(&propeller)?;
+            self.marginal_price_pool.get_marginal_price_decimal(propeller)?;
 
         msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
 

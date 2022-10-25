@@ -1,5 +1,5 @@
 use {
-    crate::{constants::CURRENT_SWIM_PAYLOAD_VERSION, Propeller, PropellerError},
+    crate::{constants::CURRENT_SWIM_PAYLOAD_VERSION},
     anchor_lang::{prelude::*, solana_program::pubkey},
     borsh::{BorshDeserialize, BorshSerialize},
     byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
@@ -8,7 +8,6 @@ use {
     std::{
         io::{Cursor, ErrorKind, Read, Write},
         ops::{Deref, DerefMut},
-        str::FromStr,
     },
 };
 
@@ -94,7 +93,7 @@ pub struct BridgeConfig {
 
 /// [From womrhole repo]
 #[repr(transparent)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PostedMessageData {
     pub message: MessageData,
 }
@@ -130,12 +129,12 @@ impl Deref for PostedMessageData {
     type Target = PostedMessageData;
 
     fn deref(&self) -> &Self {
-        &self
+        self
     }
 }
 
 // #[derive(Debug, Default, BorshDeserialize, BorshSerialize)]
-#[derive(Debug, AnchorDeserialize, AnchorSerialize, Clone, PartialEq)]
+#[derive(Debug, AnchorDeserialize, AnchorSerialize, Clone, PartialEq, Eq)]
 pub struct MessageData {
     /// Header of the posted VAA
     pub vaa_version: u8,
@@ -285,7 +284,7 @@ impl anchor_lang::AccountSerialize for MessageData {}
 //     }
 // }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct PayloadTransferWithPayload {
     pub message_type: u8,
     /// Amount being transferred (big-endian uint256)
@@ -387,7 +386,7 @@ pub fn get_message_data(vaa_account: &AccountInfo) -> Result<MessageData> {
 }
 
 pub fn get_transfer_with_payload_from_message_account(vaa_account: &AccountInfo) -> Result<PayloadTransferWithPayload> {
-    let message_data = get_message_data(&vaa_account)?;
+    let message_data = get_message_data(vaa_account)?;
     let payload_transfer_with_payload = deserialize_message_payload(&mut message_data.payload.as_slice())?;
     Ok(payload_transfer_with_payload)
 }
@@ -527,7 +526,7 @@ pub fn hash_vaa(vaa: &PostVAAData) -> [u8; 32] {
     h.finalize().into()
 }
 
-#[derive(PartialEq, Debug, Clone, Default)]
+#[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub struct SwimPayload {
     //TOOD: should this come from propeller?
     //required
@@ -579,8 +578,8 @@ impl AnchorDeserialize for SwimPayload {
         /* optional fields */
         match v.read_u8() {
             Ok(propeller_enabled_val) => {
-                let propeller_enabled = !(propeller_enabled_val == 0);
-                let gas_kickstart = !(v.read_u8()? == 0);
+                let propeller_enabled = propeller_enabled_val != 0;
+                let gas_kickstart = v.read_u8()? != 0;
                 let max_fee = v.read_u64::<BigEndian>()?;
                 let target_token_id = v.read_u16::<BigEndian>()?;
                 // optional memo field
@@ -609,7 +608,7 @@ impl AnchorDeserialize for SwimPayload {
             }
             Err(error) => match error.kind() {
                 ErrorKind::UnexpectedEof => Ok(SwimPayload { swim_payload_version, owner, ..Default::default() }),
-                _ => return Err(error),
+                _ => Err(error),
             },
         }
     }

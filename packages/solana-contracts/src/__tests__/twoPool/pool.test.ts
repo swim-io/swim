@@ -205,20 +205,16 @@ describe("TwoPool", () => {
         userTransferAuthority.publicKey,
         payer,
       );
+      const addOrRemoveAccounts = await getAddOrRemoveAccounts(
+        flagshipPool,
+        provider.publicKey,
+        userTransferAuthority.publicKey,
+        twoPoolProgram,
+      );
       const tx = await twoPoolProgram.methods
         // .add(addParams)
         .add(inputAmounts, minimumMintAmount)
-        .accounts({
-          poolTokenAccount0: poolUsdcAtaAddr,
-          poolTokenAccount1: poolUsdtAtaAddr,
-          lpMint: swimUsdKeypair.publicKey,
-          governanceFee: governanceFeeAddr,
-          userTransferAuthority: userTransferAuthority.publicKey,
-          userTokenAccount0: userUsdcAtaAddr,
-          userTokenAccount1: userUsdtAtaAddr,
-          userLpTokenAccount: userSwimUsdAtaAddr,
-          tokenProgram: splToken.programId,
-        })
+        .accounts(addOrRemoveAccounts)
         .preInstructions([...approveIxs])
         .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
@@ -263,7 +259,6 @@ describe("TwoPool", () => {
         userTransferAuthority.publicKey,
         payer,
       );
-
 
       const addOrRemoveAccounts = await getAddOrRemoveAccounts(
         flagshipPool,
@@ -530,20 +525,16 @@ describe("TwoPool", () => {
         payer,
       );
 
+      const addOrRemoveAccounts = await getAddOrRemoveAccounts(
+        flagshipPool,
+        provider.publicKey,
+        userTransferAuthority.publicKey,
+        twoPoolProgram,
+      );
       const tx = await twoPoolProgram.methods
         // .removeUniform(removeUniformParams)
         .removeUniform(exactBurnAmount, minimumOutputAmounts)
-        .accounts({
-          poolTokenAccount0: poolUsdcAtaAddr,
-          poolTokenAccount1: poolUsdtAtaAddr,
-          lpMint: swimUsdKeypair.publicKey,
-          governanceFee: governanceFeeAddr,
-          userTransferAuthority: userTransferAuthority.publicKey,
-          userTokenAccount0: userUsdcAtaAddr,
-          userTokenAccount1: userUsdtAtaAddr,
-          userLpTokenAccount: userSwimUsdAtaAddr,
-          tokenProgram: splToken.programId,
-        })
+        .accounts(addOrRemoveAccounts)
         .preInstructions([...approveIxs])
         .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
@@ -640,21 +631,16 @@ describe("TwoPool", () => {
         userTransferAuthority.publicKey,
         payer,
       );
-
+      const addOrRemoveAccounts = await getAddOrRemoveAccounts(
+        flagshipPool,
+        provider.publicKey,
+        userTransferAuthority.publicKey,
+        twoPoolProgram,
+      );
       const tx = await twoPoolProgram.methods
         // .removeExactBurn(removeExactBurnParams)
         .removeExactBurn(exactBurnAmount, outputTokenIndex, minimumOutputAmount)
-        .accounts({
-          poolTokenAccount0: poolUsdcAtaAddr,
-          poolTokenAccount1: poolUsdtAtaAddr,
-          lpMint: swimUsdKeypair.publicKey,
-          governanceFee: governanceFeeAddr,
-          userTransferAuthority: userTransferAuthority.publicKey,
-          userTokenAccount0: userUsdcAtaAddr,
-          userTokenAccount1: userUsdtAtaAddr,
-          userLpTokenAccount: userSwimUsdAtaAddr,
-          tokenProgram: splToken.programId,
-        })
+        .accounts(addOrRemoveAccounts)
         .preInstructions([...approveIxs])
         .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
@@ -753,20 +739,16 @@ describe("TwoPool", () => {
         payer,
       );
 
+      const addOrRemoveAccounts = await getAddOrRemoveAccounts(
+        flagshipPool,
+        provider.publicKey,
+        userTransferAuthority.publicKey,
+        twoPoolProgram,
+      );
       const tx = await twoPoolProgram.methods
         // .removeExactOutput(removeExactOutputParams)
         .removeExactOutput(maximumBurnAmount, exactOutputAmounts)
-        .accounts({
-          poolTokenAccount0: poolUsdcAtaAddr,
-          poolTokenAccount1: poolUsdtAtaAddr,
-          lpMint: swimUsdKeypair.publicKey,
-          governanceFee: governanceFeeAddr,
-          userTransferAuthority: userTransferAuthority.publicKey,
-          userTokenAccount0: userUsdcAtaAddr,
-          userTokenAccount1: userUsdtAtaAddr,
-          userLpTokenAccount: userSwimUsdAtaAddr,
-          tokenProgram: splToken.programId,
-        })
+        .accounts(addOrRemoveAccounts)
         .preInstructions([...approveIxs])
         .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
@@ -1507,20 +1489,16 @@ describe("TwoPool", () => {
       userTransferAuthority.publicKey,
       newUser,
     );
+    const addOrRemoveAccounts = await getAddOrRemoveAccounts(
+      flagshipPool,
+      newUser.publicKey,
+      userTransferAuthority.publicKey,
+      twoPoolProgram,
+    );
     const tx = await twoPoolProgram.methods
       // .removeExactBurn(removeExactBurnParams)
       .removeExactBurn(exactBurnAmount, outputTokenIndex, minimumOutputAmount)
-      .accounts({
-        poolTokenAccount0: poolUsdcAtaAddr,
-        poolTokenAccount1: poolUsdtAtaAddr,
-        lpMint: swimUsdKeypair.publicKey,
-        governanceFee: governanceFeeAddr,
-        userTransferAuthority: userTransferAuthority.publicKey,
-        userTokenAccount0: newUserAtaAddrs[0],
-        userTokenAccount1: newUserAtaAddrs[1],
-        userLpTokenAccount: newUserAtaAddrs[2],
-        tokenProgram: splToken.programId,
-      })
+      .accounts(addOrRemoveAccounts)
       .preInstructions([...createUserAtaIxs, ...approveIxs])
       .postInstructions([...revokeIxs])
       .signers([payer, userTransferAuthority, newUser])

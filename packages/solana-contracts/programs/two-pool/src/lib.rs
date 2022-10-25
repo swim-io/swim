@@ -60,7 +60,7 @@ solana_security_txt::security_txt! {
 
 #[program]
 pub mod two_pool {
-    use {super::*, crate::instructions::defi::add_or_remove::AddOrRemove};
+    use super::*;
 
     #[access_control(Initialize::accounts(&ctx))]
     pub fn initialize(
@@ -84,15 +84,32 @@ pub mod two_pool {
     //     // handle_add(ctx, input_amounts, minimum_mint_amount)
     // }
 
+    // #[access_control(AddOrRemove::accounts(&ctx))]
     pub fn add(ctx: Context<AddOrRemove>, input_amounts: [u64; TOKEN_COUNT], minimum_mint_amount: u64) -> Result<u64> {
         let params = AddParams { input_amounts, minimum_mint_amount };
         handle_add(ctx, params)
         // handle_add(ctx, input_amounts, minimum_mint_amount)
     }
 
-    #[access_control(SwapExactInput::accounts(&ctx))]
+    // #[access_control(SwapExactInput::accounts(&ctx))]
+    // pub fn swap_exact_input(
+    //     ctx: Context<SwapExactInput>,
+    //     exact_input_amounts: [u64; TOKEN_COUNT],
+    //     output_token_index: u8,
+    //     minimum_output_amount: u64,
+    //     // params: SwapExactInputParams,
+    // ) -> Result<u64> {
+    //     let params = SwapExactInputParams { exact_input_amounts, output_token_index, minimum_output_amount };
+    //     handle_swap_exact_input(ctx, params)
+    //     // let output_token_index = params.output_token_index as usize;
+    //     // let exact_input_amounts = params.exact_input_amounts;
+    //     // let minimum_output_amount = params.minimum_output_amount;
+    //     // handle_swap_exact_input(ctx, params)
+    // }
+
+    // #[access_control(ctx.accounts.validate())]
     pub fn swap_exact_input(
-        ctx: Context<SwapExactInput>,
+        ctx: Context<Swap>,
         exact_input_amounts: [u64; TOKEN_COUNT],
         output_token_index: u8,
         minimum_output_amount: u64,
@@ -115,9 +132,20 @@ pub mod two_pool {
     //returning cpi data from this is a little redundant since it's already passed in the params
     //but keeping for parity with other ixs
     // note using Vec<u64> instead of [u64; TOKEN_COUNT] since anchor can't handle it properly.
-    #[access_control(SwapExactOutput::accounts(&ctx))]
+    // #[access_control(SwapExactOutput::accounts(&ctx))]
+    // pub fn swap_exact_output(
+    //     ctx: Context<SwapExactOutput>,
+    //     maximum_input_amount: u64,
+    //     input_token_index: u8,
+    //     exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
+    // ) -> Result<Vec<u64>> {
+    //     let params = SwapExactOutputParams { maximum_input_amount, input_token_index, exact_output_amounts };
+    //     handle_swap_exact_output(ctx, params)
+    // }
+
+    // #[access_control(ctx.accounts.validate())]
     pub fn swap_exact_output(
-        ctx: Context<SwapExactOutput>,
+        ctx: Context<Swap>,
         maximum_input_amount: u64,
         input_token_index: u8,
         exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
@@ -127,7 +155,7 @@ pub mod two_pool {
     }
 
     pub fn remove_uniform(
-        ctx: Context<RemoveUniform>,
+        ctx: Context<AddOrRemove>,
         exact_burn_amount: u64,
         minimum_output_amounts: [u64; TOKEN_COUNT],
         // params: RemoveUniformParams,
@@ -136,9 +164,21 @@ pub mod two_pool {
         handle_remove_uniform(ctx, params)
     }
 
-    #[access_control(RemoveExactBurn::accounts(&ctx))]
+    // #[access_control(RemoveExactBurn::accounts(&ctx))]
+    // pub fn remove_exact_burn(
+    //     ctx: Context<RemoveExactBurn>,
+    //     exact_burn_amount: u64,
+    //     output_token_index: u8,
+    //     minimum_output_amount: u64,
+    //     // params: RemoveExactBurnParams,
+    // ) -> Result<u64> {
+    //     let params = RemoveExactBurnParams { exact_burn_amount, output_token_index, minimum_output_amount };
+    //     handle_remove_exact_burn(ctx, params)
+    // }
+
+    // #[access_control(AddOrRemove::accounts(&ctx))]
     pub fn remove_exact_burn(
-        ctx: Context<RemoveExactBurn>,
+        ctx: Context<AddOrRemove>,
         exact_burn_amount: u64,
         output_token_index: u8,
         minimum_output_amount: u64,
@@ -148,9 +188,9 @@ pub mod two_pool {
         handle_remove_exact_burn(ctx, params)
     }
 
-    #[access_control(RemoveExactOutput::accounts(&ctx))]
+    // #[access_control(RemoveExactOutput::accounts(&ctx))]
     pub fn remove_exact_output(
-        ctx: Context<RemoveExactOutput>,
+        ctx: Context<AddOrRemove>,
         maximum_burn_amount: u64,
         exact_output_amounts: [u64; TOKEN_COUNT],
         // params: RemoveExactOutputParams,

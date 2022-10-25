@@ -1,27 +1,18 @@
 use {
     crate::{
-        constants::CURRENT_SWIM_PAYLOAD_VERSION, error::*, target_chain_map::TargetChainMap, wormhole::SwimPayload,
-        Address, Propeller, TokenBridge, Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        constants::CURRENT_SWIM_PAYLOAD_VERSION, error::*, target_chain_map::TargetChainMap, wormhole::SwimPayload, Propeller, TokenBridge, Wormhole, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
         solana_program::{
-            borsh::try_from_slice_unchecked,
             instruction::Instruction,
-            program::{get_return_data, invoke, invoke_signed},
-            program_option::COption,
-            system_instruction::transfer,
+            program::{invoke_signed},
             sysvar::SysvarId,
         },
     },
     anchor_spl::{
         associated_token::get_associated_token_address,
         token::{self, Mint, Token, TokenAccount},
-    },
-    byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
-    std::{
-        io::{Cursor, ErrorKind, Read, Write},
-        str,
     },
 };
 
@@ -267,7 +258,7 @@ impl<'info> TransferNativeWithPayload<'info> {
             },
             // &self.to_account_infos(),
             &wh_token_transfer_acct_infos,
-            &[&[&b"sender".as_ref(), &[self.propeller.sender_bump]]],
+            &[&[(b"sender".as_ref()), &[self.propeller.sender_bump]]],
         )?;
         Ok(())
     }
@@ -314,7 +305,7 @@ pub fn handle_cross_chain_transfer_native_with_payload(
         SwimPayload { swim_payload_version: CURRENT_SWIM_PAYLOAD_VERSION, owner: owner_addr, ..Default::default() };
     msg!("transfer_native_with_payload swim_payload: {:?}", swim_payload);
 
-    let target_address = ctx.accounts.target_chain_map.target_address.clone();
+    let target_address = ctx.accounts.target_chain_map.target_address;
     let transfer_with_payload_data = TransferWithPayloadData {
         nonce,
         amount,
@@ -378,7 +369,7 @@ pub fn handle_propeller_transfer_native_with_payload(
     };
     msg!("transfer_native_with_payload swim_payload: {:?}", swim_payload);
 
-    let target_address = ctx.accounts.target_chain_map.target_address.clone();
+    let target_address = ctx.accounts.target_chain_map.target_address;
     let transfer_with_payload_data = TransferWithPayloadData {
         nonce,
         amount,

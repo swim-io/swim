@@ -46,6 +46,7 @@ export enum TokenProjectId {
   SwimUsd = "swim-usd",
   Usdc = "usdc",
   Usdt = "usdt",
+  Usdte = "usdte",
   Usn = "usn",
   XSwim = "xswim",
   // V2
@@ -126,6 +127,15 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     isStablecoin: true,
     isLp: false,
     tokenNumber: 0x0104,
+  },
+  [TokenProjectId.Usdte]: {
+    id: TokenProjectId.Usdte,
+    symbol: "USDT.e",
+    displayName: "Tether USD",
+    icon: USDT_SVG,
+    isStablecoin: true,
+    isLp: false,
+    tokenNumber: 0x0105,
   },
   [TokenProjectId.Gst]: {
     id: TokenProjectId.Gst,

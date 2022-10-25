@@ -1,5 +1,8 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
-import { createVerifySignaturesInstructionsSolana } from "@certusone/wormhole-sdk";
+import {
+  createVerifySignaturesInstructionsSolana,
+  getIsTransferCompletedSolana,
+} from "@certusone/wormhole-sdk";
 import { AnchorProvider, Program } from "@project-serum/anchor";
 import { createMemoInstruction } from "@solana/spl-memo";
 import {
@@ -40,9 +43,9 @@ import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import {
-  getProcessSwimPayloadAccounts,
   getAddAccounts,
   getCompleteNativeWithPayloadAccounts,
+  getProcessSwimPayloadAccounts,
   getPropellerTransferAccounts,
 } from "./getAccounts";
 import type {
@@ -359,67 +362,20 @@ export class SolanaClient extends Client<
     };
   }
 
-  public async *generateCompleteNativeWithPayloadTx({
+  public async *generateCompleteTransferTxs({
     wallet,
     interactionId,
+    signedVaa,
     sourceWormholeChainId,
     sourceChainConfig,
-    signedVaa,
-  }: {
-    readonly wallet: SolanaWalletAdapter;
-    readonly interactionId: string;
-    readonly sourceWormholeChainId: ChainId;
-    readonly sourceChainConfig: ChainConfig;
-    readonly signedVaa: Buffer;
-  }): AsyncGenerator<
-    TxGeneratorResult<ParsedTransactionWithMeta, SolanaTx, SolanaTxType>,
-    any,
-    unknown
-  > {
-    const walletPublicKey = wallet.publicKey;
-    if (walletPublicKey === null) {
-      throw new Error("Missing Solana wallet public key");
-    }
-    const routingContract = this.getRoutingContract(wallet);
-    const accounts = await getCompleteNativeWithPayloadAccounts(
-      this.chainConfig,
-      walletPublicKey,
-      signedVaa,
-      sourceWormholeChainId,
-      sourceChainConfig,
-    );
-    const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
-      units: 900_000,
-    });
-    const txRequest = await routingContract.methods
-      .completeNativeWithPayload()
-      .accounts(accounts)
-      .preInstructions([setComputeUnitLimitIx])
-      .postInstructions([createMemoInstruction(interactionId)])
-      .transaction();
-    // eslint-disable-next-line functional/immutable-data
-    txRequest.feePayer = walletPublicKey;
-    const txId = await this.sendAndConfirmTx(
-      (tx) => wallet.signTransaction(tx),
-      txRequest,
-    );
-    const tx = await this.getTx(txId);
-    yield {
-      tx,
-      type: SolanaTxType.SwimCompleteNativeWithPayload,
-    };
-  }
-
-  public async *generateProcessSwimPayloadTx({
-    wallet,
-    interactionId,
-    signedVaa,
     targetTokenNumber,
     minimumOutputAmount,
   }: {
     readonly wallet: SolanaWalletAdapter;
     readonly interactionId: string;
     readonly signedVaa: Buffer;
+    readonly sourceWormholeChainId: ChainId;
+    readonly sourceChainConfig: ChainConfig;
     readonly targetTokenNumber: number;
     readonly minimumOutputAmount: string;
   }): AsyncGenerator<
@@ -427,41 +383,28 @@ export class SolanaClient extends Client<
     any,
     unknown
   > {
-    const [twoPoolConfig] = this.chainConfig.pools;
-    const walletPublicKey = wallet.publicKey;
-    if (walletPublicKey === null) {
-      throw new Error("Missing Solana wallet public key");
-    }
-    const routingContract = this.getRoutingContract(wallet);
-    const poolTokenAccountPublicKeys = [
-      ...twoPoolConfig.tokenAccounts.values(),
-    ].map((address) => new PublicKey(address));
-    const accounts = await getProcessSwimPayloadAccounts(
-      this.chainConfig,
-      new PublicKey(walletPublicKey),
+    const completeNativeWithPayloadTx = await this.completeNativeWithPayload({
+      wallet,
+      interactionId,
       signedVaa,
-      poolTokenAccountPublicKeys,
-      new PublicKey(twoPoolConfig.governanceFeeAccount),
-      targetTokenNumber,
-    );
-    const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
-      units: 900_000,
+      sourceWormholeChainId,
+      sourceChainConfig,
     });
-    const txRequest = await routingContract.methods
-      .processSwimPayload(targetTokenNumber, new BN(minimumOutputAmount))
-      .accounts(accounts)
-      .preInstructions([setComputeUnitLimitIx])
-      .postInstructions([createMemoInstruction(interactionId)])
-      .transaction();
-    // eslint-disable-next-line functional/immutable-data
-    txRequest.feePayer = walletPublicKey;
-    const txId = await this.sendAndConfirmTx(
-      (tx) => wallet.signTransaction(tx),
-      txRequest,
-    );
-    const tx = await this.getTx(txId);
+    if (completeNativeWithPayloadTx !== null) {
+      yield {
+        tx: completeNativeWithPayloadTx,
+        type: SolanaTxType.SwimCompleteNativeWithPayload,
+      };
+    }
+    const processSwimPayloadTx = await this.processSwimPayloadTx({
+      wallet,
+      interactionId,
+      signedVaa,
+      targetTokenNumber,
+      minimumOutputAmount,
+    });
     yield {
-      tx,
+      tx: processSwimPayloadTx,
       type: SolanaTxType.SwimProcessSwimPayload,
     };
   }
@@ -1019,6 +962,105 @@ export class SolanaClient extends Client<
       tx.partialSign(auxiliarySigner);
       return wallet.signTransaction(tx);
     }, txRequest);
+    return await this.getTx(txId);
+  }
+
+  private async completeNativeWithPayload({
+    wallet,
+    interactionId,
+    sourceWormholeChainId,
+    sourceChainConfig,
+    signedVaa,
+  }: {
+    readonly wallet: SolanaWalletAdapter;
+    readonly interactionId: string;
+    readonly sourceWormholeChainId: ChainId;
+    readonly sourceChainConfig: ChainConfig;
+    readonly signedVaa: Buffer;
+  }): Promise<SolanaTx | null> {
+    const walletPublicKey = wallet.publicKey;
+    if (walletPublicKey === null) {
+      throw new Error("Missing Solana wallet public key");
+    }
+    const routingContract = this.getRoutingContract(wallet);
+    const accounts = await getCompleteNativeWithPayloadAccounts(
+      this.chainConfig,
+      walletPublicKey,
+      signedVaa,
+      sourceWormholeChainId,
+      sourceChainConfig,
+    );
+    const completed = await getIsTransferCompletedSolana(
+      this.chainConfig.wormhole.portal,
+      signedVaa,
+      this.connection,
+    );
+    if (completed) {
+      return null;
+    }
+    const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 900_000,
+    });
+    const txRequest = await routingContract.methods
+      .completeNativeWithPayload()
+      .accounts(accounts)
+      .preInstructions([setComputeUnitLimitIx])
+      .postInstructions([createMemoInstruction(interactionId)])
+      .transaction();
+    // eslint-disable-next-line functional/immutable-data
+    txRequest.feePayer = walletPublicKey;
+    const txId = await this.sendAndConfirmTx(
+      (tx) => wallet.signTransaction(tx),
+      txRequest,
+    );
+    return await this.getTx(txId);
+  }
+
+  private async processSwimPayloadTx({
+    wallet,
+    interactionId,
+    signedVaa,
+    targetTokenNumber,
+    minimumOutputAmount,
+  }: {
+    readonly wallet: SolanaWalletAdapter;
+    readonly interactionId: string;
+    readonly signedVaa: Buffer;
+    readonly targetTokenNumber: number;
+    readonly minimumOutputAmount: string;
+  }): Promise<SolanaTx> {
+    const [twoPoolConfig] = this.chainConfig.pools;
+    const walletPublicKey = wallet.publicKey;
+    if (walletPublicKey === null) {
+      throw new Error("Missing Solana wallet public key");
+    }
+    const routingContract = this.getRoutingContract(wallet);
+    const poolTokenAccountPublicKeys = [
+      ...twoPoolConfig.tokenAccounts.values(),
+    ].map((address) => new PublicKey(address));
+    const accounts = await getProcessSwimPayloadAccounts(
+      this.chainConfig,
+      new PublicKey(walletPublicKey),
+      signedVaa,
+      poolTokenAccountPublicKeys,
+      new PublicKey(twoPoolConfig.governanceFeeAccount),
+      targetTokenNumber,
+    );
+    const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 900_000,
+    });
+    const txRequest = await routingContract.methods
+      .processSwimPayload(targetTokenNumber, new BN(minimumOutputAmount))
+      .accounts(accounts)
+      .preInstructions([setComputeUnitLimitIx])
+      .postInstructions([createMemoInstruction(interactionId)])
+      .transaction();
+    // eslint-disable-next-line functional/immutable-data
+    txRequest.feePayer = walletPublicKey;
+    const txId = await this.sendAndConfirmTx(
+      (tx) => wallet.signTransaction(tx),
+      txRequest,
+    );
     return await this.getTx(txId);
   }
 }

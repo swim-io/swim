@@ -1,4 +1,3 @@
-import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   getEmitterAddressEth,
   parseSequenceFromLogEth,
@@ -209,14 +208,14 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
       );
       if (interactionState.postVaaOnSolanaTxId === null) {
         const auxiliarySigner = Keypair.generate();
-        const postVaaTxIdsGenerator =
+        const postVaaTxGenerator =
           solanaClient.generateCompleteWormholeMessageTxs({
             interactionId: interaction.id,
             vaa: signedVaa,
             wallet: toWallet,
             auxiliarySigner,
           });
-        for await (const result of postVaaTxIdsGenerator) {
+        for await (const result of postVaaTxGenerator) {
           updateInteractionState(interaction.id, (draft) => {
             if (
               draft.interactionType !== InteractionType.SwapV2 ||
@@ -240,59 +239,44 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
           });
         }
       }
-      if (interactionState.completeNativeWithPayloadTxId === null) {
-        const sourceWormholeChainId = EVM_ECOSYSTEMS[fromEcosystem]
-          .wormholeChainId as ChainId;
-        const completeNativeWithPayloadGenerator =
-          solanaClient.generateCompleteNativeWithPayloadTx({
-            wallet: toWallet,
-            interactionId: interaction.id,
-            sourceChainConfig: fromChainConfig,
-            sourceWormholeChainId,
-            signedVaa: Buffer.from(signedVaa),
-          });
-
-        for await (const result of completeNativeWithPayloadGenerator) {
-          updateInteractionState(interaction.id, (draft) => {
-            if (
-              draft.interactionType !== InteractionType.SwapV2 ||
-              draft.swapType !== SwapType.CrossChainEvmToSolana
-            ) {
-              throw new Error("Interaction type mismatch");
-            }
-            draft.completeNativeWithPayloadTxId = result.tx.id;
-          });
-        }
+      const tokenProject = TOKEN_PROJECTS_BY_ID[toTokenSpec.projectId];
+      if (tokenProject.tokenNumber === null) {
+        throw new Error(`Token number for ${tokenProject.symbol} not found`);
       }
-      if (interactionState.processSwimPayloadTxId === null) {
-        const tokenProject = TOKEN_PROJECTS_BY_ID[toTokenSpec.projectId];
-        if (tokenProject.tokenNumber === null) {
-          throw new Error(`Token number for ${tokenProject.symbol} not found`);
-        }
-        const minimumOutputAmount = humanDecimalToAtomicString(
-          toTokenData.value,
-          toTokenData.tokenConfig,
-          toTokenData.ecosystemId,
-        );
-        const processSwimPayloadGenerator =
-          solanaClient.generateProcessSwimPayloadTx({
-            wallet: toWallet,
-            interactionId: interaction.id,
-            signedVaa: Buffer.from(signedVaa),
-            targetTokenNumber: tokenProject.tokenNumber,
-            minimumOutputAmount,
-          });
-        for await (const result of processSwimPayloadGenerator) {
-          updateInteractionState(interaction.id, (draft) => {
-            if (
-              draft.interactionType !== InteractionType.SwapV2 ||
-              draft.swapType !== SwapType.CrossChainEvmToSolana
-            ) {
-              throw new Error("Interaction type mismatch");
-            }
-            draft.processSwimPayloadTxId = result.tx.id;
-          });
-        }
+      const minimumOutputAmount = humanDecimalToAtomicString(
+        toTokenData.value,
+        toTokenData.tokenConfig,
+        toTokenData.ecosystemId,
+      );
+      const completeTransferTxGenerator =
+        solanaClient.generateCompleteTransferTxs({
+          wallet: toWallet,
+          interactionId: interaction.id,
+          signedVaa: Buffer.from(signedVaa),
+          sourceChainConfig: fromChainConfig,
+          sourceWormholeChainId: ecosystems[fromEcosystem].wormholeChainId,
+          targetTokenNumber: tokenProject.tokenNumber,
+          minimumOutputAmount,
+        });
+      for await (const result of completeTransferTxGenerator) {
+        updateInteractionState(interaction.id, (draft) => {
+          if (
+            draft.interactionType !== InteractionType.SwapV2 ||
+            draft.swapType !== SwapType.CrossChainEvmToSolana
+          ) {
+            throw new Error("Interaction type mismatch");
+          }
+          switch (result.type) {
+            case SolanaTxType.SwimCompleteNativeWithPayload:
+              draft.completeNativeWithPayloadTxId = result.tx.id;
+              break;
+            case SolanaTxType.SwimProcessSwimPayload:
+              draft.processSwimPayloadTxId = result.tx.id;
+              break;
+            default:
+              throw new Error(`Unexpected transaction type: ${result.tx.id}`);
+          }
+        });
       }
     },
   );

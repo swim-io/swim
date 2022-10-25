@@ -86,7 +86,7 @@ export class AptosClient extends Client<
     try {
       const resource = (await this.sdkClient.getAccountResource(
         account.address(),
-        tokenDetails.address,
+        getCoinStoreType(tokenDetails.address),
       )) as CoinResource;
       return atomicToHuman(
         new Decimal(resource.data.coin.value),
@@ -191,6 +191,8 @@ export class AptosClient extends Client<
   }
 }
 
+const getCoinStoreType = (address: string) =>
+  `0x1::coin::CoinStore<${address}>`;
 const getCoinInfoType = (address: string) => `0x1::coin::CoinInfo<${address}>`;
 
 const getCoinInfoSupply = (coinInfo: CoinInfoResource): Decimal => {

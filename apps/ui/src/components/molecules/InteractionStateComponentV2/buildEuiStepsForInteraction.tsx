@@ -314,7 +314,7 @@ const buildClaimTokenOnSolanaStep = (
   interactionStatus: InteractionStatusV2,
 ): EuiStepProps => {
   const {
-    verifySignatureTxId,
+    verifySignaturesTxId,
     postVaaOnSolanaTxId,
     completeNativeWithPayloadTxId,
     processSwimPayloadTxId,
@@ -338,7 +338,7 @@ const buildClaimTokenOnSolanaStep = (
           isLoading={status === "loading"}
           tokenConfig={toTokenData.tokenConfig}
           transactions={[
-            verifySignatureTxId,
+            verifySignaturesTxId,
             postVaaOnSolanaTxId,
             completeNativeWithPayloadTxId,
             processSwimPayloadTxId,

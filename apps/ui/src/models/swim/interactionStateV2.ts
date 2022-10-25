@@ -71,7 +71,7 @@ export interface CrossChainEvmToSolanaSwapInteractionState {
   readonly approvalTxIds: readonly EvmTx["id"][];
   readonly crossChainInitiateTxId: EvmTx["id"] | null;
   readonly auxiliarySignerPublicKey: string | null;
-  readonly verifySignatureTxId: SolanaTx["id"] | null;
+  readonly verifySignaturesTxId: SolanaTx["id"] | null;
   readonly postVaaOnSolanaTxId: SolanaTx["id"] | null;
   readonly completeNativeWithPayloadTxId: SolanaTx["id"] | null;
   readonly processSwimPayloadTxId: SolanaTx["id"] | null;

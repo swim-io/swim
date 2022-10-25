@@ -433,7 +433,7 @@ Object {
     },
   },
   "swapType": "CrossChainEvmToSolana",
-  "verifySignatureTxId": null,
+  "verifySignaturesTxId": null,
   "version": 2,
 }
 `;

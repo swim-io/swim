@@ -35,15 +35,14 @@ import { Client, getTokenDetails } from "@swim-io/core";
 import type { Propeller } from "@swim-io/solana-contracts";
 import { idl } from "@swim-io/solana-contracts";
 import { TokenProjectId } from "@swim-io/token-projects";
-import type { ReadonlyRecord } from "@swim-io/utils";
 import { atomicToHuman, chunks, humanToAtomic, sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import {
-  createCompleteNativeWithPayloadAccounts,
-  createProcessSwimPayloadAccounts,
+  getProcessSwimPayloadAccounts,
   getAddAccounts,
+  getCompleteNativeWithPayloadAccounts,
   getPropellerTransferAccounts,
 } from "./getAccounts";
 import type {
@@ -54,6 +53,8 @@ import type {
 import { SOLANA_ECOSYSTEM_ID, SolanaTxType } from "./protocol";
 import type { TokenAccount } from "./serialization";
 import { deserializeTokenAccount } from "./serialization";
+import type { SupportedTokenProjectId } from "./supportedTokenProjectIds";
+import { isSupportedTokenProjectId } from "./supportedTokenProjectIds";
 import {
   createApproveAndRevokeIxs,
   createTx,
@@ -84,21 +85,6 @@ interface GenerateVerifySignaturesTxsParams
   readonly payerAddress: string;
   readonly auxiliarySigner: Keypair;
 }
-
-type SupportedTokenProjectId =
-  | TokenProjectId.SwimUsd
-  | TokenProjectId.Usdc
-  | TokenProjectId.Usdt;
-
-const SUPPORTED_TOKEN_PROJECT_IDS = [
-  TokenProjectId.SwimUsd,
-  TokenProjectId.Usdc,
-  TokenProjectId.Usdt,
-];
-
-const isSupportedTokenProjectId = (
-  id: TokenProjectId,
-): id is SupportedTokenProjectId => SUPPORTED_TOKEN_PROJECT_IDS.includes(id);
 
 interface PropellerAddParams {
   readonly wallet: SolanaWalletAdapter;
@@ -392,18 +378,13 @@ export class SolanaClient extends Client<
   > {
     const walletPublicKey = wallet.publicKey;
     if (walletPublicKey === null) {
-      throw new Error("Missing Solana wallet");
+      throw new Error("Missing Solana wallet public key");
     }
     const routingContract = this.getRoutingContract(wallet);
-    const swimUsdAtaPublicKey = getAssociatedTokenAddressSync(
-      new PublicKey(this.chainConfig.swimUsdDetails.address),
-      walletPublicKey,
-    );
-    const accounts = await createCompleteNativeWithPayloadAccounts(
+    const accounts = await getCompleteNativeWithPayloadAccounts(
       this.chainConfig,
-      new PublicKey(walletPublicKey),
+      walletPublicKey,
       signedVaa,
-      swimUsdAtaPublicKey,
       sourceWormholeChainId,
       sourceChainConfig,
     );
@@ -434,13 +415,13 @@ export class SolanaClient extends Client<
     interactionId,
     signedVaa,
     targetTokenNumber,
-    minOutputAmount,
+    minimumOutputAmount,
   }: {
     readonly wallet: SolanaWalletAdapter;
     readonly interactionId: string;
     readonly signedVaa: Buffer;
     readonly targetTokenNumber: number;
-    readonly minOutputAmount: string;
+    readonly minimumOutputAmount: string;
   }): AsyncGenerator<
     TxGeneratorResult<ParsedTransactionWithMeta, SolanaTx, SolanaTxType>,
     any,
@@ -449,35 +430,17 @@ export class SolanaClient extends Client<
     const [twoPoolConfig] = this.chainConfig.pools;
     const walletPublicKey = wallet.publicKey;
     if (walletPublicKey === null) {
-      throw new Error("Missing Solana wallet");
+      throw new Error("Missing Solana wallet public key");
     }
     const routingContract = this.getRoutingContract(wallet);
-    const poolTokenAccounts = [...twoPoolConfig.tokenAccounts.values()].map(
-      (address) => new PublicKey(address),
-    );
-    const userTokenAccounts = SUPPORTED_TOKEN_PROJECT_IDS.reduce(
-      (accumulator, tokenProjectId) => {
-        const { address } = getTokenDetails(this.chainConfig, tokenProjectId);
-        return {
-          ...accumulator,
-          [tokenProjectId]: getAssociatedTokenAddressSync(
-            new PublicKey(address),
-            walletPublicKey,
-          ),
-        };
-      },
-      {} as ReadonlyRecord<SupportedTokenProjectId, PublicKey>,
-    );
-    const accounts = await createProcessSwimPayloadAccounts(
+    const poolTokenAccountPublicKeys = [
+      ...twoPoolConfig.tokenAccounts.values(),
+    ].map((address) => new PublicKey(address));
+    const accounts = await getProcessSwimPayloadAccounts(
       this.chainConfig,
       new PublicKey(walletPublicKey),
       signedVaa,
-      userTokenAccounts[TokenProjectId.SwimUsd],
-      [
-        userTokenAccounts[TokenProjectId.Usdc],
-        userTokenAccounts[TokenProjectId.Usdt],
-      ],
-      poolTokenAccounts,
+      poolTokenAccountPublicKeys,
       new PublicKey(twoPoolConfig.governanceFeeAccount),
       targetTokenNumber,
     );
@@ -485,7 +448,7 @@ export class SolanaClient extends Client<
       units: 900_000,
     });
     const txRequest = await routingContract.methods
-      .processSwimPayload(targetTokenNumber, new BN(minOutputAmount))
+      .processSwimPayload(targetTokenNumber, new BN(minimumOutputAmount))
       .accounts(accounts)
       .preInstructions([setComputeUnitLimitIx])
       .postInstructions([createMemoInstruction(interactionId)])
@@ -957,33 +920,19 @@ export class SolanaClient extends Client<
     inputAmountAtomic,
     auxiliarySigner = Keypair.generate(),
   }: WithOptionalAuxiliarySigner<PropellerAddParams>): Promise<SolanaTx> {
+    const walletPublicKey = wallet.publicKey;
+    if (walletPublicKey === null) {
+      throw new Error("Missing Solana wallet public key");
+    }
     const [twoPoolConfig] = this.chainConfig.pools;
     const addInputAmounts =
       sourceTokenId === TokenProjectId.Usdc
         ? [inputAmountAtomic, "0"]
         : ["0", inputAmountAtomic];
     const addMaxFee = "0"; // TODO: Change to a real value
-
-    const userTokenAccounts = SUPPORTED_TOKEN_PROJECT_IDS.reduce(
-      (accumulator, tokenProjectId) => {
-        const { address } = getTokenDetails(this.chainConfig, tokenProjectId);
-        return {
-          ...accumulator,
-          [tokenProjectId]: getAssociatedTokenAddressSync(
-            new PublicKey(address),
-            senderPublicKey,
-          ),
-        };
-      },
-      {} as ReadonlyRecord<SupportedTokenProjectId, PublicKey>,
-    );
     const addAccounts = getAddAccounts(
       this.chainConfig,
-      userTokenAccounts[TokenProjectId.SwimUsd],
-      [
-        userTokenAccounts[TokenProjectId.Usdc],
-        userTokenAccounts[TokenProjectId.Usdt],
-      ],
+      walletPublicKey,
       auxiliarySigner.publicKey,
       new PublicKey(this.chainConfig.swimUsdDetails.address),
       [...twoPoolConfig.tokenAccounts.values()].map(
@@ -991,9 +940,16 @@ export class SolanaClient extends Client<
       ),
       new PublicKey(twoPoolConfig.governanceFeeAccount),
     );
-
+    const sourceTokenMint = getTokenDetails(
+      this.chainConfig,
+      sourceTokenId,
+    ).address;
+    const sourceTokenAccountPublicKey = getAssociatedTokenAddressSync(
+      new PublicKey(sourceTokenMint),
+      senderPublicKey,
+    );
     const [approveIx, revokeIx] = await createApproveAndRevokeIxs(
-      userTokenAccounts[sourceTokenId],
+      sourceTokenAccountPublicKey,
       inputAmountAtomic,
       auxiliarySigner.publicKey,
       senderPublicKey,

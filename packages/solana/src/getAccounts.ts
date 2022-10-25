@@ -4,28 +4,55 @@ import {
 } from "@certusone/wormhole-sdk";
 import type { Accounts } from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
+import {
+  TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
 import {
   PublicKey,
   SYSVAR_CLOCK_PUBKEY,
   SYSVAR_RENT_PUBKEY,
   SystemProgram,
 } from "@solana/web3.js";
-import type { ChainConfig } from "@swim-io/core/types";
+import type { ChainConfig } from "@swim-io/core";
+import { getTokenDetails } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import * as byteify from "byteify";
 import keccak256 from "keccak256";
 
 import type { SolanaChainConfig } from "./protocol";
+import type { SupportedTokenProjectId } from "./supportedTokenProjectIds";
+import { SUPPORTED_TOKEN_PROJECT_IDS } from "./supportedTokenProjectIds";
+
+const getUserTokenAccounts = (
+  walletPublicKey: PublicKey,
+  solanaChainConfig: SolanaChainConfig,
+) =>
+  SUPPORTED_TOKEN_PROJECT_IDS.reduce((accumulator, tokenProjectId) => {
+    const { address } = getTokenDetails(solanaChainConfig, tokenProjectId);
+    return {
+      ...accumulator,
+      [tokenProjectId]: getAssociatedTokenAddressSync(
+        new PublicKey(address),
+        walletPublicKey,
+      ),
+    };
+  }, {} as ReadonlyRecord<SupportedTokenProjectId, PublicKey>);
 
 export const getAddAccounts = (
   solanaChainConfig: SolanaChainConfig,
-  userSwimUsdAtaPublicKey: PublicKey,
-  userTokenAccounts: readonly PublicKey[],
+  walletPublicKey: PublicKey,
   auxiliarySigner: PublicKey,
   lpMint: PublicKey,
   poolTokenAccounts: readonly PublicKey[],
   poolGovernanceFeeAccount: PublicKey,
 ): Accounts => {
+  const userTokenAccounts = getUserTokenAccounts(
+    walletPublicKey,
+    solanaChainConfig,
+  );
   return {
     propeller: new PublicKey(solanaChainConfig.routingContractStateAddress),
     tokenProgram: TOKEN_PROGRAM_ID,
@@ -34,9 +61,9 @@ export const getAddAccounts = (
     lpMint,
     governanceFee: poolGovernanceFeeAccount,
     userTransferAuthority: auxiliarySigner,
-    userTokenAccount0: userTokenAccounts[0],
-    userTokenAccount1: userTokenAccounts[1],
-    userLpTokenAccount: userSwimUsdAtaPublicKey,
+    userTokenAccount0: userTokenAccounts[TokenProjectId.Usdc],
+    userTokenAccount1: userTokenAccounts[TokenProjectId.Usdt],
+    userLpTokenAccount: userTokenAccounts[TokenProjectId.SwimUsd],
     twoPoolProgram: new PublicKey(solanaChainConfig.twoPoolContractAddress),
   };
 };
@@ -114,11 +141,10 @@ const hashVaa = (signedVaa: Buffer): Buffer => {
   return keccak256(Buffer.from(body));
 };
 
-export const createCompleteNativeWithPayloadAccounts = async (
+export const getCompleteNativeWithPayloadAccounts = async (
   solanaChainConfig: SolanaChainConfig,
   walletPublicKey: PublicKey,
   signedVaa: Buffer,
-  swimUsdAtaPublicKey: PublicKey,
   sourceWormholeChainId: number,
   sourceChainConfig: ChainConfig,
 ): Promise<Accounts> => {
@@ -126,6 +152,10 @@ export const createCompleteNativeWithPayloadAccounts = async (
   const portalPublicKey = new PublicKey(solanaChainConfig.wormhole.portal);
   const swimUsdMintPublicKey = new PublicKey(
     solanaChainConfig.swimUsdDetails.address,
+  );
+  const swimUsdAtaPublicKey = await getAssociatedTokenAddress(
+    swimUsdMintPublicKey,
+    walletPublicKey,
   );
   const [tokenBridgeConfig] = await PublicKey.findProgramAddress(
     [Buffer.from("config")],
@@ -161,12 +191,10 @@ export const createCompleteNativeWithPayloadAccounts = async (
     portalPublicKey,
   );
 
-  const propellerRedeemer = (
-    await PublicKey.findProgramAddress(
-      [Buffer.from("redeemer")],
-      new PublicKey(solanaChainConfig.routingContractAddress),
-    )
-  )[0];
+  const [propellerRedeemer] = await PublicKey.findProgramAddress(
+    [Buffer.from("redeemer")],
+    new PublicKey(solanaChainConfig.routingContractAddress),
+  );
   const propellerRedeemerEscrowAccount = await getAssociatedTokenAddress(
     swimUsdMintPublicKey,
     propellerRedeemer,
@@ -208,7 +236,7 @@ const getSwimPayloadMessagePda = async (
   );
 };
 
-const getToTokenNumberMapAddr = async (
+const getToTokenNumberMapPda = async (
   propellerState: PublicKey,
   toTokenNumber: number,
   propellerProgramId: PublicKey,
@@ -224,12 +252,10 @@ const getToTokenNumberMapAddr = async (
   );
 };
 
-export const createProcessSwimPayloadAccounts = async (
+export const getProcessSwimPayloadAccounts = async (
   solanaChainConfig: SolanaChainConfig,
   walletPublicKey: PublicKey,
   signedVaa: Buffer,
-  swimUsdAtaPublicKey: PublicKey,
-  userTokenAccounts: readonly PublicKey[],
   poolTokenAccounts: readonly PublicKey[],
   governanceFeeKey: PublicKey,
   toTokenNumber: number,
@@ -252,12 +278,10 @@ export const createProcessSwimPayloadAccounts = async (
     claim,
     propellerProgramId,
   );
-  const propellerRedeemer = (
-    await PublicKey.findProgramAddress(
-      [Buffer.from("redeemer")],
-      propellerProgramId,
-    )
-  )[0];
+  const [propellerRedeemer] = await PublicKey.findProgramAddress(
+    [Buffer.from("redeemer")],
+    propellerProgramId,
+  );
   const propellerRedeemerEscrowAccount = await getAssociatedTokenAddress(
     swimUsdMintPublicKey,
     propellerRedeemer,
@@ -266,10 +290,14 @@ export const createProcessSwimPayloadAccounts = async (
   const twoPoolConfig = solanaChainConfig.pools[0];
   const twoPoolProgramId = new PublicKey(twoPoolConfig.contract);
   const twoPoolAddress = new PublicKey(twoPoolConfig.address);
-  const [tokenIdMap] = await getToTokenNumberMapAddr(
+  const [tokenIdMap] = await getToTokenNumberMapPda(
     propeller,
     toTokenNumber,
     propellerProgramId,
+  );
+  const userTokenAccounts = getUserTokenAccounts(
+    walletPublicKey,
+    solanaChainConfig,
   );
   return {
     propeller,
@@ -285,9 +313,9 @@ export const createProcessSwimPayloadAccounts = async (
     lpMint: swimUsdMintPublicKey,
     governanceFee: governanceFeeKey,
     userTransferAuthority: walletPublicKey,
-    userTokenAccount0: userTokenAccounts[0],
-    userTokenAccount1: userTokenAccounts[1],
-    userLpTokenAccount: swimUsdAtaPublicKey,
+    userTokenAccount0: userTokenAccounts[TokenProjectId.Usdc],
+    userTokenAccount1: userTokenAccounts[TokenProjectId.Usdt],
+    userLpTokenAccount: userTokenAccounts[TokenProjectId.SwimUsd],
     tokenProgram: TOKEN_PROGRAM_ID,
     twoPoolProgram: twoPoolProgramId,
     systemProgram: SystemProgram.programId,

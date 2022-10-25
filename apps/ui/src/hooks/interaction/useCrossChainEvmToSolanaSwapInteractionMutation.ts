@@ -227,7 +227,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
 
             switch (result.type) {
               case SolanaTxType.WormholeVerifySignatures:
-                draft.verifySignatureTxId = result.tx.id;
+                draft.verifySignaturesTxId = result.tx.id;
                 break;
               case SolanaTxType.WormholePostVaa:
                 draft.postVaaOnSolanaTxId = result.tx.id;
@@ -269,7 +269,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
         if (tokenProject.tokenNumber === null) {
           throw new Error(`Token number for ${tokenProject.symbol} not found`);
         }
-        const minOutputAmount = humanDecimalToAtomicString(
+        const minimumOutputAmount = humanDecimalToAtomicString(
           toTokenData.value,
           toTokenData.tokenConfig,
           toTokenData.ecosystemId,
@@ -280,7 +280,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
             interactionId: interaction.id,
             signedVaa: Buffer.from(signedVaa),
             targetTokenNumber: tokenProject.tokenNumber,
-            minOutputAmount: minOutputAmount,
+            minimumOutputAmount,
           });
         for await (const result of processSwimPayloadGenerator) {
           updateInteractionState(interaction.id, (draft) => {

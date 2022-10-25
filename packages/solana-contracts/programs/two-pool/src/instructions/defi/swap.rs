@@ -72,32 +72,6 @@ pub struct Swap<'info> {
 }
 
 impl<'info> Swap<'info> {
-    // pub fn validate(&self) -> Result<()> {
-    //     let pool_state = &self.pool;
-    //
-    //     require_keys_eq!(
-    //         self.pool_token_account_0.key(),
-    //         pool_state.token_keys[0],
-    //         PoolError::PoolTokenAccountExpected
-    //     );
-    //     require_keys_eq!(
-    //         self.pool_token_account_1.key(),
-    //         pool_state.token_keys[1],
-    //         PoolError::PoolTokenAccountExpected
-    //     );
-    //     require_keys_eq!(self.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
-    //     require_keys_eq!(
-    //         self.governance_fee.key(),
-    //         pool_state.governance_fee_key,
-    //         PoolError::InvalidGovernanceFeeAccount
-    //     );
-    //     msg!("finished accounts context check");
-    //     Ok(())
-    // }
-    // pub fn accounts(ctx: &Context<Swap>) -> Result<()> {
-    //     ctx.accounts.validate()
-    // }
-
     pub fn update_previous_depth(&mut self, latest_depth: u128) -> Result<()> {
         let pool_state = &mut self.pool;
         pool_state.previous_depth = latest_depth;
@@ -125,22 +99,6 @@ impl<'info> Swap<'info> {
             )?;
         }
         Ok(())
-
-        // let seeds = gen_pool_signer_seeds(
-        //     &self.pool.key(),
-        //     &self.pool.token_mint_keys[0],
-        //     &self.pool.token_mint_keys[1],
-        //     &self.lp_mint.key(),
-        // );
-        // let cpi_accounts = Transfer {
-        //     from: user_token_account.to_account_info(),
-        //     to: pool_token_account.to_account_info(),
-        //     authority: self.user_transfer_authority.to_account_info(),
-        // };
-        // let cpi_program = self.token_program.to_account_info();
-        // let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-        // token::transfer(cpi_ctx, amount)?;
-        // Ok(())
     }
 
     pub fn transfer_from_pool_to_user(
@@ -185,27 +143,6 @@ impl<'info> Swap<'info> {
         }
         Ok(())
     }
-
-    // pub fn burn_lp_tokens(&self, from: &Account<'info, TokenAccount>, authority: )
-
-    // pub fn mint_governance_fee(&self, governance_mint_amount: u64) -> Result<()> {
-    //     if governance_mint_amount > 0 {
-    //         token::mint_to(
-    //             CpiContext::new_with_signer(
-    //                 self.token_program.to_account_info(),
-    //                 token::MintTo {
-    //                     // source
-    //                     mint: self.lp_mint.to_account_info(),
-    //                     to: self.governance_fee.to_account_info(),
-    //                     authority: self.pool.to_account_info(),
-    //                 },
-    //                 &[&gen_pool_signer_seeds!(self.pool)[..]],
-    //             ),
-    //             governance_mint_amount,
-    //         )?;
-    //     }
-    //     Ok(())
-    // }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -235,16 +172,6 @@ pub fn handle_swap_exact_input(
 
     let pool = &ctx.accounts.pool;
     require!(!pool.is_paused, PoolError::PoolIsPaused);
-
-    // let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
-    // let pool_token_account_1 = &ctx.accounts.pool_token_account_1;
-    // let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
-    //
-    // let user_token_account_0 = &ctx.accounts.user_token_account_0;
-    // let user_token_account_1 = &ctx.accounts.user_token_account_1;
-    // let user_token_accounts = [user_token_account_0, user_token_account_1];
-    //
-    // let pool_token_accounts = [pool_token_account_0, pool_token_account_1];
 
     let user_token_accounts = &[&ctx.accounts.user_token_account_0, &ctx.accounts.user_token_account_1];
     let pool_token_accounts = &[&ctx.accounts.pool_token_account_0, &ctx.accounts.pool_token_account_1];
@@ -277,20 +204,6 @@ pub fn handle_swap_exact_input(
     let user_transfer_auth = &ctx.accounts.user_transfer_authority;
     for i in 0..TOKEN_COUNT {
         let (user_token_account, pool_token_account) = token_accounts.next().unwrap();
-        // if exact_input_amounts[i] > 0 {
-        //     token::transfer(
-        //         CpiContext::new(
-        //             ctx.accounts.token_program.to_account_info(),
-        //             token::Transfer {
-        //                 // source
-        //                 from: user_token_account.to_account_info(),
-        //                 to: pool_token_account.to_account_info(),
-        //                 authority: ctx.accounts.user_transfer_authority.to_account_info(),
-        //             },
-        //         ),
-        //         exact_input_amounts[i],
-        //     )?;
-        // }
         ctx.accounts.transfer_from_user_to_pool(
             user_token_account,
             user_transfer_auth,
@@ -300,40 +213,11 @@ pub fn handle_swap_exact_input(
     }
     let user_output_token_account = user_token_accounts[output_token_index];
     let pool_output_token_account = pool_token_accounts[output_token_index];
+
     ctx.accounts.transfer_from_pool_to_user(&pool_output_token_account, &user_output_token_account, output_amount)?;
-    // token::transfer(
-    //     CpiContext::new_with_signer(
-    //         ctx.accounts.token_program.to_account_info(),
-    //         token::Transfer {
-    //             // source
-    //             from: pool_output_token_account.to_account_info(),
-    //             to: user_output_token_account.to_account_info(),
-    //             authority: ctx.accounts.pool.to_account_info(),
-    //         },
-    //         &[&gen_pool_signer_seeds!(ctx.accounts.pool)[..]],
-    //     ),
-    //     output_amount,
-    // )?;
 
     ctx.accounts.mint_lp_tokens(&ctx.accounts.governance_fee, governance_mint_amount)?;
 
-    // if governance_mint_amount > 0 {
-    //     token::mint_to(
-    //         CpiContext::new_with_signer(
-    //             ctx.accounts.token_program.to_account_info(),
-    //             token::MintTo {
-    //                 // source
-    //                 mint: ctx.accounts.lp_mint.to_account_info(),
-    //                 to: ctx.accounts.governance_fee.to_account_info(),
-    //                 authority: ctx.accounts.pool.to_account_info(),
-    //             },
-    //             &[&gen_pool_signer_seeds!(ctx.accounts.pool)[..]],
-    //         ),
-    //         governance_mint_amount,
-    //     )?;
-    // }
-    // let pool = &mut ctx.accounts.pool;
-    // pool.previous_depth = latest_depth;
     ctx.accounts.update_previous_depth(latest_depth)?;
     Ok(output_amount)
 }
@@ -411,60 +295,16 @@ pub fn handle_swap_exact_output(
         pool_input_token_account,
         input_amount,
     )?;
-    // token::transfer(
-    //     CpiContext::new(
-    //         ctx.accounts.token_program.to_account_info(),
-    //         token::Transfer {
-    //             // source
-    //             from: user_input_token_account.to_account_info(),
-    //             to: pool_input_token_account.to_account_info(),
-    //             authority: user_transfer_auth.to_account_info(),
-    //         },
-    //     ),
-    //     input_amount,
-    // )?;
 
     let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
 
     for i in 0..TOKEN_COUNT {
         let (user_token_account, pool_token_account) = token_accounts.next().unwrap();
         ctx.accounts.transfer_from_pool_to_user(pool_token_account, user_token_account, exact_output_amounts[i])?;
-        // if exact_output_amounts[i] > 0 {
-        //     token::transfer(
-        //         CpiContext::new_with_signer(
-        //             ctx.accounts.token_program.to_account_info(),
-        //             token::Transfer {
-        //                 // source
-        //                 from: pool_token_account.to_account_info(),
-        //                 to: user_token_account.to_account_info(),
-        //                 authority: ctx.accounts.pool.to_account_info(),
-        //             },
-        //             &[&gen_pool_signer_seeds!(ctx.accounts.pool)[..]],
-        //         ),
-        //         exact_output_amounts[i],
-        //     )?;
-        // }
     }
 
     ctx.accounts.mint_lp_tokens(&ctx.accounts.governance_fee, governance_mint_amount)?;
 
-    // if governance_mint_amount > 0 {
-    //     token::mint_to(
-    //         CpiContext::new_with_signer(
-    //             ctx.accounts.token_program.to_account_info(),
-    //             token::MintTo {
-    //                 // source
-    //                 mint: ctx.accounts.lp_mint.to_account_info(),
-    //                 to: ctx.accounts.governance_fee.to_account_info(),
-    //                 authority: ctx.accounts.pool.to_account_info(),
-    //             },
-    //             &[&gen_pool_signer_seeds!(ctx.accounts.pool)[..]],
-    //         ),
-    //         governance_mint_amount,
-    //     )?;
-    // }
-    // let pool = &mut ctx.accounts.pool;
-    // pool.previous_depth = latest_depth;
     ctx.accounts.update_previous_depth(latest_depth)?;
     Ok(exact_output_amounts.into())
 }

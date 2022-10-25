@@ -48,6 +48,9 @@ export const Layout = ({
                 </CustomHeaderLink>
                 {/* TODO: Enable when token is launched */}
                 {/* <CustomHeaderLink to={"/stake"}>Stake</CustomHeaderLink> */}
+                <CustomHeaderLink to={"/wormhole"}>
+                  {t("nav.wormhole")}
+                </CustomHeaderLink>
                 <CustomHeaderLink to={"/help"}>
                   {t("nav.help")}
                 </CustomHeaderLink>

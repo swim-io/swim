@@ -1,12 +1,13 @@
 import { EuiIcon } from "@elastic/eui";
 import type { TokenProject } from "@swim-io/token-projects";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import type { WormholeToken } from "models";
 import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
 
-import type { EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
+import type { EcosystemId, TokenConfig } from "../config";
 import { useIntlListSeparators } from "../hooks";
 import type { Amount } from "../models/amount";
 
@@ -127,3 +128,26 @@ export const TokenSearchConfigIcon = ({
 }: Pick<TokenConfigIconProps, "token">): ReactElement => (
   <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
 );
+
+type WormholeTokenIconProps = {
+  readonly token: WormholeToken;
+  readonly showFullName: boolean;
+};
+
+export const WormholeTokenIcon = ({
+  token,
+  showFullName,
+}: WormholeTokenIconProps): ReactElement => {
+  const { logo, symbol, displayName } = token;
+  return (
+    <div>
+      <WithIcon
+        type={logo || "questionInCircle"}
+        size="m"
+        title={displayName}
+        style={{ marginRight: 5 }}
+      />
+      <span>{showFullName ? `${symbol} - ${displayName}` : `${symbol}`}</span>
+    </div>
+  );
+};

@@ -1,0 +1,40 @@
+.wormholeModal {
+  min-height: 50vh;
+  max-width: 430px;
+}
+.modalBody {
+  height: 30vh;
+  overflow: auto;
+  .saveToken {
+    cursor: pointer;
+  }
+}
+
+.networkPanel {
+  max-height: 30vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
+}
+.ecosystemIcon {
+  width: fit-content;
+  flex-basis: 0;
+  .euiButton__text {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 540px) {
+  .networkPanel {
+    justify-content: space-around;
+    overflow-y: auto;
+  }
+  .euiModalHeader__title {
+    text-align: center;
+    width: 100%;
+  }
+}

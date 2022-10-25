@@ -24,14 +24,6 @@ pub mod state;
 // #[macro_use]
 mod macros;
 
-//Note - using this b/c of not all bytes read error. found from using this - https://brson.github.io/2021/06/08/rust-on-solana
-// use solana_program::borsh::try_from_slice_unchecked;
-// const ENACT_DELAY: UnixTimestamp = 3 * 86400;
-// const MAX_DECIMAL_DIFFERENCE: u8 = 8;
-//
-// type AtomicT = u64;
-// type DecT = DecimalU64;
-
 pub const TOKEN_COUNT: usize = 2;
 
 //TODO: option to have separate programIds depending on cluster. probably not needed and should keep the same
@@ -72,40 +64,12 @@ pub mod two_pool {
         handle_initialize(ctx, amp_factor, lp_fee, governance_fee)
     }
 
-    // #[access_control(Add::accounts(&ctx))]
-    // pub fn add(
-    //     ctx: Context<Add>,
-    //     input_amounts: [u64; TOKEN_COUNT],
-    //     minimum_mint_amount: u64,
-    //     // params: AddParams
-    // ) -> Result<u64> {
-    //     let params = AddParams { input_amounts, minimum_mint_amount };
-    //     handle_add_old(ctx, params)
-    //     // handle_add(ctx, input_amounts, minimum_mint_amount)
-    // }
-
     // #[access_control(AddOrRemove::accounts(&ctx))]
     pub fn add(ctx: Context<AddOrRemove>, input_amounts: [u64; TOKEN_COUNT], minimum_mint_amount: u64) -> Result<u64> {
         let params = AddParams { input_amounts, minimum_mint_amount };
         handle_add(ctx, params)
         // handle_add(ctx, input_amounts, minimum_mint_amount)
     }
-
-    // #[access_control(SwapExactInput::accounts(&ctx))]
-    // pub fn swap_exact_input(
-    //     ctx: Context<SwapExactInput>,
-    //     exact_input_amounts: [u64; TOKEN_COUNT],
-    //     output_token_index: u8,
-    //     minimum_output_amount: u64,
-    //     // params: SwapExactInputParams,
-    // ) -> Result<u64> {
-    //     let params = SwapExactInputParams { exact_input_amounts, output_token_index, minimum_output_amount };
-    //     handle_swap_exact_input(ctx, params)
-    //     // let output_token_index = params.output_token_index as usize;
-    //     // let exact_input_amounts = params.exact_input_amounts;
-    //     // let minimum_output_amount = params.minimum_output_amount;
-    //     // handle_swap_exact_input(ctx, params)
-    // }
 
     // #[access_control(ctx.accounts.validate())]
     pub fn swap_exact_input(
@@ -122,26 +86,6 @@ pub mod two_pool {
         // let minimum_output_amount = params.minimum_output_amount;
         // handle_swap_exact_input(ctx, params)
     }
-    // pub fn swap_exact_input(
-    //     ctx: Context<SwapExactInput>,
-    //     params: SwapExactInputParams,
-    // ) -> Result<u64> {
-    //     handle_swap_exact_input(ctx, params)
-    // }
-
-    //returning cpi data from this is a little redundant since it's already passed in the params
-    //but keeping for parity with other ixs
-    // note using Vec<u64> instead of [u64; TOKEN_COUNT] since anchor can't handle it properly.
-    // #[access_control(SwapExactOutput::accounts(&ctx))]
-    // pub fn swap_exact_output(
-    //     ctx: Context<SwapExactOutput>,
-    //     maximum_input_amount: u64,
-    //     input_token_index: u8,
-    //     exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
-    // ) -> Result<Vec<u64>> {
-    //     let params = SwapExactOutputParams { maximum_input_amount, input_token_index, exact_output_amounts };
-    //     handle_swap_exact_output(ctx, params)
-    // }
 
     // #[access_control(ctx.accounts.validate())]
     pub fn swap_exact_output(
@@ -163,18 +107,6 @@ pub mod two_pool {
         let params = RemoveUniformParams { exact_burn_amount, minimum_output_amounts };
         handle_remove_uniform(ctx, params)
     }
-
-    // #[access_control(RemoveExactBurn::accounts(&ctx))]
-    // pub fn remove_exact_burn(
-    //     ctx: Context<RemoveExactBurn>,
-    //     exact_burn_amount: u64,
-    //     output_token_index: u8,
-    //     minimum_output_amount: u64,
-    //     // params: RemoveExactBurnParams,
-    // ) -> Result<u64> {
-    //     let params = RemoveExactBurnParams { exact_burn_amount, output_token_index, minimum_output_amount };
-    //     handle_remove_exact_burn(ctx, params)
-    // }
 
     // #[access_control(AddOrRemove::accounts(&ctx))]
     pub fn remove_exact_burn(

@@ -20,7 +20,6 @@ import { getSolanaTokenDetails } from "../../config";
 import { SwimDefiInstruction } from "./instructions";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
-import { getSolanaPoolState } from "./pool";
 
 const getApproveAndRevokeIxs = async (
   splToken: Program<SplToken>,
@@ -85,10 +84,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
     throw new Error("Invalid wallet");
   }
   const walletAddress = walletPublicKey.toBase58();
-  const poolState = await getSolanaPoolState(solanaClient, poolSpec);
-  if (poolState === null) {
-    throw new Error("Missing pool state");
-  }
+  const poolState = await solanaClient.getPoolState(poolSpec.id);
   const lpTokenMintAddress = getSolanaTokenDetails(poolTokens.lpToken).address;
   const userLpAccount = findTokenAccountForMint(
     lpTokenMintAddress,
@@ -98,6 +94,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
   const tokenMintAddresses = poolTokens.tokens.map(
     (token) => getSolanaTokenDetails(token).address,
   );
+  const poolTokenAccounts = [...poolSpec.tokenAccounts.values()];
   const userTokenAccounts = tokenMintAddresses.map((mint) =>
     findTokenAccountForMint(mint, walletAddress, splTokenAccounts),
   );
@@ -123,9 +120,9 @@ export const doSingleSolanaPoolOperationV2 = async ({
     throw new Error("Invalid user token account");
   }
   const commonAccounts = {
-    poolTokenAccount0: poolState.tokenKeys[0],
-    poolTokenAccount1: poolState.tokenKeys[1],
-    lpMint: poolState.lpMintKey,
+    poolTokenAccount0: new PublicKey(poolTokenAccounts[0]),
+    poolTokenAccount1: new PublicKey(poolTokenAccounts[1]),
+    lpMint: new PublicKey(lpTokenMintAddress),
     governanceFee: poolState.governanceFeeKey,
     userTransferAuthority: userTransferAuthority.publicKey,
     userTokenAccount0: userTokenAccount0,

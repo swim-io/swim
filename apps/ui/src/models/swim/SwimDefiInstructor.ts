@@ -1,7 +1,6 @@
 import { TOKEN_PROGRAM_ID, createApproveInstruction } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
-import type { Env } from "@swim-io/core";
 import {
   SOLANA_ECOSYSTEM_ID,
   createMemoIx,
@@ -35,7 +34,6 @@ import type {
 } from "./operation";
 
 export class SwimDefiInstructor {
-  private readonly env: Env;
   private readonly solanaClient: SolanaClient;
   private readonly signer: SolanaWalletAdapter;
   private readonly programId: PublicKey;
@@ -49,7 +47,6 @@ export class SwimDefiInstructor {
   private userTokenAccounts: readonly PublicKey[];
 
   public constructor(
-    env: Env,
     solanaClient: SolanaClient,
     signer: SolanaWalletAdapter,
     swimProgramAddress: string,
@@ -72,7 +69,6 @@ export class SwimDefiInstructor {
         "Number of user token accounts does not match number of token mints",
       );
     }
-    this.env = env;
     this.solanaClient = solanaClient;
     this.signer = signer;
     this.programId = new PublicKey(swimProgramAddress);

@@ -71,13 +71,13 @@ const getPoolMath = ({
 
   // lpFee
   const humanLpFee = atomicToHuman(
-    new Decimal(poolState.lpFee),
+    new Decimal(poolState.lpFee.value),
     poolSpec.feeDecimals,
   );
 
   // governanceFee
   const humanGovernanceFee = atomicToHuman(
-    new Decimal(poolState.governanceFee),
+    new Decimal(poolState.governanceFee.value),
     poolSpec.feeDecimals,
   );
 

@@ -1,4 +1,3 @@
-import type { Env } from "@swim-io/core";
 import {
   SOLANA_ECOSYSTEM_ID,
   findTokenAccountForMint,
@@ -23,10 +22,9 @@ import { SwimDefiInstruction } from "./instructions";
 import type { Interaction } from "./interaction";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
-import { getSolanaPoolState } from "./pool";
+import { getLegacySolanaPoolState } from "./pool";
 
 export const doSingleSolanaPoolOperation = async (
-  env: Env,
   solanaClient: SolanaClient,
   wallet: SolanaWalletAdapter,
   splTokenAccounts: readonly TokenAccount[],
@@ -38,7 +36,7 @@ export const doSingleSolanaPoolOperation = async (
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
   }
-  const poolState = await getSolanaPoolState(solanaClient, poolSpec);
+  const poolState = await getLegacySolanaPoolState(solanaClient, poolSpec);
   if (poolState === null) {
     throw new Error("Missing pool state");
   }
@@ -56,7 +54,6 @@ export const doSingleSolanaPoolOperation = async (
     findTokenAccountForMint(mint, walletAddress, splTokenAccounts),
   );
   const instructor = new SwimDefiInstructor(
-    env,
     solanaClient,
     wallet,
     poolSpec.contract,

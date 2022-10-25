@@ -17,7 +17,6 @@ import {
 } from "../solana";
 
 export const useSolanaPoolOperationsMutation = () => {
-  const { env } = useEnvironment();
   const config = useEnvironment(selectConfig, shallow);
   const { pools } = config;
   const { data: splTokenAccounts = [] } = useUserSolanaTokenAccountsQuery();
@@ -65,7 +64,6 @@ export const useSolanaPoolOperationsMutation = () => {
     let inputTxId = inputState.txId;
     if (inputTxId === null) {
       inputTxId = await doSingleSolanaPoolOperation(
-        env,
         solanaClient,
         wallet,
         splTokenAccounts,
@@ -97,7 +95,6 @@ export const useSolanaPoolOperationsMutation = () => {
       inputTx,
     );
     const outputTxId = await doSingleSolanaPoolOperation(
-      env,
       solanaClient,
       wallet,
       splTokenAccounts,

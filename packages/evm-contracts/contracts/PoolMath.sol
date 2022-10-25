@@ -137,7 +137,7 @@ library PoolMath {
     userTokenAmount = Equalized.wrap(userTokenAmount_);
 
     if (pool.totalFee != 0) {
-      uint finalDepth = Invariant.calculateDepth(pool.balances, pool.ampFactor, initialDepth);
+      uint finalDepth = Invariant.calculateDepth(updatedBalances, pool.ampFactor, initialDepth);
       uint totalFeeDepth = finalDepth - initialDepth;
       uint governanceDepth = (totalFeeDepth * pool.governanceFee) / pool.totalFee; //rounding?
       uint totalLpDepth = finalDepth - governanceDepth;

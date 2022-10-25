@@ -11,8 +11,7 @@ import {
 } from "@project-serum/borsh";
 import type { Layout } from "@project-serum/borsh";
 import type { SolanaEcosystemId, SolanaPoolState } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import type BN from "bn.js";
+import { SOLANA_ECOSYSTEM_ID, ampFactor } from "@swim-io/solana";
 
 type U8 = (property?: string) => Layout<number>;
 
@@ -31,32 +30,6 @@ export interface LegacySolanaPoolState
   readonly preparedLpFee: number;
   readonly ecosystem: SolanaEcosystemId;
 }
-
-interface DecimalBN {
-  readonly value: BN;
-  readonly decimals: number;
-}
-
-const decimal = (property = "decimal"): Layout<DecimalBN> =>
-  struct([u64("value"), u8("decimals")], property);
-
-interface AmpFactor {
-  readonly initialValue: DecimalBN;
-  readonly initialTs: BN;
-  readonly targetValue: DecimalBN;
-  readonly targetTs: BN;
-}
-
-const ampFactor = (property = "ampFactor"): Layout<AmpFactor> =>
-  struct(
-    [
-      decimal("initialValue"),
-      i64("initialTs"),
-      decimal("targetValue"),
-      i64("targetTs"),
-    ],
-    property,
-  );
 
 export const solanaPool = (
   numberOfTokens: number,

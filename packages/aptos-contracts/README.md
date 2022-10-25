@@ -94,14 +94,14 @@ yes
 
 ### Create the LiquidSwap pool
 
-So our fake stablecoin has an address of 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC and the attested SwimUSD has an address of 0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T (see [attestation app](./../../apps/attestation/README.md)).
+So our fake stablecoin has an address of 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC and the attested SwimUSD has an address of 0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T (see [attestation app](./../../apps/attestation/README.md)).
 
 We get the LiquidSwap address from https://github.com/pontem-network/liquidswap/blob/main/Move.toml (0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12) and we call their [entry function](https://docs.liquidswap.com/smart-contracts#scripts) named `register_pool`.
 
 Before we do that, we need to sort the addresses of the two tokens in order to know which one to put first (see [coins sorting](https://docs.liquidswap.com/smart-contracts#coins-sorting)). So we [try](https://gist.github.com/borispovod/2809728c8959649d42c5cef15b4cedb7) their `is_sorted` function and it looks like the attested swimUSD needs to go first in the type arguments.
 
 ```
-is_sorted("0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T", "0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC")
+is_sorted("0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T", "0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC")
 true
 ```
 
@@ -109,27 +109,27 @@ At the time of this writing it seems there is a [bug](https://github.com/pontem-
 
 ```
 $ aptos move run \
---function-id 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::scripts::register_pool \
---type-args 0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated \
+--function-id 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::scripts_v2::register_pool \
+--type-args 0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated \
 --profile testnet
 Do you want to submit a transaction for a range of [287100 - 430600] Octas at a gas unit price of 100 Octas? [yes/no] >
 yes
 {
   "Result": {
-    "transaction_hash": "0xe632a133dbc179afa9c0f80f61e64af9e63e46c9d582b577f11d39d154b1ad0a",
+    "transaction_hash": "0x077c041484f415541a371d1f1be78e8908e8f16ca33284ba9854026b4ac36e3c",
     "gas_used": 2871,
     "gas_unit_price": 100,
     "sender": "8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2",
-    "sequence_number": 2,
+    "sequence_number": 13,
     "success": true,
-    "timestamp_us": 1666181541637966,
-    "version": 287381898,
+    "timestamp_us": 1666695075967877,
+    "version": 302659858,
     "vm_status": "Executed successfully"
   }
 }
 ```
 
-So now if we check the `changes` tab in the explorer [https://explorer.aptoslabs.com/txn/0xe632a133dbc179afa9c0f80f61e64af9e63e46c9d582b577f11d39d154b1ad0a?network=testnet](https://explorer.aptoslabs.com/txn/0xe632a133dbc179afa9c0f80f61e64af9e63e46c9d582b577f11d39d154b1ad0a?network=testnet)
+So now if we check the `changes` tab in the explorer [https://explorer.aptoslabs.com/txn/0x077c041484f415541a371d1f1be78e8908e8f16ca33284ba9854026b4ac36e3c?network=testnet](https://explorer.aptoslabs.com/txn/0x077c041484f415541a371d1f1be78e8908e8f16ca33284ba9854026b4ac36e3c?network=testnet)
 
-We see that our LP has this address `0x5a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948::lp_coin::LP<0x246bfb8da92a72f29d0441138058a43970551734d68958281d59e23a4f2b19a0::coin::T, 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC, 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated>`
+We see that our LP has this address `0x5a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948::lp_coin::LP<0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T, 0x8c9d3a36ae2c7a765826c126fe625f39e9110ea329a5693d874e875227a889c2::test_coin::USDC, 0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated>`
 under the [liquidswap_pool_account](https://github.com/pontem-network/liquidswap/blob/5fc2625652c15369d0ffc52f9024c180d6e72fea/Move.toml#L15).

@@ -1,10 +1,10 @@
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TokenProjectId } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenConfig } from "../config";
+import { TokenProjectIdV1 } from "../config";
 
 import { Amount } from "./amount";
 
@@ -31,7 +31,7 @@ const staticMethodConstructionCases: readonly StaticMethodConstructionCase[] = [
 describe("Amount", () => {
   const defaultNonStablecoinTokenConfig: TokenConfig = {
     id: "test-token",
-    projectId: TokenProjectId.Swim,
+    projectId: TokenProjectIdV1.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: { address: "xxx", decimals: 8 },
     wrappedDetails: new Map([
@@ -40,7 +40,7 @@ describe("Amount", () => {
   };
   const defaultStablecoinTokenConfig: TokenConfig = {
     id: "test-stablecoin",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: { address: "xxx", decimals: 8 },
     wrappedDetails: new Map([

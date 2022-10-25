@@ -16,7 +16,6 @@ import {
 import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import {
   defaultIfError,
@@ -31,7 +30,7 @@ import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
-import { DISABLED_ECOSYSTEMS, ECOSYSTEMS } from "../config";
+import { DISABLED_ECOSYSTEMS, ECOSYSTEMS, getTokenProject } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -337,7 +336,7 @@ export const RemoveForm = ({
 
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
     lpToken.nativeEcosystemId,
-    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails?.keys() ?? [] : []),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
@@ -396,7 +395,7 @@ export const RemoveForm = ({
       );
       return {
         value: id,
-        text: `${TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].displayName} (${
+        text: `${getTokenProject(tokenConfig.projectId).displayName} (${
           ECOSYSTEMS[tokenConfig.nativeEcosystemId].displayName
         })`,
       };
@@ -642,7 +641,7 @@ export const RemoveForm = ({
     }
   };
 
-  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
+  const lpTokenProject = getTokenProject(lpToken.projectId);
   const maximumLpBurnLabel = poolSpec.isStakingPool
     ? t("remove_token_form.max_required_lp_tokens", {
         tokenSymbol: lpTokenProject.symbol,
@@ -814,7 +813,7 @@ export const RemoveForm = ({
                     prepend={
                       <EuiButtonEmpty size="xs">
                         <TokenIcon
-                          {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
+                          {...getTokenProject(tokenConfig.projectId)}
                         />
                       </EuiButtonEmpty>
                     }

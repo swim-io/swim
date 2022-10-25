@@ -13,7 +13,6 @@ import {
   EuiText,
 } from "@elastic/eui";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
@@ -21,13 +20,14 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
+import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
 import {
   DISABLED_ECOSYSTEMS,
   ECOSYSTEMS,
   ECOSYSTEM_IDS,
+  getTokenProject,
   isEcosystemEnabled,
 } from "../config";
-import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -86,7 +86,7 @@ const TokenAddPanel = ({
   onBlur,
 }: TokenAddPanelProps): ReactElement => {
   const { t } = useTranslation();
-  const tokenProject = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId];
+  const tokenProject = getTokenProject(tokenConfig.projectId);
   const balance = useUserBalanceAmount(tokenConfig, ecosystemId);
   return (
     <EuiFormRow
@@ -283,7 +283,7 @@ export const AddForm = ({
 
   const lpTargetEcosystemOptions: readonly EuiRadioGroupOption[] = [
     lpToken.nativeEcosystemId,
-    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails?.keys() ?? [] : []),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     return {
@@ -499,7 +499,7 @@ export const AddForm = ({
     }
   };
 
-  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
+  const lpTokenProject = getTokenProject(lpToken.projectId);
   const receiveLabel = poolSpec.isStakingPool
     ? t("add_token_form.choose_receive_tokens_on", {
         tokenSymbol: lpTokenProject.symbol,

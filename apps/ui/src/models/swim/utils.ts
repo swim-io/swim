@@ -2,13 +2,12 @@ import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { filterMap, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { EcosystemId, PoolSpec, TokenConfig } from "../../config";
-import { getTokenDetailsForEcosystem } from "../../config";
+import { getTokenDetailsForEcosystem, getTokenProject } from "../../config";
 import { Amount } from "../amount";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
@@ -188,7 +187,7 @@ export const getPoolUsdValue = (
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
   tokens.every(
-    (tokenConfig) => TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin,
+    (tokenConfig) => getTokenProject(tokenConfig.projectId).isStablecoin,
   )
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenConfig = tokens.find(

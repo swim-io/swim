@@ -1,4 +1,4 @@
-import type { GasToken, TokenDetails } from "@swim-io/core";
+import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -9,9 +9,6 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
-
-const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
-const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const polygonChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 137,
@@ -39,15 +36,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
         address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         decimals: 6,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
-            decimals: 6,
-          },
-        ],
-      ]),
     },
     {
       id: "mainnet-polygon-usdt",
@@ -56,15 +44,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
         address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
         decimals: 6,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "5goWRao6a3yNC4d6UjMdQxonkCMvKBwdpubU3qhfcdf1",
-            decimals: 6,
-          },
-        ],
-      ]),
     },
   ],
   pools: [],
@@ -91,15 +70,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
         address: "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1",
         decimals: 6,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "D5YvMW5U3HUpD1EstYbKmmZsLdmCPgUj44JqBmNY7fUM",
-            decimals: 6,
-          },
-        ],
-      ]),
     },
     {
       id: "testnet-polygon-usdt",
@@ -108,15 +78,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
         address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
         decimals: 6,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "2otzQWyoydNp4Ws1kV8J8WVYiun6wmuFMMbicgdoEULn",
-            decimals: 6,
-          },
-        ],
-      ]),
     },
     {
       id: "testnet-polygon-lp-usdc-usdt",
@@ -125,7 +86,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
         decimals: 8,
       },
-      wrappedDetails: EMPTY_MAP,
     },
   ],
   pools: [],

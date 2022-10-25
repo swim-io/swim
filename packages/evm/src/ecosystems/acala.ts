@@ -1,4 +1,4 @@
-import type { GasToken, TokenDetails } from "@swim-io/core";
+import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -9,9 +9,6 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
-
-const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
-const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const acalaChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 787,
@@ -39,15 +36,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Acala> = {
         address: "0x0000000000000000000000000000000000000000", // TODO: Update
         decimals: 6, // TODO: Update
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "11111111111111111111111111111112", // TODO: Update
-            decimals: 6, // TODO: Update
-          },
-        ],
-      ]),
     },
   ],
   pools: [],
@@ -74,15 +62,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
         address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
         decimals: 12,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "BbdPh2Nvpp7XftBHWENJu5dpC5gF5FtCSyFLTU4qNr7g",
-            decimals: 8,
-          },
-        ],
-      ]),
     },
     {
       id: "testnet-acala-lp-ausd",
@@ -91,7 +70,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
         decimals: 8,
       },
-      wrappedDetails: EMPTY_MAP,
     },
   ],
   pools: [],

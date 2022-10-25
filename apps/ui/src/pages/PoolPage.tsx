@@ -15,7 +15,6 @@ import {
   EuiToolTip,
 } from "@elastic/eui";
 import { EvmEcosystemId } from "@swim-io/evm";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -35,7 +34,11 @@ import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
 import { TokenConfigIcon, TokenIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
-import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
+import {
+  getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
+  getTokenProject,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -174,13 +177,13 @@ export const PoolPageInner = ({
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const userLpStats = [
     lpToken.nativeEcosystemId,
-    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails?.keys() ?? [] : []),
   ].map((ecosystemId) => {
     const userLpBalance = userLpBalances[ecosystemId];
     return {
       title: (
         <TokenIcon
-          {...TOKEN_PROJECTS_BY_ID[lpToken.projectId]}
+          {...getTokenProject(lpToken.projectId)}
           ecosystemId={ecosystemId}
         />
       ),

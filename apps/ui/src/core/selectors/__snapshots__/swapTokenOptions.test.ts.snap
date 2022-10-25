@@ -11,7 +11,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "solana",
-      "projectId": "usdc",
+      "projectId": "usdc-v1",
       "wrappedDetails": Map {},
     },
   },
@@ -24,7 +24,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "solana",
-      "projectId": "usdt",
+      "projectId": "usdt-v1",
       "wrappedDetails": Map {},
     },
   },
@@ -37,7 +37,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "ethereum",
-      "projectId": "usdc",
+      "projectId": "usdc-v1",
       "wrappedDetails": Map {
         "solana" => Object {
           "address": "7Lf95y8NuCU5RRC95oUtbBtckPAtbr9ubTgrCiyZ1kEf",
@@ -55,7 +55,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "ethereum",
-      "projectId": "usdt",
+      "projectId": "usdt-v1",
       "wrappedDetails": Map {
         "solana" => Object {
           "address": "8Cfyi1mYXqKATUkMPvb9BMXikdbppJst6E7eQJkKjAtf",
@@ -73,7 +73,7 @@ Array [
         "decimals": 18,
       },
       "nativeEcosystemId": "bnb",
-      "projectId": "busd",
+      "projectId": "busd-v1",
       "wrappedDetails": Map {
         "solana" => Object {
           "address": "6KTvgrkLoPJdB3Grv4ZBUGt6JiLdVnKzJNo4HvLEgm6d",
@@ -91,7 +91,7 @@ Array [
         "decimals": 18,
       },
       "nativeEcosystemId": "bnb",
-      "projectId": "usdt",
+      "projectId": "usdt-v1",
       "wrappedDetails": Map {
         "solana" => Object {
           "address": "4dr6ogcLsaFf2RDF4LJU1CvNtNKxonVqQvM6vuGdVR1e",
@@ -110,7 +110,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "solana",
-      "projectId": "swim-lp-solana-usdc-usdt",
+      "projectId": "swim-usd",
       "wrappedDetails": Map {
         "acala" => Object {
           "address": "0x1111111111111111111111111111111111111111",
@@ -157,7 +157,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "solana",
-      "projectId": "swim-lp-solana-usdc-usdt",
+      "projectId": "swim-usd",
       "wrappedDetails": Map {
         "acala" => Object {
           "address": "0x1111111111111111111111111111111111111111",
@@ -204,7 +204,7 @@ Array [
         "decimals": 6,
       },
       "nativeEcosystemId": "solana",
-      "projectId": "swim-lp-solana-usdc-usdt",
+      "projectId": "swim-usd",
       "wrappedDetails": Map {
         "acala" => Object {
           "address": "0x1111111111111111111111111111111111111111",

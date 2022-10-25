@@ -27,16 +27,24 @@ export const deduplicate = <Key, Value>(
   ).values(),
 ];
 
-export const findOrThrow = <T>(
+export function findOrThrow<T, S extends T>(
+  searchables: readonly T[],
+  condition: (element: T, index: number, array: readonly T[]) => element is S,
+): S;
+export function findOrThrow<T>(
   searchables: readonly T[],
   condition: (element: T, index: number, array: readonly T[]) => boolean,
-): T => {
+): T;
+export function findOrThrow<T>(
+  searchables: readonly T[],
+  condition: (element: T, index: number, array: readonly T[]) => boolean,
+): T {
   const result = searchables.find(condition);
   if (result === undefined) {
     throw new Error("Not found");
   }
   return result;
-};
+}
 
 export const chunks = <T>(
   array: readonly T[],

@@ -17,7 +17,8 @@ export interface WrappedTokenInfo {
 export interface InitiatePortalTransferParams<Wallet> {
   readonly wallet: Wallet;
   readonly interactionId: string;
-  readonly tokenProjectId: TokenProjectId;
+  /** @todo to be removed: legacy v1 token project id */
+  readonly tokenProjectId: TokenProjectId | `${string}-v1`;
   /** Standardized Wormhole format, ie 32 bytes */
   readonly targetAddress: Uint8Array;
   readonly targetChainId: ChainId;

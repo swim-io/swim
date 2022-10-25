@@ -1,9 +1,9 @@
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TokenProjectId } from "@swim-io/token-projects";
 import Decimal from "decimal.js";
 
 import type { TokenConfig } from "../../config";
+import { TokenProjectIdV1 } from "../../config";
 
 import {
   atomicStringToHumanDecimal,
@@ -12,7 +12,7 @@ import {
 
 const defaultStablecoinTokenConfig: TokenConfig = {
   id: "test-stablecoin",
-  projectId: TokenProjectId.Usdc,
+  projectId: TokenProjectIdV1.Usdc,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
   nativeDetails: { address: "xxx", decimals: 8 },
   wrappedDetails: new Map([

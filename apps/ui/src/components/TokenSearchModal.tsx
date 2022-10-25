@@ -9,14 +9,18 @@ import {
   EuiSelectable,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { useCallback } from "react";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenConfig } from "../config";
-import { ECOSYSTEM_LIST, isEcosystemEnabled, isSwimUsd } from "../config";
+import {
+  ECOSYSTEM_LIST,
+  getTokenProject,
+  isEcosystemEnabled,
+  isSwimUsd,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useUserBalanceAmount } from "../hooks";
@@ -88,7 +92,7 @@ export const TokenSearchModal = ({
   );
 
   const options = filteredTokens.map((token) => {
-    const tokenProject = TOKEN_PROJECTS_BY_ID[token.projectId];
+    const tokenProject = getTokenProject(token.projectId);
     return {
       label: `${tokenProject.symbol}`,
       searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName}`,

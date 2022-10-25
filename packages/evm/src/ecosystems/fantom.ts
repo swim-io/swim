@@ -1,4 +1,4 @@
-import type { GasToken, TokenDetails } from "@swim-io/core";
+import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -9,9 +9,6 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
-
-const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
-const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const fantomChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 250,
@@ -39,15 +36,6 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
         address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
         decimals: 6,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "Dnr8fDaswHtYMSKbtR9e8D5EadyxqyJwE98xp17ZxE2E",
-            decimals: 6,
-          },
-        ],
-      ]),
     },
   ],
   pools: [],
@@ -74,15 +62,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
         address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
         decimals: 6,
       },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "9uJH6SjzmoqdiZXjcwYKuRevbYh5tR449FU5pg4rpden",
-            decimals: 6,
-          },
-        ],
-      ]),
     },
     {
       id: "testnet-fantom-lp-usdc",
@@ -91,7 +70,6 @@ const testnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
         decimals: 8,
       },
-      wrappedDetails: EMPTY_MAP,
     },
   ],
   pools: [],

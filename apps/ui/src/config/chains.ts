@@ -2,8 +2,14 @@ import type { AptosChainConfig } from "@swim-io/aptos";
 import { APTOS_ECOSYSTEM_ID, aptos } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import type { EvmChainConfig } from "@swim-io/evm";
+import { EvmEcosystemId } from "@swim-io/evm";
+import type { SolanaChainConfig } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
+
+import type { EcosystemId } from "./ecosystem";
+import { Protocol } from "./ecosystem";
 import {
-  EvmEcosystemId,
   acala,
   aurora,
   avalanche,
@@ -12,13 +18,8 @@ import {
   fantom,
   karura,
   polygon,
-} from "@swim-io/evm";
-import type { SolanaChainConfig } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID, solana } from "@swim-io/solana";
-import type { ReadonlyRecord } from "@swim-io/utils";
-
-import type { EcosystemId } from "./ecosystem";
-import { Protocol } from "./ecosystem";
+  solana,
+} from "./ecosystems";
 
 export const enum EvmChainId {
   EthereumMainnet = 1,

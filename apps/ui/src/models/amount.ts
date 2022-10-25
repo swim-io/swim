@@ -1,10 +1,9 @@
 import type { TokenDetails } from "@swim-io/core";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { EcosystemId, TokenConfig } from "../config";
-import { getTokenDetailsForEcosystem } from "../config";
+import { getTokenDetailsForEcosystem, getTokenProject } from "../config";
 import { fallbackLanguageIfNotSupported, i18next } from "../i18n";
 
 export class Amount {
@@ -114,7 +113,7 @@ export class Amount {
       i18next.resolvedLanguage,
     );
     const numberFormatter = new Intl.NumberFormat(language, {
-      ...(TOKEN_PROJECTS_BY_ID[this.tokenConfig.projectId].isStablecoin
+      ...(getTokenProject(this.tokenConfig.projectId).isStablecoin
         ? {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,

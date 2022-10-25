@@ -25,7 +25,7 @@ const EMPTY_MAP: TokenConfig["wrappedDetails"] = new Map();
 export const DEVNET_SWIMUSD: TokenConfig = {
   isDisabled: !isPoolRestructureEnabled(),
   id: "devnet-swimusd",
-  projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
+  projectId: TokenProjectId.SwimUsd,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
   nativeDetails: {
     address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr", // TODO: Update

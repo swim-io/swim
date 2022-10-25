@@ -354,7 +354,8 @@ Object {
 exports[`useCreateInteractionStateV2 should create state for Swap from ETHEREUM USDC to SOLANA USDC 1`] = `
 Object {
   "approvalTxIds": Array [],
-  "claimTokenOnSolanaTxId": null,
+  "auxiliarySignerPublicKey": null,
+  "completeNativeWithPayloadTxId": null,
   "crossChainInitiateTxId": null,
   "interaction": Object {
     "connectedWallets": Object {
@@ -415,7 +416,8 @@ Object {
     "type": 5,
   },
   "interactionType": 5,
-  "postVaaOnSolanaTxIds": Array [],
+  "postVaaOnSolanaTxId": null,
+  "processSwimPayloadTxId": null,
   "requiredSplTokenAccounts": Object {
     "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C": Object {
       "isExistingAccount": false,
@@ -430,9 +432,8 @@ Object {
       "txId": null,
     },
   },
-  "signatureSetAddress": null,
-  "swapFromSwimUsdTxId": null,
   "swapType": "CrossChainEvmToSolana",
+  "verifySignatureTxId": null,
   "version": 2,
 }
 `;

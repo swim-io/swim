@@ -750,7 +750,7 @@ contract Routing is
     UniswapOracleParams memory uniswap = propellerFeeConfig.uniswap;
 
     //price are given in LP/i-token
-    Decimal[] memory marginalPrices = IPool(uniswap.swimPool).getMarginalPrices();
+    Decimal[] memory marginalPrices = uniswap.swimPool.getMarginalPrices();
     Decimal memory swimUsdPrice = marginalPrices[SWIM_USD_TOKEN_INDEX];
     Decimal memory intermediatePrice = marginalPrices[uniswap.swimIntermediateIndex];
     //marginalPrice[SWIM_USD_TOKEN_INDEX] is guaranteed to use at most 176 bits
@@ -822,6 +822,10 @@ contract Routing is
         block.chainid == BNB_MAINNET_CHAINID || block.chainid == BNB_TESTNET_CHAINID
         ? BNB_GAS_PRICE
         : block.basefee + PROPELLER_GAS_TIP;
+
+      //gas is not an intended source of profit for engines
+      if (remuneratedGasPrice > tx.gasprice)
+        remuneratedGasPrice = tx.gasprice;
 
       consumedGas += GAS_COST_BASE;
       if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)

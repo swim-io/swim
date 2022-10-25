@@ -9,7 +9,7 @@ import {
 } from "aptos";
 import Decimal from "decimal.js";
 
-import { DAO_FEE_DECIMALS, FEE_DECIMALS, getBalances } from "./liquidswap";
+import { DAO_FEE_DECIMALS, FEE_DECIMALS, getPoolBalances } from "./liquidswap";
 import type { PoolResource } from "./liquidswap";
 import type {
   AptosChainConfig,
@@ -166,7 +166,7 @@ export class AptosClient extends Client<
       lpTokenSupplyResponse as CoinInfoResource,
     );
     const pool = poolResponse as PoolResource;
-    const balances = getBalances(pool, [tokenX, tokenY]);
+    const balances = getPoolBalances(pool, [tokenX, tokenY]);
 
     return {
       isPaused: false, // TODO ? https://exsphere.slack.com/archives/C03SQTXMFT9/p1666390318707959?thread_ts=1666352227.333479&cid=C03SQTXMFT9

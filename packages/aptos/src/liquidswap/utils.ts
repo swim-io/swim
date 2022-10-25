@@ -5,7 +5,7 @@ import { Decimal } from "decimal.js";
 
 import type { PoolResource } from "./types";
 
-export const getBalances = (
+export const getPoolBalances = (
   pool: PoolResource,
   tokens: readonly [TokenDetails, TokenDetails],
 ): PoolState["balances"] => {

@@ -3,7 +3,6 @@ import type {
   EcosystemConfig,
   Env,
   PoolConfig,
-  PoolState,
   Tx,
 } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";

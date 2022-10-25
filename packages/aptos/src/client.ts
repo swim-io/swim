@@ -1,8 +1,6 @@
-import { isSortedSymbols } from "@pontem/liquidswap-sdk/dist/tsc/utils/contracts.js";
 import type { PoolState, TokenDetails, TxGeneratorResult } from "@swim-io/core";
 import { Client } from "@swim-io/core";
 import { atomicToHuman, findOrThrow } from "@swim-io/utils";
-import type { Types } from "aptos";
 import {
   APTOS_COIN,
   ApiError,
@@ -11,8 +9,8 @@ import {
 } from "aptos";
 import Decimal from "decimal.js";
 
+import { DAO_FEE_DECIMALS, FEE_DECIMALS, getBalances } from "./liquidswap";
 import type { PoolResource } from "./liquidswap";
-import { DAO_FEE_DECIMALS, FEE_DECIMALS } from "./liquidswap";
 import type {
   AptosChainConfig,
   AptosEcosystemId,
@@ -20,41 +18,12 @@ import type {
   AptosTxType,
 } from "./protocol";
 import { APTOS_ECOSYSTEM_ID } from "./protocol";
+import type { CoinInfoResource, CoinResource, GasScheduleV2 } from "./types";
+import { getCoinInfoSupply, getCoinInfoType, getCoinStoreType } from "./utils";
 import type { AptosWalletAdapter } from "./walletAdapters";
-
-interface GasScheduleV2 {
-  readonly entries: readonly {
-    readonly key: string;
-    readonly value: string;
-  }[];
-}
-interface CoinInfoResource {
-  readonly decimals: number;
-  readonly name: string;
-  readonly supply: {
-    readonly vec: readonly [
-      {
-        readonly integer: {
-          readonly vec: readonly [
-            {
-              readonly limit: string;
-              readonly value: string;
-            },
-          ];
-        };
-      },
-    ];
-  };
-  readonly symbol: string;
-}
 
 export interface AptosClientOptions {
   readonly endpoint: string;
-}
-
-interface CoinResource {
-  readonly data: { readonly coin: { readonly value: string } };
-  readonly type: Types.MoveStructTag;
 }
 
 export class AptosClient extends Client<
@@ -185,7 +154,7 @@ export class AptosClient extends Client<
       },
     );
 
-    const [lpTokenSupplyResponse, poolBalancesResponse] = await Promise.all([
+    const [lpTokenSupplyResponse, poolResponse] = await Promise.all([
       this.sdkClient.getAccountResource(
         owner,
         getCoinInfoType(lpToken.nativeDetails.address),
@@ -194,44 +163,21 @@ export class AptosClient extends Client<
     ]);
 
     const totalLpSupply = getCoinInfoSupply(
-      lpTokenSupplyResponse.data as CoinInfoResource,
+      lpTokenSupplyResponse as CoinInfoResource,
     );
-    const pool = poolBalancesResponse.data as PoolResource;
+    const pool = poolResponse as PoolResource;
     const balances = getBalances(pool, [tokenX, tokenY]);
 
     return {
       isPaused: false, // TODO ? https://exsphere.slack.com/archives/C03SQTXMFT9/p1666390318707959?thread_ts=1666352227.333479&cid=C03SQTXMFT9
       ampFactor: new Decimal("1"), // no ampFactor for liquidswap pool ?
-      lpFee: atomicToHuman(new Decimal(pool.fee), FEE_DECIMALS),
-      governanceFee: atomicToHuman(new Decimal(pool.dao_fee), DAO_FEE_DECIMALS),
+      lpFee: atomicToHuman(new Decimal(pool.data.fee), FEE_DECIMALS),
+      governanceFee: atomicToHuman(
+        new Decimal(pool.data.dao_fee),
+        DAO_FEE_DECIMALS,
+      ),
       balances,
       totalLpSupply,
     };
   }
 }
-
-const getCoinStoreType = (address: string) =>
-  `0x1::coin::CoinStore<${address}>`;
-const getCoinInfoType = (address: string) => `0x1::coin::CoinInfo<${address}>`;
-
-const getCoinInfoSupply = (coinInfo: CoinInfoResource): Decimal => {
-  return atomicToHuman(
-    new Decimal(coinInfo.supply.vec[0].integer.vec[0].value),
-    coinInfo.decimals,
-  );
-};
-
-const getBalances = (
-  pool: PoolResource,
-  tokens: readonly [TokenDetails, TokenDetails],
-): PoolState["balances"] => {
-  const reserves = [pool.coin_x_reserve.value, pool.coin_y_reserve.value];
-  const atomicBalances = isSortedSymbols(tokens[0].address, tokens[1].address)
-    ? reserves
-    : [...reserves].reverse();
-
-  return [
-    atomicToHuman(new Decimal(atomicBalances[0]), tokens[0].decimals),
-    atomicToHuman(new Decimal(atomicBalances[1]), tokens[1].decimals),
-  ];
-};

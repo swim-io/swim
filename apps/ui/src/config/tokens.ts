@@ -451,7 +451,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "mainnet-aurora-usdt",
+    id: "mainnet-aurora-usdte",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
@@ -1206,8 +1206,8 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "testnet-aurora-usdt",
-    projectId: TokenProjectId.Usdt,
+    id: "testnet-aurora-usdte",
+    projectId: TokenProjectId.Usdte,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",

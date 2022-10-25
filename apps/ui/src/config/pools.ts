@@ -235,13 +235,13 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-meta-aurora-usdt",
     tokenAccounts: new Map([
-      ["mainnet-aurora-usdt", "6VtNuUZR1CxBunrQBoNtjC2ZZWqhpmkWwdY8zhbFBcie"],
+      ["mainnet-aurora-usdte", "6VtNuUZR1CxBunrQBoNtjC2ZZWqhpmkWwdY8zhbFBcie"],
       [
         "mainnet-solana-lp-hexapool",
         "CpMPTJ72mqeVRK6569sGqkWCV5B6dSZpTCD7BAKW2QPo",
       ],
     ]),
-    tokens: ["mainnet-aurora-usdt", "mainnet-solana-lp-hexapool"],
+    tokens: ["mainnet-aurora-usdte", "mainnet-solana-lp-hexapool"],
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
@@ -466,7 +466,7 @@ export const TESTNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "testnet-aurora-lp-usdc-usdt",
-    tokens: ["testnet-swimusd", "testnet-aurora-usdc", "testnet-aurora-usdt"],
+    tokens: ["testnet-swimusd", "testnet-aurora-usdc", "testnet-aurora-usdte"],
   },
   {
     isDisabled: true,
@@ -728,13 +728,13 @@ export const TESTNET_POOLS: readonly PoolSpec[] = [
     feeDecimals: 6,
     lpToken: "testnet-solana-lp-meta-aurora-usdt",
     tokenAccounts: new Map([
-      ["testnet-aurora-usdt", "DpBhN9UoHh4RGGHcoGBfqeqKndstiTXup6pwhcBxXFFA"],
+      ["testnet-aurora-usdte", "DpBhN9UoHh4RGGHcoGBfqeqKndstiTXup6pwhcBxXFFA"],
       [
         "testnet-solana-lp-hexapool",
         "Gmd1KvrLonD6pzeMz2U1nTJVgG4yv9LySpYQZVLV8eBm",
       ],
     ]),
-    tokens: ["testnet-aurora-usdt", "testnet-solana-lp-hexapool"],
+    tokens: ["testnet-aurora-usdte", "testnet-solana-lp-hexapool"],
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN, // TODO: Enable when deployed on testnet

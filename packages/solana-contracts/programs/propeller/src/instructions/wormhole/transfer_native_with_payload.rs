@@ -1,14 +1,11 @@
 use {
     crate::{
-        constants::CURRENT_SWIM_PAYLOAD_VERSION, error::*, target_chain_map::TargetChainMap, wormhole::SwimPayload, Propeller, TokenBridge, Wormhole, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        constants::CURRENT_SWIM_PAYLOAD_VERSION, error::*, target_chain_map::TargetChainMap, wormhole::SwimPayload,
+        Propeller, TokenBridge, Wormhole, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
-        solana_program::{
-            instruction::Instruction,
-            program::{invoke_signed},
-            sysvar::SysvarId,
-        },
+        solana_program::{instruction::Instruction, program::invoke_signed, sysvar::SysvarId},
     },
     anchor_spl::{
         associated_token::get_associated_token_address,
@@ -192,7 +189,7 @@ pub struct TransferNativeWithPayload<'info> {
 }
 
 impl<'info> TransferNativeWithPayload<'info> {
-    //Note: some of the checks are excessive (checked in CPI etc) and add.rs to compute budget but since we now have access to requesting
+    //Note: some of the checks are excessive (checked in CPI etc) and add to compute budget but since we now have access to requesting
     //  up to 1.4M compute budget per transaction, better safe than sorry to perform them.
     pub fn accounts(ctx: &Context<TransferNativeWithPayload>) -> Result<()> {
         require_keys_eq!(

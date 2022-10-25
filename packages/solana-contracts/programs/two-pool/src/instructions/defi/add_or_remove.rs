@@ -6,7 +6,7 @@ use {
         error::*,
         gen_pool_signer_seeds, get_current_ts,
         invariant::Invariant,
-        AddParams, TwoPool, TOKEN_COUNT,
+        TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
@@ -43,6 +43,11 @@ impl<'info> AddOrRemove<'info> {
     }
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct AddParams {
+    pub input_amounts: [u64; TOKEN_COUNT],
+    pub minimum_mint_amount: u64,
+}
 pub fn handle_add(
     ctx: Context<AddOrRemove>,
     params: AddParams,

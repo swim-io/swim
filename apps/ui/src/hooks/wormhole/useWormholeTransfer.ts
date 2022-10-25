@@ -34,9 +34,8 @@ export const useWormholeTransfer = () => {
       if (isEVMChain(targetChainId)) {
         return await transferEvmToEvm(transfer);
       }
-      throw new Error(
-        `Transfer from ${sourceChainId} to ${targetChainId} not supported`,
-      );
+
+      throw new Error(`Transfer from ${sourceChainId} to unsupported chain.`);
     }
   });
 };

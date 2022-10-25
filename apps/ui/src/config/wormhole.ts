@@ -1,4 +1,4 @@
-import type { ChainId, EVMChainId } from "@certusone/wormhole-sdk";
+import type { EVMChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_ACALA,
   CHAIN_ID_ARBITRUM,
@@ -73,8 +73,11 @@ export interface WormholeEcosystem {
   readonly nativeTokenSymbol: string;
 }
 
-export const WORMHOLE_ECOSYSTEMS: Partial<
-  ReadonlyRecord<ChainId, WormholeEcosystem>
+export type SupportedChainId = EVMChainId | typeof CHAIN_ID_SOLANA;
+
+export const WORMHOLE_ECOSYSTEMS: ReadonlyRecord<
+  SupportedChainId,
+  WormholeEcosystem
 > = {
   [CHAIN_ID_SOLANA]: {
     displayName: "Solana",
@@ -160,5 +163,10 @@ export const WORMHOLE_ECOSYSTEMS: Partial<
     displayName: "Neon",
     logo: null,
     nativeTokenSymbol: "NEON",
+  },
+  [CHAIN_ID_ETHEREUM_ROPSTEN]: {
+    displayName: "Ropsten",
+    logo: ETHEREUM_SVG,
+    nativeTokenSymbol: "ETH",
   },
 };

@@ -1,19 +1,19 @@
-import type { ChainId } from "@certusone/wormhole-sdk";
 import type { WrappedTokenInfo } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
+import type { SupportedChainId } from "../../config";
 import { ECOSYSTEM_LIST } from "../../config";
 
 import { formatWormholeAddress } from "./formatWormholeAddress";
 
 export interface TxResult {
-  readonly chainId: ChainId;
+  readonly chainId: SupportedChainId;
   readonly txId: string;
 }
 
 export interface WormholeTokenDetails {
-  readonly chainId: ChainId;
+  readonly chainId: SupportedChainId;
   readonly address: string;
   readonly decimals: number;
 }
@@ -37,7 +37,7 @@ export interface WormholeTransfer {
 }
 
 export const getWrappedTokenInfoFromNativeDetails = (
-  sourceChainId: ChainId,
+  sourceChainId: SupportedChainId,
   nativeDetails: WormholeTokenDetails,
 ): WrappedTokenInfo | undefined => {
   if (sourceChainId === nativeDetails.chainId) {

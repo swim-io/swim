@@ -7,7 +7,6 @@ import GST_SVG from "./images/gst";
 import LP_ACALA_AUSD_SVG from "./images/lp_acala_ausd";
 import LP_AURORA_USDC_SVG from "./images/lp_aurora_usdc";
 import LP_AURORA_USDT_SVG from "./images/lp_aurora_usdt";
-import LP_AURORA_USN_SVG from "./images/lp_aurora_usn";
 import LP_AVALANCHE_USDC_SVG from "./images/lp_avalanche_usdc";
 import LP_AVALANCHE_USDT_SVG from "./images/lp_avalanche_usdt";
 import LP_FANTOM_USDC_SVG from "./images/lp_fantom_usdc";
@@ -21,7 +20,6 @@ import SWIM_TOKEN_SVG from "./images/swim";
 import SWIM_USD_SVG from "./images/swim_usd";
 import USDC_SVG from "./images/usdc";
 import USDT_SVG from "./images/usdt";
-import USN_SVG from "./images/usn";
 import XSWIM_TOKEN_SVG from "./images/xswim";
 
 export enum TokenProjectId {
@@ -33,7 +31,6 @@ export enum TokenProjectId {
   SwimAcalaAusdLp = "swim-acala-ausd-lp",
   SwimAuroraUsdcLp = "swim-aurora-usdc-lp",
   SwimAuroraUsdtLp = "swim-aurora-usdt-lp",
-  SwimAuroraUsnLp = "swim-aurora-usn-lp",
   SwimAvalancheUsdcLp = "swim-avalanche-usdc-lp",
   SwimAvalancheUsdtLp = "swim-avalanche-usdt-lp",
   SwimFantomUsdcLp = "swim-fantom-usdc-lp",
@@ -46,7 +43,6 @@ export enum TokenProjectId {
   SwimUsd = "swim-usd",
   Usdc = "usdc",
   Usdt = "usdt",
-  Usn = "usn",
   XSwim = "xswim",
   // V2
   SwimLpSolanaUsdcUsdt = "swim-lp-solana-usdc-usdt",
@@ -55,7 +51,6 @@ export enum TokenProjectId {
   SwimLpAvalancheUsdcUsdt = "swim-lp-avalanche-usdc-usdt",
   SwimLpPolygonUsdcUsdt = "swim-lp-polygon-usdc-usdt",
   SwimLpAuroraUsdcUsdt = "swim-lp-aurora-usdc-usdt",
-  SwimLpAuroraUsn = "swim-lp-aurora-usn",
   SwimLpFantomUsdc = "swim-lp-fantom-usdc",
   SwimLpKaruraUsdt = "swim-lp-karura-usdt",
   SwimLpKaruraAusd = "swim-lp-karura-ausd",
@@ -100,15 +95,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     isLp: false,
     tokenNumber: 0x0101,
   },
-  [TokenProjectId.Usn]: {
-    id: TokenProjectId.Usn,
-    symbol: "USN",
-    displayName: "USN",
-    icon: USN_SVG,
-    isStablecoin: true,
-    isLp: false,
-    tokenNumber: 0x0102,
-  },
+  // TODO: tokenNumber 0x0102 was previously 0x0102, what happens to removed tokens?
   [TokenProjectId.Busd]: {
     id: TokenProjectId.Busd,
     symbol: "BUSD",
@@ -244,15 +231,6 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     isLp: true,
     tokenNumber: null,
   },
-  [TokenProjectId.SwimAuroraUsnLp]: {
-    id: TokenProjectId.SwimAuroraUsnLp,
-    symbol: "SWIM-AURORA-USN-LP",
-    displayName: "Aurora USN LP",
-    icon: LP_AURORA_USN_SVG,
-    isStablecoin: false,
-    isLp: true,
-    tokenNumber: null,
-  },
   [TokenProjectId.SwimFantomUsdcLp]: {
     id: TokenProjectId.SwimFantomUsdcLp,
     symbol: "SWIM-FANTOM-USDC-LP",
@@ -340,15 +318,6 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     id: TokenProjectId.SwimLpAuroraUsdcUsdt,
     symbol: "SWIM-LP-AURORA-USDC-USDT",
     displayName: "Aurora USDC/USDT Pool LP",
-    icon: SWIM_USD_SVG, // TODO: update
-    isStablecoin: false,
-    isLp: true,
-    tokenNumber: null,
-  },
-  [TokenProjectId.SwimLpAuroraUsn]: {
-    id: TokenProjectId.SwimLpAuroraUsn,
-    symbol: "SWIM-LP-AURORA-USN",
-    displayName: "Aurora USN Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,

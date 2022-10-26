@@ -11,6 +11,7 @@ import { useEnvironment } from "../core/store";
 const SOLANA_MAINNET_RPC_URLS = process.env.SOLANA_MAINNET_RPC_URLS;
 
 export const getSolanaEndpoints = (env: Env): readonly string[] | undefined => {
+  console.log(SOLANA_MAINNET_RPC_URLS);
   if (env === Env.Mainnet && SOLANA_MAINNET_RPC_URLS) {
     try {
       return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
@@ -18,6 +19,7 @@ export const getSolanaEndpoints = (env: Env): readonly string[] | undefined => {
       // Invalid env variable, fallback to default case.
     }
   }
+  console.log("Didn't find any RPC's returning undefined.");
   return undefined;
 };
 

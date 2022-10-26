@@ -14,8 +14,6 @@ Set required environmental variables:
 
 ```sh
 SKIP_PREFLIGHT_CHECK=true
-REACT_APP_AVALANCHE_DEVNET_RPC_URL=<ask for latest value>
-REACT_APP_POLYGON_DEVNET_RPC_URL=<ask for latest value>
 ```
 
 Run `yarn start` to run the app in development mode.

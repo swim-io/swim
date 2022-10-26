@@ -11,7 +11,6 @@ import LP_KARURA_USDT_SVG from "./images/lp_karura_usdt";
 import SWIM_USD_SVG from "./images/swim_usd";
 import USDC_SVG from "./images/usdc";
 import USDT_SVG from "./images/usdt";
-import USN_SVG from "./images/usn";
 
 export enum TokenProjectId {
   Ausd = "ausd",
@@ -21,13 +20,11 @@ export enum TokenProjectId {
   SwimUsd = "swim-usd",
   Usdc = "usdc",
   Usdt = "usdt",
-  Usn = "usn",
   SwimLpEthereumUsdcUsdt = "swim-lp-ethereum-usdc-usdt",
   SwimLpBnbBusdUsdt = "swim-lp-bnb-busd-usdt",
   SwimLpAvalancheUsdcUsdt = "swim-lp-avalanche-usdc-usdt",
   SwimLpPolygonUsdcUsdt = "swim-lp-polygon-usdc-usdt",
   SwimLpAuroraUsdcUsdt = "swim-lp-aurora-usdc-usdt",
-  SwimLpAuroraUsn = "swim-lp-aurora-usn",
   SwimLpFantomUsdc = "swim-lp-fantom-usdc",
   SwimLpKaruraUsdt = "swim-lp-karura-usdt",
   SwimLpKaruraAusd = "swim-lp-karura-ausd",
@@ -82,15 +79,6 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     isStablecoin: true,
     isLp: false,
     tokenNumber: 0x0101,
-  },
-  [TokenProjectId.Usn]: {
-    id: TokenProjectId.Usn,
-    symbol: "USN",
-    displayName: "USN",
-    icon: USN_SVG,
-    isStablecoin: true,
-    isLp: false,
-    tokenNumber: 0x0102,
   },
   [TokenProjectId.Busd]: {
     id: TokenProjectId.Busd,
@@ -177,15 +165,6 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     id: TokenProjectId.SwimLpAuroraUsdcUsdt,
     symbol: "SWIM-LP-AURORA-USDC-USDT",
     displayName: "Aurora USDC/USDT Pool LP",
-    icon: SWIM_USD_SVG, // TODO: update
-    isStablecoin: false,
-    isLp: true,
-    tokenNumber: null,
-  },
-  [TokenProjectId.SwimLpAuroraUsn]: {
-    id: TokenProjectId.SwimLpAuroraUsn,
-    symbol: "SWIM-LP-AURORA-USN",
-    displayName: "Aurora USN Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,

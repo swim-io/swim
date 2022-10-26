@@ -15,7 +15,6 @@ import GST_SVG from "!!url-loader!../images/tokens/gst.svg";
 import LP_ACALA_AUSD_SVG from "!!url-loader!../images/tokens/lp_acala_ausd.svg";
 import LP_AURORA_USDC_SVG from "!!url-loader!../images/tokens/lp_aurora_usdc.svg";
 import LP_AURORA_USDT_SVG from "!!url-loader!../images/tokens/lp_aurora_usdt.svg";
-import LP_AURORA_USN_SVG from "!!url-loader!../images/tokens/lp_aurora_usn.svg";
 import LP_AVALANCHE_USDC_SVG from "!!url-loader!../images/tokens/lp_avalanche_usdc.svg";
 import LP_AVALANCHE_USDT_SVG from "!!url-loader!../images/tokens/lp_avalanche_usdt.svg";
 import LP_FANTOM_USDC_SVG from "!!url-loader!../images/tokens/lp_fantom_usdc.svg";
@@ -29,7 +28,6 @@ import SWIM_TOKEN_SVG from "!!url-loader!../images/tokens/swim.svg";
 import SWIM_USD_SVG from "!!url-loader!../images/tokens/swim_usd.svg";
 import USDC_SVG from "!!url-loader!../images/tokens/usdc.svg";
 import USDT_SVG from "!!url-loader!../images/tokens/usdt.svg";
-import USN_SVG from "!!url-loader!../images/tokens/usn.svg";
 import XSWIM_TOKEN_SVG from "!!url-loader!../images/tokens/xswim.svg";
 /* eslint-enable import/no-unresolved, import/no-webpack-loader-syntax */
 
@@ -42,7 +40,6 @@ export enum TokenProjectIdV1 {
   SwimAcalaAusdLp = "swim-acala-ausd-lp-v1",
   SwimAuroraUsdcLp = "swim-aurora-usdc-lp-v1",
   SwimAuroraUsdtLp = "swim-aurora-usdt-lp-v1",
-  SwimAuroraUsnLp = "swim-aurora-usn-lp-v1",
   SwimAvalancheUsdcLp = "swim-avalanche-usdc-lp-v1",
   SwimAvalancheUsdtLp = "swim-avalanche-usdt-lp-v1",
   SwimFantomUsdcLp = "swim-fantom-usdc-lp-v1",
@@ -55,7 +52,6 @@ export enum TokenProjectIdV1 {
   SwimUsdV1 = "swim-usd-v1",
   Usdc = "usdc-v1",
   Usdt = "usdt-v1",
-  Usn = "usn-v1",
   XSwim = "xswim-v1",
 }
 // Make sure no name collision with v2
@@ -86,14 +82,6 @@ export const TOKEN_PROJECTS_BY_ID_V1: ReadonlyRecord<
     symbol: "USDT",
     displayName: "Tether USD",
     icon: USDT_SVG,
-    isStablecoin: true,
-    isLp: false,
-  },
-  [TokenProjectIdV1.Usn]: {
-    id: TokenProjectIdV1.Usn,
-    symbol: "USN",
-    displayName: "USN",
-    icon: USN_SVG,
     isStablecoin: true,
     isLp: false,
   },
@@ -214,14 +202,6 @@ export const TOKEN_PROJECTS_BY_ID_V1: ReadonlyRecord<
     symbol: "SWIM-AURORA-USDT-LP",
     displayName: "Aurora USDT LP",
     icon: LP_AURORA_USDT_SVG,
-    isStablecoin: false,
-    isLp: true,
-  },
-  [TokenProjectIdV1.SwimAuroraUsnLp]: {
-    id: TokenProjectIdV1.SwimAuroraUsnLp,
-    symbol: "SWIM-AURORA-USN-LP",
-    displayName: "Aurora USN LP",
-    icon: LP_AURORA_USN_SVG,
     isStablecoin: false,
     isLp: true,
   },

@@ -180,15 +180,6 @@ const mainnet: SolanaChainConfigV1 = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      id: "mainnet-solana-lp-meta-aurora-usn",
-      projectId: TokenProjectIdV1.SwimAuroraUsnLp,
-      nativeDetails: {
-        address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
-        decimals: 8,
-      },
-      wrappedDetails: EMPTY_MAP,
-    },
-    {
       id: "mainnet-solana-lp-meta-fantom-usdc",
       projectId: TokenProjectIdV1.SwimFantomUsdcLp,
       nativeDetails: {
@@ -395,15 +386,6 @@ const testnet: SolanaChainConfigV1 = {
       projectId: TokenProjectIdV1.SwimAuroraUsdtLp,
       nativeDetails: {
         address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
-        decimals: 8,
-      },
-      wrappedDetails: EMPTY_MAP,
-    },
-    {
-      id: "testnet-solana-lp-meta-aurora-usn",
-      projectId: TokenProjectIdV1.SwimAuroraUsnLp,
-      nativeDetails: {
-        address: "11111111111111111111111111111111", // TODO: Update
         decimals: 8,
       },
       wrappedDetails: EMPTY_MAP,

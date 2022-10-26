@@ -46,23 +46,6 @@ const mainnet: EvmChainConfigV1<EvmEcosystemId.Aurora> = {
         ],
       ]),
     },
-    {
-      id: "mainnet-aurora-usn",
-      projectId: TokenProjectIdV1.Usn,
-      nativeDetails: {
-        address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
-        decimals: 18,
-      },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "3NDmtc2xKMpm8wCiaALey2y3EGhBkUNuXJ9m3JcjnHMM",
-            decimals: 8,
-          },
-        ],
-      ]),
-    },
   ],
   pools: [],
 };
@@ -105,33 +88,8 @@ const testnet: EvmChainConfigV1<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      id: "testnet-aurora-usn",
-      projectId: TokenProjectIdV1.Usn,
-      nativeDetails: {
-        address: "0x0000000000000000000000000000000000000000", // TODO: Update
-        decimals: 18,
-      },
-      wrappedDetails: new Map([
-        [
-          SOLANA_ECOSYSTEM_ID,
-          {
-            address: "11111111111111111111111111111111", // TODO: Update
-            decimals: 8,
-          },
-        ],
-      ]),
-    },
-    {
       id: "testnet-aurora-lp-usdc-usdt",
       projectId: TokenProjectIdV2.SwimLpAuroraUsdcUsdt,
-      nativeDetails: {
-        address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
-      },
-    },
-    {
-      id: "testnet-aurora-lp-usn",
-      projectId: TokenProjectIdV2.SwimLpAuroraUsn,
       nativeDetails: {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
         decimals: 8,

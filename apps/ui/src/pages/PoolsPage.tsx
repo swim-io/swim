@@ -165,39 +165,6 @@ const PoolsPage = (): ReactElement => {
         />
       )}
 
-      {(isUnfiltered || ecosystemId === EvmEcosystemId.Aurora) && (
-        <>
-          <EuiSpacer size={listSpacerSize} />
-
-          <PoolListItem
-            poolName="Aurora USN"
-            betaBadgeLabel={t("pools_page.coming_soon")}
-            tokenConfigs={[
-              {
-                id: "placeholder-aurora-native-usn",
-                projectId: TokenProjectIdV1.Usn,
-                nativeEcosystemId: EvmEcosystemId.Aurora,
-                nativeDetails: {
-                  address: "",
-                  decimals: 0,
-                },
-                wrappedDetails: new Map(),
-              },
-              {
-                id: "mainnet-solana-lp-hexapool",
-                projectId: TokenProjectIdV1.SwimUsdV1,
-                nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
-                nativeDetails: {
-                  address: "",
-                  decimals: 0,
-                },
-                wrappedDetails: new Map(),
-              },
-            ]}
-          />
-        </>
-      )}
-
       {!isEcosystemEnabled(EvmEcosystemId.Karura) &&
         (isUnfiltered || ecosystemId === EvmEcosystemId.Karura) && (
           <>

@@ -8,7 +8,7 @@ import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
-const SOLANA_MAINNET_RPC_URLS = process.env.SOLANA_MAINNET_RPC_URLS;
+const SOLANA_MAINNET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
 
 export const getSolanaEndpoints = (env: Env): readonly string[] | undefined => {
   if (env === Env.Mainnet && SOLANA_MAINNET_RPC_URLS) {

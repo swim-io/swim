@@ -12,10 +12,11 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -264,6 +265,11 @@ export const AddForm = ({
   );
 
   const estimatedLpOutput = useMemo(() => {
+    // TODO aptos pool math
+    if (poolSpec.ecosystem === APTOS_ECOSYSTEM_ID && !poolMath) {
+      return Amount.fromHuman(lpToken, new Decimal("1"));
+    }
+
     if (!poolMath || !isEachNotNull(inputAmounts)) {
       return null;
     }
@@ -466,7 +472,7 @@ export const AddForm = ({
       minimumMintAmount === null ||
       !inputAmounts.every(isNotNull) ||
       maxSlippageFraction === null ||
-      poolMath === null
+      (poolMath === null && !nativeEcosystems.includes(APTOS_ECOSYSTEM_ID)) // TODO aptos remove exclusion
     ) {
       notify(
         t("notify.unexpected_form_error_title"),

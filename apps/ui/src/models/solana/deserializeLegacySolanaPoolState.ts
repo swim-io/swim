@@ -6,7 +6,6 @@ import {
   struct,
   u128,
   u32,
-  u64,
   u8,
 } from "@project-serum/borsh";
 import type { Layout } from "@project-serum/borsh";

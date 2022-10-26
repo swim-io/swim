@@ -9,6 +9,7 @@ import type {
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
   InitiatePropellerParams,
+  PoolState,
   TokenDetails,
   TxGeneratorResult,
 } from "@swim-io/core";
@@ -346,6 +347,12 @@ export class EvmClient extends Client<
         type: EvmTxType.Erc20Approve,
       };
     }
+  }
+
+  public getPoolState(poolId: string): Promise<PoolState> {
+    throw new Error(
+      `getPoolState not implemented. Called with poolId: ${poolId}`,
+    );
   }
 
   private async getTxReceipt(

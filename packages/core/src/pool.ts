@@ -1,3 +1,5 @@
+import type { Decimal } from "decimal.js";
+
 /** Ecosystem-neutral configuration object for a Swim liquidity pool */
 export interface PoolConfig {
   readonly id: string;
@@ -11,4 +13,13 @@ export interface PoolConfig {
   readonly isStakingPool: boolean;
   readonly isLegacyPool?: boolean;
   readonly isDisabled?: boolean;
+}
+
+export interface PoolState {
+  readonly isPaused: boolean;
+  readonly ampFactor: Decimal;
+  readonly lpFee: Decimal;
+  readonly governanceFee: Decimal;
+  readonly balances: readonly Decimal[];
+  readonly totalLpSupply: Decimal;
 }

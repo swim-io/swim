@@ -5014,6 +5014,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pontem/liquidswap-sdk@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@pontem/liquidswap-sdk@npm:0.0.1"
+  dependencies:
+    aptos: ^1.2.0
+    axios: ^0.27.2
+    decimal.js: ^10.3.1
+  checksum: 559a9f6e965fd068b7e497df3057a4e808ecec7f9fad1c389679bfc0ec5e62edf92bae2ba9962ab2ffa23ae2cebd0c6d14628b3758b30ccf015684152fecfaf5
+  languageName: node
+  linkType: hard
+
 "@project-serum/anchor@npm:^0.22.1":
   version: 0.22.1
   resolution: "@project-serum/anchor@npm:0.22.1"
@@ -7160,6 +7171,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/aptos@workspace:packages/aptos"
   dependencies:
+    "@pontem/liquidswap-sdk": ^0.0.1
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/token-projects": "workspace:^"
@@ -7288,6 +7300,7 @@ __metadata:
     typescript: ~4.8.4
   peerDependencies:
     "@certusone/wormhole-sdk": ^0.6.2
+    decimal.js: ^10.3.1
   languageName: unknown
   linkType: soft
 
@@ -7959,14 +7972,14 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
     "@swim-io/aptos": "workspace:^"
-    "@swim-io/core": ^0.40.0
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.40.0
     "@swim-io/evm-contracts": ^0.40.0
     "@swim-io/pool-math": ^0.40.0
     "@swim-io/solana": ^0.40.0
     "@swim-io/solana-contracts": ^0.40.0
-    "@swim-io/token-projects": ^0.40.0
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.40.0
     "@swim-io/wormhole": ^0.40.0
@@ -10662,6 +10675,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aptos@npm:^1.2.0, aptos@npm:^1.3.16":
+  version: 1.3.16
+  resolution: "aptos@npm:1.3.16"
+  dependencies:
+    "@noble/hashes": 1.1.3
+    "@scure/bip39": 1.1.0
+    axios: 0.27.2
+    form-data: 4.0.0
+    tweetnacl: 1.0.3
+  checksum: 7c16e5f588ee81ec727102d71b62e779759c0e871b30a3ba8b22e8f2fcf5534fbd54e08e172a24252f1bd49e6fecd1a1b277517d518e24f593647f47d5597fa3
+  languageName: node
+  linkType: hard
+
 "aptos@npm:^1.3.13":
   version: 1.3.13
   resolution: "aptos@npm:1.3.13"
@@ -10673,19 +10699,6 @@ __metadata:
     js-sha3: 0.8.0
     tweetnacl: 1.0.3
   checksum: 128e63b57c4e49230472d47cd3f23fc8a0789b182c312c1188bb3fb75cedd09adf1c175ecfe442b2ba4a0ea48964434121311ef2fcbf4469587c794e15027f70
-  languageName: node
-  linkType: hard
-
-"aptos@npm:^1.3.16":
-  version: 1.3.16
-  resolution: "aptos@npm:1.3.16"
-  dependencies:
-    "@noble/hashes": 1.1.3
-    "@scure/bip39": 1.1.0
-    axios: 0.27.2
-    form-data: 4.0.0
-    tweetnacl: 1.0.3
-  checksum: 7c16e5f588ee81ec727102d71b62e779759c0e871b30a3ba8b22e8f2fcf5534fbd54e08e172a24252f1bd49e6fecd1a1b277517d518e24f593647f47d5597fa3
   languageName: node
   linkType: hard
 

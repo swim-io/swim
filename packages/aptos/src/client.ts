@@ -1,7 +1,6 @@
-import type { TokenDetails, TxGeneratorResult } from "@swim-io/core";
+import type { PoolState, TokenDetails, TxGeneratorResult } from "@swim-io/core";
 import { Client } from "@swim-io/core";
-import { atomicToHuman } from "@swim-io/utils";
-import type { Types } from "aptos";
+import { atomicToHuman, findOrThrow } from "@swim-io/utils";
 import {
   APTOS_COIN,
   ApiError,
@@ -10,6 +9,8 @@ import {
 } from "aptos";
 import Decimal from "decimal.js";
 
+import { DAO_FEE_DECIMALS, FEE_DECIMALS, getPoolBalances } from "./liquidswap";
+import type { PoolResource } from "./liquidswap";
 import type {
   AptosChainConfig,
   AptosEcosystemId,
@@ -17,22 +18,12 @@ import type {
   AptosTxType,
 } from "./protocol";
 import { APTOS_ECOSYSTEM_ID } from "./protocol";
+import type { CoinInfoResource, CoinResource, GasScheduleV2 } from "./types";
+import { getCoinInfoSupply, getCoinInfoType, getCoinStoreType } from "./utils";
 import type { AptosWalletAdapter } from "./walletAdapters";
-
-interface GasScheduleV2 {
-  readonly entries: readonly {
-    readonly key: string;
-    readonly value: string;
-  }[];
-}
 
 export interface AptosClientOptions {
   readonly endpoint: string;
-}
-
-interface CoinResource {
-  readonly data: { readonly coin: { readonly value: string } };
-  readonly type: Types.MoveStructTag;
 }
 
 export class AptosClient extends Client<
@@ -71,7 +62,7 @@ export class AptosClient extends Client<
     try {
       const resource = (await this.sdkClient.getAccountResource(
         account.address(),
-        tokenDetails.address,
+        getCoinStoreType(tokenDetails.address),
       )) as CoinResource;
       return atomicToHuman(
         new Decimal(resource.data.coin.value),
@@ -141,5 +132,52 @@ export class AptosClient extends Client<
     AptosTxType
   > {
     throw new Error("Not implemented");
+  }
+
+  public async getPoolState(poolId: string): Promise<PoolState> {
+    const { address, owner, lpTokenId, tokenIds } = findOrThrow(
+      this.chainConfig.pools,
+      (poolConfig) => poolConfig.id === poolId,
+    );
+    const lpToken = findOrThrow(
+      this.chainConfig.tokens,
+      (token) => token.id === lpTokenId,
+    );
+    const [tokenX, tokenY]: readonly TokenDetails[] = tokenIds.map(
+      (tokenId) => {
+        if (/swimusd$/.test(tokenId)) return this.chainConfig.swimUsdDetails; // TODO is there a better way to do this?
+
+        return findOrThrow(
+          this.chainConfig.tokens,
+          (token) => token.id === tokenId,
+        ).nativeDetails;
+      },
+    );
+
+    const [lpTokenSupplyResponse, poolResponse] = await Promise.all([
+      this.sdkClient.getAccountResource(
+        owner,
+        getCoinInfoType(lpToken.nativeDetails.address),
+      ),
+      this.sdkClient.getAccountResource(owner, address),
+    ]);
+
+    const totalLpSupply = getCoinInfoSupply(
+      lpTokenSupplyResponse as CoinInfoResource,
+    );
+    const pool = poolResponse as PoolResource;
+    const balances = getPoolBalances(pool, [tokenX, tokenY]);
+
+    return {
+      isPaused: false, // TODO ? https://exsphere.slack.com/archives/C03SQTXMFT9/p1666390318707959?thread_ts=1666352227.333479&cid=C03SQTXMFT9
+      ampFactor: new Decimal("1"), // no ampFactor for liquidswap pool ?
+      lpFee: atomicToHuman(new Decimal(pool.data.fee), FEE_DECIMALS),
+      governanceFee: atomicToHuman(
+        new Decimal(pool.data.dao_fee),
+        DAO_FEE_DECIMALS,
+      ),
+      balances,
+      totalLpSupply,
+    };
   }
 }

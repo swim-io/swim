@@ -31,6 +31,7 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
+    "@pontem/liquidswap-sdk": "^0.0.1",
     "@swim-io/core": "workspace:^",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^",

@@ -18,3 +18,16 @@ export interface PoolResource {
   };
   readonly type: Types.MoveStructTag;
 }
+
+export interface LiquidSwapPoolInfo {
+  readonly liquidswapAccountAddress: string;
+  readonly coinXType: string;
+  readonly coinYType: string;
+  readonly curveType: string;
+}
+
+export interface AddLiquidityPayloadParams {
+  readonly poolAddress: string;
+  readonly coinXAmountAtomic: string;
+  readonly coinYAmountAtomic: string;
+}

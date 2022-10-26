@@ -200,17 +200,6 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "mainnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnLp,
-    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
-    nativeDetails: {
-      address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
     id: "mainnet-solana-lp-meta-fantom-usdc",
     projectId: TokenProjectId.SwimFantomUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -469,25 +458,6 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "mainnet-aurora-usn",
-    projectId: TokenProjectId.Usn,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
-      decimals: 18,
-    },
-    wrappedDetails: new Map([
-      [
-        SOLANA_ECOSYSTEM_ID,
-        {
-          address: "3NDmtc2xKMpm8wCiaALey2y3EGhBkUNuXJ9m3JcjnHMM",
-          decimals: 8,
-        },
-      ],
-    ]),
-  },
-  {
     id: "mainnet-fantom-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
@@ -703,18 +673,6 @@ export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-aurora-lp-usdc-usdt",
     projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x1111111111111111111111111111111111111111", // TODO: Update
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
-    isDisabled:
-      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-aurora-lp-usn",
-    projectId: TokenProjectId.SwimLpAuroraUsn,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -951,17 +909,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnLp,
-    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
-    nativeDetails: {
-      address: "11111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
     wrappedDetails: EMPTY_MAP,
@@ -1219,25 +1166,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
         {
           address: "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
           decimals: 6,
-        },
-      ],
-    ]),
-  },
-  {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-aurora-usn",
-    projectId: TokenProjectId.Usn,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Update
-      decimals: 18,
-    },
-    wrappedDetails: new Map([
-      [
-        SOLANA_ECOSYSTEM_ID,
-        {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 8,
         },
       ],
     ]),

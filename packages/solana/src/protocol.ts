@@ -44,6 +44,7 @@ export enum SolanaTxType {
   WormholePostVaa = "wormhole:postVaa",
   SwimPropellerAdd = "swimPropeller:add",
   SwimPropellerTransfer = "swimPropeller:transfer",
+  SwimCreateSplTokenAccount = "swim:createSplTokenAccount",
   SwimCompleteNativeWithPayload = "swim:completeNativeWithPayload",
   SwimProcessSwimPayload = "swim:processSwimPayload",
 }

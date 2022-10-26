@@ -57,7 +57,10 @@ import { SOLANA_ECOSYSTEM_ID, SolanaTxType } from "./protocol";
 import type { TokenAccount } from "./serialization";
 import { deserializeTokenAccount } from "./serialization";
 import type { SupportedTokenProjectId } from "./supportedTokenProjectIds";
-import { isSupportedTokenProjectId } from "./supportedTokenProjectIds";
+import {
+  SUPPORTED_TOKEN_PROJECT_IDS,
+  isSupportedTokenProjectId,
+} from "./supportedTokenProjectIds";
 import {
   createApproveAndRevokeIxs,
   createTx,
@@ -370,7 +373,8 @@ export class SolanaClient extends Client<
     sourceChainConfig,
     targetTokenNumber,
     minimumOutputAmount,
-  }: {
+    auxiliarySigner = Keypair.generate(),
+  }: WithOptionalAuxiliarySigner<{
     readonly wallet: SolanaWalletAdapter;
     readonly interactionId: string;
     readonly signedVaa: Buffer;
@@ -378,19 +382,51 @@ export class SolanaClient extends Client<
     readonly sourceChainConfig: ChainConfig;
     readonly targetTokenNumber: number;
     readonly minimumOutputAmount: string;
-  }): AsyncGenerator<
-    TxGeneratorResult<ParsedTransactionWithMeta, SolanaTx, SolanaTxType>,
+  }>): AsyncGenerator<
+    TxGeneratorResult<
+      ParsedTransactionWithMeta,
+      SolanaTx,
+      | SolanaTxType.SwimCreateSplTokenAccount
+      | SolanaTxType.WormholeVerifySignatures
+      | SolanaTxType.WormholePostVaa
+      | SolanaTxType.SwimCompleteNativeWithPayload
+      | SolanaTxType.SwimProcessSwimPayload
+    >,
     any,
     unknown
   > {
-    const completeNativeWithPayloadTx = await this.completeNativeWithPayload({
-      wallet,
-      interactionId,
+    const splTokenMintAddresses = SUPPORTED_TOKEN_PROJECT_IDS.map(
+      (tokenProjectId) =>
+        getTokenDetails(this.chainConfig, tokenProjectId).address,
+    );
+    const createSplTokenAccountsGenerator =
+      this.generateCreateSplTokenAccountTxs(wallet, splTokenMintAddresses);
+    for await (const result of createSplTokenAccountsGenerator) {
+      yield result;
+    }
+    const isTransferCompleted = await getIsTransferCompletedSolana(
+      this.chainConfig.wormhole.portal,
       signedVaa,
-      sourceWormholeChainId,
-      sourceChainConfig,
-    });
-    if (completeNativeWithPayloadTx !== null) {
+      this.connection,
+    );
+    if (!isTransferCompleted) {
+      const completeWormholeMessageGenerator =
+        this.generateCompleteWormholeMessageTxs({
+          wallet,
+          interactionId,
+          vaa: signedVaa,
+          auxiliarySigner,
+        });
+      for await (const result of completeWormholeMessageGenerator) {
+        yield result;
+      }
+      const completeNativeWithPayloadTx = await this.completeNativeWithPayload({
+        wallet,
+        interactionId,
+        signedVaa,
+        sourceWormholeChainId,
+        sourceChainConfig,
+      });
       yield {
         tx: completeNativeWithPayloadTx,
         type: SolanaTxType.SwimCompleteNativeWithPayload,
@@ -430,9 +466,6 @@ export class SolanaClient extends Client<
     const senderPublicKey = wallet.publicKey;
     if (senderPublicKey === null) {
       throw new Error("Missing Solana wallet");
-    }
-    if (!isSupportedTokenProjectId(sourceTokenId)) {
-      throw new Error("Invalid source token id");
     }
 
     const sourceTokenDetails = getTokenDetails(this.chainConfig, sourceTokenId);
@@ -580,6 +613,40 @@ export class SolanaClient extends Client<
     });
     tx.add(ix);
     return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
+  }
+
+  public async *generateCreateSplTokenAccountTxs(
+    wallet: SolanaWalletAdapter,
+    splTokenMintAddresses: readonly string[],
+  ): AsyncGenerator<
+    TxGeneratorResult<
+      ParsedTransactionWithMeta,
+      SolanaTx,
+      SolanaTxType.SwimCreateSplTokenAccount
+    >
+  > {
+    if (!wallet.publicKey) {
+      throw new Error("No Solana wallet connected");
+    }
+    for (const splTokenMintAddress of splTokenMintAddresses) {
+      const existingAccount = await this.connection.getTokenAccountsByOwner(
+        wallet.publicKey,
+        {
+          mint: new PublicKey(splTokenMintAddress),
+        },
+      );
+      if (existingAccount.value.length === 0) {
+        const txId = await this.createSplTokenAccount(
+          wallet,
+          splTokenMintAddress,
+        );
+        const tx = await this.getTx(txId);
+        yield {
+          tx,
+          type: SolanaTxType.SwimCreateSplTokenAccount,
+        };
+      }
+    }
   }
 
   public async getTokenAccountWithRetry(
@@ -979,15 +1046,7 @@ export class SolanaClient extends Client<
     readonly sourceWormholeChainId: ChainId;
     readonly sourceChainConfig: ChainConfig;
     readonly signedVaa: Buffer;
-  }): Promise<SolanaTx | null> {
-    const completed = await getIsTransferCompletedSolana(
-      this.chainConfig.wormhole.portal,
-      signedVaa,
-      this.connection,
-    );
-    if (completed) {
-      return null;
-    }
+  }): Promise<SolanaTx> {
     const walletPublicKey = wallet.publicKey;
     if (walletPublicKey === null) {
       throw new Error("Missing Solana wallet public key");

@@ -6,13 +6,9 @@ import { Keypair } from "@solana/web3.js";
 import { getTokenDetails } from "@swim-io/core";
 import { EVM_ECOSYSTEMS, isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
-import {
-  SOLANA_ECOSYSTEM_ID,
-  SolanaTxType,
-  findTokenAccountForMint,
-} from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, SolanaTxType } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { getWormholeRetries } from "../../config";
@@ -22,19 +18,15 @@ import type { CrossChainEvmToSolanaSwapInteractionState } from "../../models";
 import {
   InteractionType,
   SwapType,
-  findOrCreateSplTokenAccount,
   getSignedVaaWithRetry,
   humanDecimalToAtomicString,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmClient } from "../evm";
-import { useSolanaClient, useUserSolanaTokenAccountsQuery } from "../solana";
+import { useSolanaClient } from "../solana";
 import { useSwimUsd } from "../swim";
 
 export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
-  const queryClient = useQueryClient();
-  const { data: existingSplTokenAccounts = [] } =
-    useUserSolanaTokenAccountsQuery();
   const { updateInteractionState } = useInteractionStateV2();
   const wallets = useWallets();
   const solanaClient = useSolanaClient();
@@ -52,7 +44,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
       if (wormhole === null) {
         throw new Error("No Wormhole RPC configured");
       }
-      const { interaction, requiredSplTokenAccounts } = interactionState;
+      const { interaction } = interactionState;
       const { fromTokenData, toTokenData, firstMinimumOutputAmount } =
         interaction.params;
       if (firstMinimumOutputAmount === null) {
@@ -172,73 +164,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
         undefined,
         retries,
       );
-      const splTokenAccounts = await Promise.all(
-        Object.keys(requiredSplTokenAccounts).map(async (mint) => {
-          const { tokenAccount, creationTxId } =
-            await findOrCreateSplTokenAccount({
-              env: interaction.env,
-              solanaClient,
-              wallet: toWallet,
-              queryClient,
-              splTokenMintAddress: mint,
-              splTokenAccounts: existingSplTokenAccounts,
-            });
-          // Update interactionState
-          if (creationTxId !== null) {
-            updateInteractionState(interaction.id, (draft) => {
-              if (
-                draft.interactionType !== InteractionType.SwapV2 ||
-                draft.swapType !== SwapType.SingleChainSolana
-              ) {
-                throw new Error("Interaction type mismatch");
-              }
-              draft.requiredSplTokenAccounts[mint].txId = creationTxId;
-            });
-          }
-          return tokenAccount;
-        }),
-      );
-      const swimUsdAccount = findTokenAccountForMint(
-        swimUsd.nativeDetails.address,
-        toWallet.address,
-        splTokenAccounts,
-      );
-      if (swimUsdAccount === null) {
-        throw new Error("SwimUsd account not found");
-      }
-      if (interactionState.postVaaOnSolanaTxId === null) {
-        const auxiliarySigner = Keypair.generate();
-        const postVaaTxGenerator =
-          solanaClient.generateCompleteWormholeMessageTxs({
-            interactionId: interaction.id,
-            vaa: signedVaa,
-            wallet: toWallet,
-            auxiliarySigner,
-          });
-        for await (const result of postVaaTxGenerator) {
-          updateInteractionState(interaction.id, (draft) => {
-            if (
-              draft.interactionType !== InteractionType.SwapV2 ||
-              draft.swapType !== SwapType.CrossChainEvmToSolana
-            ) {
-              throw new Error("Interaction type mismatch");
-            }
-
-            switch (result.type) {
-              case SolanaTxType.WormholeVerifySignatures:
-                draft.verifySignaturesTxIds.push(result.tx.id);
-                break;
-              case SolanaTxType.WormholePostVaa:
-                draft.postVaaOnSolanaTxId = result.tx.id;
-                draft.auxiliarySignerPublicKey =
-                  auxiliarySigner.publicKey.toBase58();
-                break;
-              default:
-                throw new Error(`Unexpected transaction type: ${result.tx.id}`);
-            }
-          });
-        }
-      }
+      const auxiliarySigner = Keypair.generate();
       const tokenProject = TOKEN_PROJECTS_BY_ID[toTokenSpec.projectId];
       if (tokenProject.tokenNumber === null) {
         throw new Error(`Token number for ${tokenProject.symbol} not found`);
@@ -267,14 +193,28 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
             throw new Error("Interaction type mismatch");
           }
           switch (result.type) {
+            case SolanaTxType.SwimCreateSplTokenAccount: {
+              const mint = result.tx.original.meta?.preTokenBalances?.[0].mint;
+              if (!mint) {
+                throw new Error("Token account mint not found");
+              }
+              draft.requiredSplTokenAccounts[mint].txId = result.tx.id;
+              break;
+            }
+            case SolanaTxType.WormholeVerifySignatures:
+              draft.verifySignaturesTxIds.push(result.tx.id);
+              break;
+            case SolanaTxType.WormholePostVaa:
+              draft.postVaaOnSolanaTxId = result.tx.id;
+              draft.auxiliarySignerPublicKey =
+                auxiliarySigner.publicKey.toBase58();
+              break;
             case SolanaTxType.SwimCompleteNativeWithPayload:
               draft.completeNativeWithPayloadTxId = result.tx.id;
               break;
             case SolanaTxType.SwimProcessSwimPayload:
               draft.processSwimPayloadTxId = result.tx.id;
               break;
-            default:
-              throw new Error(`Unexpected transaction type: ${result.tx.id}`);
           }
         });
       }

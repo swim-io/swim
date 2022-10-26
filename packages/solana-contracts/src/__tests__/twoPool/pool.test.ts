@@ -896,10 +896,8 @@ describe("TwoPool", () => {
         // .adjustAmpFactor(params)
         .adjustAmpFactor(targetTs, targetValue)
         .accounts({
-          commonGovernance: {
-            pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
-          },
+          pool: flagshipPool,
+          governanceKey: governanceKeypair.publicKey,
         })
         .signers([governanceKeypair])
         .rpc();
@@ -1019,12 +1017,13 @@ describe("TwoPool", () => {
       const changePauseKeyTxn = await twoPoolProgram.methods
         .changePauseKey(newPauseKeypair.publicKey)
         .accounts({
-          commonGovernance: {
+          governance: {
             pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
+            governanceKey: governanceKeypair.publicKey,
           },
+          newPauseKey: newPauseKeypair.publicKey,
         })
-        .signers([governanceKeypair])
+        .signers([governanceKeypair, newPauseKeypair])
         .rpc();
 
       console.info(`changePauseKeyTxn: ${changePauseKeyTxn}`);
@@ -1096,10 +1095,8 @@ describe("TwoPool", () => {
         // .prepareFeeChange(params)
         .prepareFeeChange(newLpFee, newGovernanceFee)
         .accounts({
-          commonGovernance: {
-            pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
-          },
+          pool: flagshipPool,
+          governanceKey: governanceKeypair.publicKey,
         })
         .signers([governanceKeypair])
         .rpc();
@@ -1117,19 +1114,21 @@ describe("TwoPool", () => {
     });
 
     it("Can prepare governance transitions", async () => {
-      const upcomingGovernanceKey = Keypair.generate().publicKey;
+      const upcomingGovernanceKeypair = Keypair.generate();
+      const upcomingGovernanceKey = upcomingGovernanceKeypair.publicKey;
       // const params = {
       //   upcomingGovernanceKey,
       // };
       const prepareGovernanceTransitionTxn = await twoPoolProgram.methods
         .prepareGovernanceTransition(upcomingGovernanceKey)
         .accounts({
-          commonGovernance: {
+          governance: {
             pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
+            governanceKey: governanceKeypair.publicKey,
           },
+          upcomingGovernanceKey: upcomingGovernanceKey,
         })
-        .signers([governanceKeypair])
+        .signers([governanceKeypair, upcomingGovernanceKeypair])
         .rpc();
       console.info(
         `send prepareGovernanceTransitionTxn: ${prepareGovernanceTransitionTxn}`,
@@ -1157,9 +1156,9 @@ describe("TwoPool", () => {
       const changeGovFeeTxn = await twoPoolProgram.methods
         .changeGovernanceFeeAccount(newGovernanceFeeKey)
         .accounts({
-          commonGovernance: {
+          governance: {
             pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
+            governanceKey: governanceKeypair.publicKey,
           },
           newGovernanceFee: newGovernanceFeeKey,
         })
@@ -1182,9 +1181,9 @@ describe("TwoPool", () => {
         return twoPoolProgram.methods
           .changeGovernanceFeeAccount(newGovernanceFeeKey)
           .accounts({
-            commonGovernance: {
+            governance: {
               pool: flagshipPool,
-              governance: governanceKeypair.publicKey,
+              governanceKey: governanceKeypair.publicKey,
             },
             newGovernanceFee: newGovernanceFeeKey,
           })
@@ -1197,7 +1196,7 @@ describe("TwoPool", () => {
       //   await twoPoolProgram.methods
       //     .changeGovernanceFeeAccount(newGovernanceFeeKey)
       //     .accounts({
-      //       commonGovernance: {
+      //       governance: {
       //         pool: flagshipPool,
       //         governance: governanceKeypair.publicKey,
       //       },
@@ -1266,9 +1265,9 @@ describe("TwoPool", () => {
         // .createLpMetadata(params)
         .createLpMetadata(data, isMutable, updateAuthorityIsSigner)
         .accounts({
-          commonGovernance: {
+          governance: {
             pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
+            governanceKey: governanceKeypair.publicKey,
           },
           createMetadataAccounts: {
             metadata: metadataPda,
@@ -1332,9 +1331,9 @@ describe("TwoPool", () => {
           isMutable,
         )
         .accounts({
-          commonGovernance: {
+          governance: {
             pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
+            governanceKey: governanceKeypair.publicKey,
           },
           updateMetadataAccounts: {
             metadata: metadataPda,
@@ -1394,9 +1393,9 @@ describe("TwoPool", () => {
               isMutable,
             )
             .accounts({
-              commonGovernance: {
+              governance: {
                 pool: flagshipPool,
-                governance: governanceKeypair.publicKey,
+                governanceKey: governanceKeypair.publicKey,
               },
               updateMetadataAccounts: {
                 metadata: metadataPda,

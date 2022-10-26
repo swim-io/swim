@@ -74,6 +74,8 @@ pub enum PoolError {
     InvalidTokenIndex,
     #[msg("Invalid Pause Key")]
     InvalidPauseKey,
+    #[msg("Invalid New Pause Key")]
+    InvalidNewPauseKey,
     #[msg("Not a valid Switchboard account")]
     InvalidSwitchboardAccount,
     #[msg("Switchboard feed has not been updated in 5 minutes")]
@@ -86,6 +88,8 @@ pub enum PoolError {
     ConversionError,
     #[msg("Burn amount exceeds lp total supply")]
     BurnAmountExceedsTotalSupply,
+    #[msg("Invalid Upcoming Governance Key")]
+    InvalidUpcomingGovernanceKey,
 }
 
 // impl From<PoolError> for ProgramError {

@@ -62,10 +62,11 @@ async fn test_governance_transition() {
     let prepare_gov_transition_ix = program
         .request()
         .accounts(two_pool::accounts::PrepareGovernanceTransition {
-            common_governance: two_pool::accounts::CommonGovernance {
+            governance: two_pool::accounts::Governance {
                 pool: pt_ctxt.pool_key,
-                governance: pt_ctxt.get_governance().pubkey(),
+                governance_key: pt_ctxt.get_governance().pubkey(),
             },
+            upcoming_governance_key: new_governance_key.pubkey(),
         })
         .args(two_pool::instruction::PrepareGovernanceTransition {
             upcoming_governance_key: new_governance_key.pubkey(),
@@ -80,7 +81,7 @@ async fn test_governance_transition() {
     let prepare_gov_transition_txn = Transaction::new_signed_with_payer(
         &[prepare_gov_transition_ix],
         Some(&pt_ctxt.get_payer().pubkey()),
-        &[pt_ctxt.get_payer(), pt_ctxt.get_governance()],
+        &[pt_ctxt.get_payer(), pt_ctxt.get_governance(), &new_governance_key],
         recent_blockhash,
     );
 
@@ -95,11 +96,9 @@ async fn test_governance_transition() {
 
     let enact_gov_transition_ix = program
         .request()
-        .accounts(two_pool::accounts::EnactGovernanceTransition {
-            common_governance: two_pool::accounts::CommonGovernance {
-                pool: pt_ctxt.pool_key,
-                governance: pt_ctxt.get_governance().pubkey(),
-            },
+        .accounts(two_pool::accounts::Governance {
+            pool: pt_ctxt.pool_key,
+            governance_key: pt_ctxt.get_governance().pubkey(),
         })
         .args(two_pool::instruction::EnactGovernanceTransition {})
         .instructions()
@@ -144,6 +143,76 @@ async fn test_governance_transition() {
     assert_eq!(pool_state.governance_key, new_governance_key.pubkey());
     assert_eq!(pool_state.prepared_governance_key, Pubkey::default());
     assert_eq!(pool_state.governance_transition_ts, 0i64);
+
+    let lp_fee = DecimalU64Anchor { value: 400u64, decimals: 6u8 };
+    let governance_fee = DecimalU64Anchor { value: 200u64, decimals: 6u8 };
+
+    // governance ixs with old key should fail.
+
+    let prepare_fee_change_ix_fail = program
+        .request()
+        .accounts(two_pool::accounts::Governance {
+            pool: pt_ctxt.pool_key,
+            governance_key: pt_ctxt.get_governance().pubkey(),
+        })
+        .args(two_pool::instruction::PrepareFeeChange {
+            lp_fee,
+            governance_fee,
+            // params: PrepareFeeChangeParams {
+            //     lp_fee,
+            //     governance_fee,
+            // },
+        })
+        .instructions()
+        .unwrap()
+        .pop()
+        .unwrap();
+
+    let recent_blockhash = pt_ctxt.get_latest_blockhash().await;
+
+    let prepare_fee_change_txn_fail = Transaction::new_signed_with_payer(
+        &[prepare_fee_change_ix_fail],
+        Some(&pt_ctxt.get_payer().pubkey()),
+        &[pt_ctxt.get_payer(), pt_ctxt.get_governance()],
+        recent_blockhash,
+    );
+
+    pt_ctxt
+        .process_transaction(prepare_fee_change_txn_fail)
+        .await
+        .expect_err("prepare fee change should fail with old governance key");
+
+    // should be able to execute governance ix with new governance key now.
+
+    let prepare_fee_change_ix = program
+        .request()
+        .accounts(two_pool::accounts::Governance {
+            pool: pt_ctxt.pool_key,
+            governance_key: new_governance_key.pubkey(),
+        })
+        .args(two_pool::instruction::PrepareFeeChange {
+            lp_fee,
+            governance_fee,
+            // params: PrepareFeeChangeParams {
+            //     lp_fee,
+            //     governance_fee,
+            // },
+        })
+        .instructions()
+        .unwrap()
+        .pop()
+        .unwrap();
+
+    let recent_blockhash = pt_ctxt.get_latest_blockhash().await;
+
+    let prepare_fee_change_txn = Transaction::new_signed_with_payer(
+        &[prepare_fee_change_ix],
+        Some(&pt_ctxt.get_payer().pubkey()),
+        &[pt_ctxt.get_payer(), &new_governance_key],
+        recent_blockhash,
+    );
+
+    pt_ctxt.process_transaction(prepare_fee_change_txn).await.unwrap();
 }
 
 #[tokio::test]
@@ -169,22 +238,13 @@ async fn test_fee_change() {
     let lp_fee = DecimalU64Anchor { value: 400u64, decimals: 6u8 };
     let governance_fee = DecimalU64Anchor { value: 200u64, decimals: 6u8 };
 
-    let prepare_gov_transition_ix = program
+    let prepare_fee_change_ix = program
         .request()
-        .accounts(two_pool::accounts::PrepareFeeChange {
-            common_governance: two_pool::accounts::CommonGovernance {
-                pool: pt_ctxt.pool_key,
-                governance: pt_ctxt.get_governance().pubkey(),
-            },
+        .accounts(two_pool::accounts::Governance {
+            pool: pt_ctxt.pool_key,
+            governance_key: pt_ctxt.get_governance().pubkey(),
         })
-        .args(two_pool::instruction::PrepareFeeChange {
-            lp_fee,
-            governance_fee,
-            // params: PrepareFeeChangeParams {
-            //     lp_fee,
-            //     governance_fee,
-            // },
-        })
+        .args(two_pool::instruction::PrepareFeeChange { lp_fee, governance_fee })
         .instructions()
         .unwrap()
         .pop()
@@ -192,14 +252,14 @@ async fn test_fee_change() {
 
     let recent_blockhash = pt_ctxt.get_latest_blockhash().await;
 
-    let prepare_gov_transition_txn = Transaction::new_signed_with_payer(
-        &[prepare_gov_transition_ix],
+    let prepare_fee_change_txn = Transaction::new_signed_with_payer(
+        &[prepare_fee_change_ix],
         Some(&pt_ctxt.get_payer().pubkey()),
         &[pt_ctxt.get_payer(), pt_ctxt.get_governance()],
         recent_blockhash,
     );
 
-    pt_ctxt.process_transaction(prepare_gov_transition_txn).await.unwrap();
+    pt_ctxt.process_transaction(prepare_fee_change_txn).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
     let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
@@ -211,11 +271,9 @@ async fn test_fee_change() {
 
     let enact_fee_change_ix = program
         .request()
-        .accounts(two_pool::accounts::EnactFeeChange {
-            common_governance: two_pool::accounts::CommonGovernance {
-                pool: pt_ctxt.pool_key,
-                governance: pt_ctxt.get_governance().pubkey(),
-            },
+        .accounts(two_pool::accounts::Governance {
+            pool: pt_ctxt.pool_key,
+            governance_key: pt_ctxt.get_governance().pubkey(),
         })
         .args(two_pool::instruction::EnactFeeChange {})
         .instructions()
@@ -393,16 +451,7 @@ impl DeployedPoolProgramTestContext {
                 system_program: anchor_lang::prelude::System::id(),
                 rent: anchor_lang::prelude::Rent::id(),
             })
-            .args(two_pool::instruction::Initialize {
-                // params: InitializeParams {
-                //     amp_factor,
-                //     lp_fee,
-                //     governance_fee,
-                // },
-                amp_factor,
-                lp_fee,
-                governance_fee,
-            })
+            .args(two_pool::instruction::Initialize { amp_factor, lp_fee, governance_fee })
             .instructions()
             .unwrap()
             .pop()

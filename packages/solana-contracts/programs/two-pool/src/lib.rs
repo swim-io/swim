@@ -102,13 +102,11 @@ pub mod two_pool {
         ctx: Context<AddOrRemove>,
         exact_burn_amount: u64,
         minimum_output_amounts: [u64; TOKEN_COUNT],
-        // params: RemoveUniformParams,
     ) -> Result<Vec<u64>> {
         let params = RemoveUniformParams { exact_burn_amount, minimum_output_amounts };
         handle_remove_uniform(ctx, params)
     }
 
-    // #[access_control(AddOrRemove::accounts(&ctx))]
     pub fn remove_exact_burn(
         ctx: Context<AddOrRemove>,
         exact_burn_amount: u64,
@@ -120,65 +118,26 @@ pub mod two_pool {
         handle_remove_exact_burn(ctx, params)
     }
 
-    // #[access_control(RemoveExactOutput::accounts(&ctx))]
     pub fn remove_exact_output(
         ctx: Context<AddOrRemove>,
         maximum_burn_amount: u64,
         exact_output_amounts: [u64; TOKEN_COUNT],
-        // params: RemoveExactOutputParams,
     ) -> Result<Vec<u64>> {
         let params = RemoveExactOutputParams { maximum_burn_amount, exact_output_amounts };
         handle_remove_exact_output(ctx, params)
     }
 
-    //TODO: using 2 instead of TOKEN_COUNT const since anchor can't handle it properly.
+    //Note: using 2 instead of TOKEN_COUNT const since anchor can't handle it properly.
     #[access_control(MarginalPrices::accounts(&ctx))]
-    // pub fn marginal_prices(ctx: Context<MarginalPrices>) -> Result<MarginalPricesResult> {
     pub fn marginal_prices(ctx: Context<MarginalPrices>) -> Result<[BorshDecimal; 2]> {
         handle_marginal_prices(ctx)
     }
 
     /** Governance Ixs **/
-    #[access_control(PrepareGovernanceTransition::accounts(&ctx))]
-    pub fn prepare_governance_transition(
-        ctx: Context<PrepareGovernanceTransition>,
-        upcoming_governance_key: Pubkey,
-    ) -> Result<()> {
-        handle_prepare_governance_transition(ctx, upcoming_governance_key)
-    }
 
-    #[access_control(EnactGovernanceTransition::accounts(&ctx))]
-    pub fn enact_governance_transition(ctx: Context<EnactGovernanceTransition>) -> Result<()> {
-        handle_enact_governance_transition(ctx)
-    }
-
-    #[access_control(PrepareFeeChange::accounts(&ctx))]
-    pub fn prepare_fee_change(
-        ctx: Context<PrepareFeeChange>,
-        lp_fee: DecimalU64Anchor,
-        governance_fee: DecimalU64Anchor,
-        // params: PrepareFeeChangeParams,
-    ) -> Result<()> {
-        // handle_prepare_fee_change(ctx, params)
-        handle_prepare_fee_change(ctx, lp_fee, governance_fee)
-    }
-
-    #[access_control(EnactFeeChange::accounts(&ctx))]
-    pub fn enact_fee_change(ctx: Context<EnactFeeChange>) -> Result<()> {
-        handle_enact_fee_change(ctx)
-    }
-
-    #[access_control(ChangeGovernanceFeeAccount::accounts(&ctx))]
-    pub fn change_governance_fee_account(
-        ctx: Context<ChangeGovernanceFeeAccount>,
-        new_governance_fee_key: Pubkey,
-    ) -> Result<()> {
-        handle_change_governance_fee_account(ctx, new_governance_fee_key)
-    }
-
-    #[access_control(AdjustAmpFactor::accounts(&ctx))]
     pub fn adjust_amp_factor(
-        ctx: Context<AdjustAmpFactor>,
+        // ctx: Context<AdjustAmpFactor>,
+        ctx: Context<Governance>,
         target_ts: i64,
         target_value: DecimalU64Anchor,
         // params: AdjustAmpFactorParams,
@@ -187,14 +146,42 @@ pub mod two_pool {
         handle_adjust_amp_factor(ctx, params)
     }
 
-    #[access_control(SetPaused::accounts(&ctx))]
-    pub fn set_paused(ctx: Context<SetPaused>, paused: bool) -> Result<()> {
-        handle_set_paused(ctx, paused)
+    pub fn prepare_fee_change(
+        ctx: Context<Governance>,
+        lp_fee: DecimalU64Anchor,
+        governance_fee: DecimalU64Anchor,
+    ) -> Result<()> {
+        handle_prepare_fee_change(ctx, lp_fee, governance_fee)
     }
 
-    #[access_control(ChangePauseKey::accounts(&ctx))]
+    pub fn enact_fee_change(ctx: Context<Governance>) -> Result<()> {
+        handle_enact_fee_change(ctx)
+    }
+
+    pub fn change_governance_fee_account(
+        ctx: Context<ChangeGovernanceFeeAccount>,
+        new_governance_fee_key: Pubkey,
+    ) -> Result<()> {
+        handle_change_governance_fee_account(ctx, new_governance_fee_key)
+    }
+
+    pub fn prepare_governance_transition(
+        ctx: Context<PrepareGovernanceTransition>,
+        upcoming_governance_key: Pubkey,
+    ) -> Result<()> {
+        handle_prepare_governance_transition(ctx, upcoming_governance_key)
+    }
+
+    pub fn enact_governance_transition(ctx: Context<Governance>) -> Result<()> {
+        handle_enact_governance_transition(ctx)
+    }
+
     pub fn change_pause_key(ctx: Context<ChangePauseKey>, new_pause_key: Pubkey) -> Result<()> {
         handle_change_pause_key(ctx, new_pause_key)
+    }
+
+    pub fn set_paused(ctx: Context<SetPaused>, paused: bool) -> Result<()> {
+        handle_set_paused(ctx, paused)
     }
 
     #[access_control(CreateLpMetadata::accounts(&ctx))]

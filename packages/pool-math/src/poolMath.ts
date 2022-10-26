@@ -1,8 +1,10 @@
-// In this file, positive and negative are used in the strict sense, i.e. x is positive <=> x > 0
-// and x is negative <=> x < 0. (And hence e.g. non-negative implies zero or positive, etc.)
+// In this file, positive and negative are used in the strict sense, i.e.
+//  x is positive <=> x > 0 and x is negative <=> x < 0. (And hence e.g.
+//  non-negative implies zero or positive, etc.)
 //
-// Since decimal.js has signed zeros (like IEEE floats!) and its .isPos() and .isNeg() methods
-// only check for the sign value, it exhibits the following behavior:
+// Since decimal.js has signed zeros (like IEEE floats!) and its .isPos() and
+//  .isNeg() methods only check for the sign value, it exhibits the following
+//  behavior:
 //
 // let a = new Decimal(0);
 // console.log(a.isPos()); // => true
@@ -11,74 +13,74 @@
 // console.log(a.isPos()); // => false
 // console.log(a.isNeg()); // => true
 //
-// Therefore, to enforce our strict definition, we rely on comparison operators instead.
+// Therefore, to enforce our strict definition, we rely on comparison operators
+//  instead.
 import Decimal from "decimal.js";
 
 Decimal.config({ precision: 40 });
 
+export type Decimalish = Decimal.Value;
+
+export function toDecimal(val: Decimalish): Decimal;
+export function toDecimal(val: readonly Decimalish[]): readonly Decimal[];
+/**
+ * this third declaration is necessary for mixed invocations such as
+ *  [1, [2, "3"]].map(toDecimal)
+ */
+export function toDecimal(
+  val: Decimalish | readonly Decimalish[],
+): Decimal | readonly Decimal[];
+/**
+ * converts negative zeros into positive zeros
+ */
+export function toDecimal(
+  val: Decimalish | readonly Decimalish[],
+): Decimal | readonly Decimal[] {
+  const impl = (v: Decimalish) => {
+    const tmp = new Decimal(v);
+    return tmp.isZero() ? new Decimal(0) : tmp;
+  };
+
+  return Array.isArray(val)
+    ? val.map((v: Decimalish) => impl(v))
+    : impl(val as Decimalish);
+}
+
 function areAllNonNegativeOrThrow(decimals: readonly Decimal[]): void {
-  if (decimals.some((d) => d.lt(0))) {
+  if (decimals.some((d) => d.lt(0)))
     throw new Error("Amounts have to be non-negative");
-  }
 }
 
-//turn any (potentially negative) zeros into positive zeros
-function sanitizeSign(val: Decimal): Decimal {
-  return new Decimal(val.isZero() ? 0 : val);
-}
+const arrayCreate = (length: number, functor: (i: number) => Decimal) =>
+  Array.from({ length }, (_, i) => functor(i));
 
-function arrayCreate(
-  length: number,
-  functor: (i: number) => Decimal,
-): readonly Decimal[] {
-  return Array.from({ length }, (_, i) => functor(i));
-}
+const arraySum = (decimals: readonly Decimal[]) =>
+  decimals.reduce((acc, d) => acc.add(d), new Decimal(0));
 
-function arraySum(decimals: readonly Decimal[]): Decimal {
-  return decimals.reduce((acc, d) => acc.add(d), new Decimal(0));
-}
+const arrayProd = (decimals: readonly Decimal[]) =>
+  decimals.reduce((acc, d) => acc.mul(d), new Decimal(1));
 
-function arrayProd(decimals: readonly Decimal[]): Decimal {
-  return decimals.reduce((acc, d) => acc.mul(d), new Decimal(1));
-}
+const arrayAdd = (arr1: readonly Decimal[], arr2: readonly Decimal[]) =>
+  arrayCreate(arr1.length, (i) => arr1[i].add(arr2[i]));
 
-function arrayAdd(
-  arr1: readonly Decimal[],
-  arr2: readonly Decimal[],
-): readonly Decimal[] {
-  return arrayCreate(arr1.length, (i) => arr1[i].add(arr2[i]));
-}
+const arraySub = (arr1: readonly Decimal[], arr2: readonly Decimal[]) =>
+  arrayCreate(arr1.length, (i) => arr1[i].sub(arr2[i]));
 
-function arraySub(
-  arr1: readonly Decimal[],
-  arr2: readonly Decimal[],
-): readonly Decimal[] {
-  return arrayCreate(arr1.length, (i) => arr1[i].sub(arr2[i]));
-}
+const arrayScale = (factor: Decimal, decimals: readonly Decimal[]) =>
+  decimals.map((d) => d.mul(factor));
 
-function arrayScale(
-  factor: Decimal,
-  decimals: readonly Decimal[],
-): readonly Decimal[] {
-  return decimals.map((d) => d.mul(factor));
-}
-
-function subGivenOrder(
-  keepOrder: boolean,
-  dec1: Decimal,
-  dec2: Decimal,
-): Decimal {
-  return keepOrder ? dec1.sub(dec2) : dec2.sub(dec1);
-}
+const subGivenOrder = (keepOrder: boolean, dec1: Decimal, dec2: Decimal) =>
+  keepOrder ? dec1.sub(dec2) : dec2.sub(dec1);
 
 export class PoolMath {
   private static readonly MAX_TOKEN_COUNT = 20;
-  /**
-   * MIN_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
+  /* MIN_AMP_VALUE should be the same as the smart contract constant
+   *   (see pool/src/amp_factor.rs)
    * Alternatively, can also be 0 for constant product invariant!
    */
   private static readonly MIN_AMP_VALUE = new Decimal(1);
-  /* MAX_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs) */
+  /* MAX_AMP_VALUE should be the same as the smart contract constant
+    (see pool/src/amp_factor.rs) */
   private static readonly MAX_AMP_VALUE = new Decimal("1e6");
   private static readonly DEFAULT_TOLERANCE = new Decimal("1e-6");
   private static readonly DEFAULT_MAX_ITERATIONS = 200;
@@ -94,64 +96,72 @@ export class PoolMath {
   private readonly _depth: Decimal;
 
   public constructor(
-    /** Balances can have arbitrary units (though atomic units should most likely go with a
-     * tolerance of 1 while human units should probably use the maximum decimals of all involved
-     * tokens)
+    /* Balances can have arbitrary units (though atomic units should most
+     *  likely go with a tolerance of 1 while human units should probably use
+     *  the maximum decimals of all involved tokens)
      */
-    balancesOrTokenCount: readonly Decimal[] | number,
-    /* Amp in 'Swim units' (= A*n**n) - divide by tokenCount to get 'Curve units' (= A*n**(n-1)) */
-    ampFactor: Decimal,
-    lpFee: Decimal,
-    governanceFee: Decimal,
-    lpSupply: Decimal | null = null,
-    tolerance: Decimal = PoolMath.DEFAULT_TOLERANCE,
-    maxIterations = PoolMath.DEFAULT_MAX_ITERATIONS,
+    balancesOrTokenCount: readonly Decimalish[] | number,
+    /* Amp in 'Swim units' (= A*n**n)
+     *  divide by tokenCount to get 'Curve units' (= A*n**(n-1))
+     */
+    ampFactor: Decimalish,
+    lpFee: Decimalish,
+    governanceFee: Decimalish,
+    lpSupply: Decimalish | null = null,
+    tolerance: Decimalish = PoolMath.DEFAULT_TOLERANCE,
+    maxIterations: number = PoolMath.DEFAULT_MAX_ITERATIONS,
   ) {
+    this.ampFactor = toDecimal(ampFactor);
     if (
-      (ampFactor.lt(PoolMath.MIN_AMP_VALUE) ||
-        ampFactor.gt(PoolMath.MAX_AMP_VALUE)) &&
-      !ampFactor.isZero()
+      (this.ampFactor.lt(PoolMath.MIN_AMP_VALUE) ||
+        this.ampFactor.gt(PoolMath.MAX_AMP_VALUE)) &&
+      !this.ampFactor.isZero()
     ) {
       throw new Error(
-        `${ampFactor.toString()} is not a valid ampFactor - must be in range [${PoolMath.MIN_AMP_VALUE.toString()}, ${PoolMath.MAX_AMP_VALUE.toString()}] or 0`,
+        `ampFactor must be in range [${PoolMath.MIN_AMP_VALUE.toString()}, ` +
+          `${PoolMath.MAX_AMP_VALUE.toString()}] or 0 but was instead ` +
+          `${this.ampFactor.toString()}`,
       );
     }
-    this.ampFactor = ampFactor;
 
-    if (lpFee.lt(0) || lpFee.gte(1)) {
+    this.lpFee = toDecimal(lpFee);
+    if (this.lpFee.lt(0) || this.lpFee.gte(1)) {
       throw new Error(
-        "lpFee must be in range [0,1), but was instead " + lpFee.toString(),
+        `lpFee must be in range [0, 1) but was instead ` +
+          `${this.lpFee.toString()}`,
       );
     }
-    this.lpFee = sanitizeSign(lpFee);
+    this.governanceFee = toDecimal(governanceFee);
+    if (this.governanceFee.lt(0) || this.governanceFee.gte(1)) {
+      throw new Error(
+        `governanceFee must be in range [0, 1) but was instead ` +
+          `${this.governanceFee.toString()}`,
+      );
+    }
+    if (this.totalFee.gte(1)) {
+      throw new Error(
+        `total fee must be in range [0, 1) but was instead ` +
+          `${this.totalFee.toString()}`,
+      );
+    }
 
-    if (governanceFee.lt(0) || governanceFee.gte(1)) {
+    this.tolerance = toDecimal(tolerance);
+    if (this.tolerance.lte(0)) {
       throw new Error(
-        "governanceFee must be in range [0,1), but was instead " +
-          governanceFee.toString(),
+        `tolerance must be greater than 0 but was instead ` +
+          `${this.tolerance.toString()}`,
       );
     }
-    if (governanceFee.add(this.lpFee).gte(1)) {
-      throw new Error("total fees must be in range [0,1)");
-    }
-    this.governanceFee = sanitizeSign(governanceFee);
 
-    if (tolerance.lte(0)) {
-      throw new Error(
-        "tolerance must be greater than 0 but was instead " +
-          tolerance.toString(),
-      );
-    }
-    this.tolerance = tolerance;
-
-    if (maxIterations <= 0 || !Number.isInteger(maxIterations)) {
-      throw new Error(
-        "maxIterations must be a positive integer, but was instead " +
-          maxIterations.toString(),
-      );
-    }
     this.maxIterations = maxIterations;
+    if (this.maxIterations <= 0 || !Number.isInteger(this.maxIterations)) {
+      throw new Error(
+        `maxIterations must be a positive integer but was instead ` +
+          `${maxIterations}`,
+      );
+    }
 
+    const lpSupply_ = lpSupply ? toDecimal(lpSupply) : null;
     if (typeof balancesOrTokenCount === "number") {
       const tokenCount = balancesOrTokenCount;
       if (
@@ -160,49 +170,51 @@ export class PoolMath {
         !Number.isInteger(tokenCount)
       ) {
         throw new Error(
-          tokenCount.toString() +
-            " is not a valid tokenCount (must be an integer in [2, " +
-            PoolMath.MAX_TOKEN_COUNT.toString() +
-            "])",
+          `tokenCount must be an integer in [2, ${PoolMath.MAX_TOKEN_COUNT}]` +
+            ` but was instead ${tokenCount}`,
+        );
+      }
+      if (lpSupply_ && !lpSupply_.isZero()) {
+        throw new Error(
+          `lpSupply must be 0 when only providing tokenCount but was instead ` +
+            `${lpSupply_.toString()}`,
         );
       }
       this.balances = new Array(balancesOrTokenCount).fill(new Decimal(0));
       this._depth = new Decimal(0);
       this.lpSupply = this._depth;
     } else {
-      this.balances = balancesOrTokenCount.map((balance) =>
-        sanitizeSign(balance),
-      );
+      this.balances = toDecimal(balancesOrTokenCount);
       areAllNonNegativeOrThrow(this.balances);
 
       if (this.balances.some((b) => b.isZero())) {
         if (this.balances.some((b) => !b.isZero())) {
           throw new Error(
-            "either all balances are 0 or none are. balances: " +
-              this.balances.toString(),
+            `either all balances are 0 or none are. balances: ` +
+              `${this.balances.toString()}`,
           );
         }
-        if (lpSupply && !lpSupply.isZero()) {
+        if (lpSupply_ && !lpSupply_.isZero()) {
           throw new Error(
-            "lpSupply must be 0 if balances are 0, but was instead " +
-              lpSupply.toString(),
+            `lpSupply must be 0 if balances are 0 but was instead ` +
+              `${lpSupply_.toString()}`,
           );
         }
         this._depth = new Decimal(0);
         this.lpSupply = this._depth;
       } else {
         this._depth = this.calcDepth(this.balances);
-        if (lpSupply) {
-          if (lpSupply.lt(0)) {
+        if (lpSupply_) {
+          if (lpSupply_.lt(0)) {
             throw new Error(
-              "lpSupply must be non negative, but was instead " +
-                lpSupply.toString(),
+              `lpSupply must be non negative but was instead ` +
+                `${lpSupply_.toString()}`,
             );
           }
-          if (lpSupply.isZero()) {
+          if (lpSupply_.isZero()) {
             throw new Error("lpSupply can't be 0 if balances aren't 0");
           }
-          this.lpSupply = lpSupply;
+          this.lpSupply = lpSupply_;
         } else {
           this.lpSupply = this._depth;
         }
@@ -221,7 +233,7 @@ export class PoolMath {
   // DEFI INSTRUCTIONS -------------------------------------------
 
   public swapExactInput(
-    inputAmounts: readonly Decimal[],
+    inputAmounts: readonly Decimalish[],
     outputIndex: number,
   ): {
     readonly stableOutputAmount: Decimal;
@@ -229,7 +241,7 @@ export class PoolMath {
   } {
     const [stableOutputAmount, governanceMintAmount] = this.swap(
       true,
-      inputAmounts,
+      toDecimal(inputAmounts),
       outputIndex,
     );
     return { stableOutputAmount, governanceMintAmount };
@@ -237,64 +249,66 @@ export class PoolMath {
 
   public swapExactOutput(
     inputIndex: number,
-    outputAmounts: readonly Decimal[],
+    outputAmounts: readonly Decimalish[],
   ): {
     readonly stableInputAmount: Decimal;
     readonly governanceMintAmount: Decimal;
   } {
     const [stableInputAmount, governanceMintAmount] = this.swap(
       false,
-      outputAmounts,
+      toDecimal(outputAmounts),
       inputIndex,
     );
     return { stableInputAmount, governanceMintAmount };
   }
 
-  public add(inputAmounts: readonly Decimal[]): {
+  public add(inputAmounts: readonly Decimalish[]): {
     readonly lpOutputAmount: Decimal;
     readonly governanceMintAmount: Decimal;
   } {
+    const inputAmounts_ = toDecimal(inputAmounts);
     if (this.lpSupply.isZero()) {
-      areAllNonNegativeOrThrow(inputAmounts);
-      if (inputAmounts.some((b) => b.isZero())) {
+      areAllNonNegativeOrThrow(inputAmounts_);
+      if (inputAmounts_.some((b) => b.isZero())) {
         throw new Error(
-          "on first add all amounts must be greater than 0, but were instead " +
-            inputAmounts.toString(),
+          `on first add all amounts must be greater than 0, but were instead ` +
+            `${inputAmounts.toString()}`,
         );
       }
-      const lpOutputAmount = this.calcDepth(inputAmounts);
+      const lpOutputAmount = this.calcDepth(inputAmounts_);
       const governanceMintAmount = new Decimal(0);
       return { lpOutputAmount, governanceMintAmount };
     } else {
       const [lpOutputAmount, governanceMintAmount] = this.addRemove(
         true,
-        inputAmounts,
+        inputAmounts_,
       );
       return { lpOutputAmount, governanceMintAmount };
     }
   }
 
-  public removeExactOutput(outputAmounts: readonly Decimal[]): {
+  public removeExactOutput(outputAmounts: readonly Decimalish[]): {
     readonly lpInputAmount: Decimal;
     readonly governanceMintAmount: Decimal;
   } {
     const [lpInputAmount, governanceMintAmount] = this.addRemove(
       false,
-      outputAmounts,
+      toDecimal(outputAmounts),
     );
     return { lpInputAmount, governanceMintAmount };
   }
 
   public removeExactBurn(
-    burnAmount: Decimal,
+    burnAmount: Decimalish,
     outputIndex: number,
   ): {
     readonly stableOutputAmount: Decimal;
     readonly governanceMintAmount: Decimal;
   } {
+    const burnAmount_ = toDecimal(burnAmount);
     this.isTokenIndexOrThrow(outputIndex);
-    this.isValidBurnAmountOrThrow(burnAmount);
-    if (burnAmount.isZero()) {
+    this.isValidBurnAmountOrThrow(burnAmount_);
+    if (burnAmount_.isZero()) {
       return {
         stableOutputAmount: new Decimal(0),
         governanceMintAmount: new Decimal(0),
@@ -302,7 +316,7 @@ export class PoolMath {
     }
     const initialDepth = this._depth;
     const updatedDepth = initialDepth.mul(
-      this.lpSupply.sub(burnAmount).div(this.lpSupply),
+      this.lpSupply.sub(burnAmount_).div(this.lpSupply),
     );
     const knownBalances = this.balances.filter((_, i) => i !== outputIndex);
     const missingBalance = this.calcMissingBalance(
@@ -335,19 +349,17 @@ export class PoolMath {
     const governanceDepth = totalFeeDepth.mul(
       this.governanceFee.div(this.totalFee),
     );
-    const updatedLpSupply = this.lpSupply.sub(burnAmount);
+    const updatedLpSupply = this.lpSupply.sub(burnAmount_);
     const lpDepth = updatedDepth.add(totalFeeDepth).sub(governanceDepth);
     const appreciationFactor = updatedLpSupply.div(lpDepth);
     const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return { stableOutputAmount, governanceMintAmount };
   }
 
-  public removeUniform(burnAmount: Decimal): readonly Decimal[] {
-    this.isValidBurnAmountOrThrow(burnAmount);
-    return arrayScale(
-      sanitizeSign(burnAmount).div(this.lpSupply),
-      this.balances,
-    );
+  public removeUniform(burnAmount: Decimalish): readonly Decimal[] {
+    const burnAmount_ = toDecimal(burnAmount);
+    this.isValidBurnAmountOrThrow(burnAmount_);
+    return arrayScale(burnAmount_.div(this.lpSupply), this.balances);
   }
 
   // OTHER INFO -------------------------------------------
@@ -389,7 +401,7 @@ export class PoolMath {
   }
 
   public priceImpact(
-    inputAmount: Decimal,
+    inputAmount: Decimalish,
     inputIndex: number,
     outputIndex: number,
   ): Decimal {
@@ -397,7 +409,7 @@ export class PoolMath {
     const marginalPrice = marginalPrices[inputIndex].div(
       marginalPrices[outputIndex],
     );
-    const extrapolatedOutput = inputAmount
+    const extrapolatedOutput = toDecimal(inputAmount)
       .mul(new Decimal(1).sub(this.totalFee))
       .mul(marginalPrice);
     const inputAmounts = this.balances.map((_, i) =>
@@ -425,16 +437,14 @@ export class PoolMath {
   private isValidBurnAmountOrThrow(burnAmount: Decimal): void {
     if (burnAmount.lt(0)) {
       throw new Error(
-        "burnAmount must be non negative, but was instead " +
-          burnAmount.toString(),
+        `burnAmount must be non negative, but was instead ` +
+          `${burnAmount.toString()}`,
       );
     }
     if (burnAmount.gt(this.lpSupply)) {
       throw new Error(
-        "burnAmount exceeds entire lpSupply. burnAmount: " +
-          burnAmount.toString() +
-          ", lpSupply: " +
-          this.lpSupply.toString(),
+        `burnAmount exceeds entire lpSupply. burnAmount: ` +
+          `${burnAmount.toString()}, lpSupply: ${this.lpSupply.toString()}`,
       );
     }
   }
@@ -595,11 +605,8 @@ export class PoolMath {
       depthApprox = depthNext;
     }
     throw new Error(
-      "calcDepth() failed to converge within specified maxIterations (" +
-        this.maxIterations.toString() +
-        ") and tolerance (" +
-        this.tolerance.toString() +
-        ")",
+      `calcDepth() failed to converge within specified maxIterations` +
+        ` (${this.maxIterations}) and tolerance (${this.tolerance.toString()})`,
     );
   }
 
@@ -645,11 +652,8 @@ export class PoolMath {
       missingBalanceApprox = missingBalanceNext;
     }
     throw new Error(
-      "calcMissingBalance() failed to converge within specified maxIterations (" +
-        this.maxIterations.toString() +
-        ") and tolerance (" +
-        this.tolerance.toString() +
-        ")",
+      `calcMissingBalance() failed to converge within specified maxIterations` +
+        ` (${this.maxIterations}) and tolerance (${this.tolerance.toString()})`,
     );
   }
 }

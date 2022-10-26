@@ -42,9 +42,9 @@ export enum SolanaTxType {
   PortalRedeem = "portal:redeem",
   WormholeVerifySignatures = "wormhole:verifySignatures",
   WormholePostVaa = "wormhole:postVaa",
+  SplTokenCreateAccount = "splToken:createAccount",
   SwimPropellerAdd = "swimPropeller:add",
   SwimPropellerTransfer = "swimPropeller:transfer",
-  SwimCreateSplTokenAccount = "swim:createSplTokenAccount",
   SwimCompleteNativeWithPayload = "swim:completeNativeWithPayload",
   SwimProcessSwimPayload = "swim:processSwimPayload",
 }

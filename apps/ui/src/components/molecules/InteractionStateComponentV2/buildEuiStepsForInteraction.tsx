@@ -479,8 +479,8 @@ export const buildEuiStepsForInteraction = (
         }
         case SwapType.CrossChainEvmToSolana: {
           return [
-            buildPrepareSplTokenAccountStep(state, status),
             buildSwapAndTransferStep(state, status),
+            buildPrepareSplTokenAccountStep(state, status),
             buildClaimTokenOnSolanaStep(state, status),
           ].filter(isNotNull);
         }

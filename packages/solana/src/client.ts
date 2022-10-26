@@ -386,7 +386,7 @@ export class SolanaClient extends Client<
     TxGeneratorResult<
       ParsedTransactionWithMeta,
       SolanaTx,
-      | SolanaTxType.SwimCreateSplTokenAccount
+      | SolanaTxType.SplTokenCreateAccount
       | SolanaTxType.WormholeVerifySignatures
       | SolanaTxType.WormholePostVaa
       | SolanaTxType.SwimCompleteNativeWithPayload
@@ -467,7 +467,9 @@ export class SolanaClient extends Client<
     if (senderPublicKey === null) {
       throw new Error("Missing Solana wallet");
     }
-
+    if (!isSupportedTokenProjectId(sourceTokenId)) {
+      throw new Error("Invalid source token id");
+    }
     const sourceTokenDetails = getTokenDetails(this.chainConfig, sourceTokenId);
     const inputAmountAtomic = humanToAtomic(
       inputAmount,
@@ -622,20 +624,27 @@ export class SolanaClient extends Client<
     TxGeneratorResult<
       ParsedTransactionWithMeta,
       SolanaTx,
-      SolanaTxType.SwimCreateSplTokenAccount
+      SolanaTxType.SplTokenCreateAccount
     >
   > {
     if (!wallet.publicKey) {
       throw new Error("No Solana wallet connected");
     }
     for (const splTokenMintAddress of splTokenMintAddresses) {
-      const existingAccount = await this.connection.getTokenAccountsByOwner(
+      const mint = new PublicKey(splTokenMintAddress);
+      const expectedAtaAddress = await getAssociatedTokenAddress(
+        mint,
         wallet.publicKey,
-        {
-          mint: new PublicKey(splTokenMintAddress),
-        },
       );
-      if (existingAccount.value.length === 0) {
+      const { value: existingAtaAccounts } =
+        await this.connection.getTokenAccountsByOwner(wallet.publicKey, {
+          mint,
+        });
+      const expectedAtaAccount =
+        existingAtaAccounts.find(
+          ({ pubkey }) => pubkey.toBase58() == expectedAtaAddress.toBase58(),
+        ) ?? null;
+      if (expectedAtaAccount === null) {
         const txId = await this.createSplTokenAccount(
           wallet,
           splTokenMintAddress,
@@ -643,7 +652,7 @@ export class SolanaClient extends Client<
         const tx = await this.getTx(txId);
         yield {
           tx,
-          type: SolanaTxType.SwimCreateSplTokenAccount,
+          type: SolanaTxType.SplTokenCreateAccount,
         };
       }
     }

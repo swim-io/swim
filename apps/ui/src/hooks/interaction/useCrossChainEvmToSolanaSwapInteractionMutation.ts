@@ -132,23 +132,20 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
         await fromWallet.switchNetwork(fromChainConfig.chainId);
         const crossChainInitiateResponse =
           await fromWallet.signer.sendTransaction(crossChainInitiateRequest);
-        const crossChainInitiateTx = await evmClient.getTx(
-          crossChainInitiateResponse,
-        );
-        crossChainInitiateTxId = crossChainInitiateTx.id;
-        updateInteractionState(interaction.id, (draft) => {
-          if (
-            draft.interactionType !== InteractionType.SwapV2 ||
-            draft.swapType !== SwapType.CrossChainEvmToSolana
-          ) {
-            throw new Error("Interaction type mismatch");
-          }
-          draft.crossChainInitiateTxId = crossChainInitiateTx.id;
-        });
+        crossChainInitiateTxId = crossChainInitiateResponse.hash;
       }
       const crossChainInitiateTx = await evmClient.getTx(
         crossChainInitiateTxId,
       );
+      updateInteractionState(interaction.id, (draft) => {
+        if (
+          draft.interactionType !== InteractionType.SwapV2 ||
+          draft.swapType !== SwapType.CrossChainEvmToSolana
+        ) {
+          throw new Error("Interaction type mismatch");
+        }
+        draft.crossChainInitiateTxId = crossChainInitiateTx.id;
+      });
       const wormholeSequence = parseSequenceFromLogEth(
         crossChainInitiateTx.original,
         fromChainConfig.wormhole.bridge,
@@ -193,7 +190,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
             throw new Error("Interaction type mismatch");
           }
           switch (result.type) {
-            case SolanaTxType.SwimCreateSplTokenAccount: {
+            case SolanaTxType.SplTokenCreateAccount: {
               const mint = result.tx.original.meta?.preTokenBalances?.[0].mint;
               if (!mint) {
                 throw new Error("Token account mint not found");

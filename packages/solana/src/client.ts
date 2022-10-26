@@ -362,7 +362,7 @@ export class SolanaClient extends Client<
     };
   }
 
-  public async *generateCompleteTransferTxs({
+  public async *generateCompleteSwimSwapTxs({
     wallet,
     interactionId,
     signedVaa,
@@ -909,6 +909,8 @@ export class SolanaClient extends Client<
       .postInstructions([revokeIx, memoIx])
       .signers([auxiliarySigner])
       .transaction();
+    // eslint-disable-next-line functional/immutable-data
+    txRequest.feePayer = walletPublicKey;
     const txId = await this.sendAndConfirmTx(async (tx) => {
       tx.partialSign(auxiliarySigner);
       return wallet.signTransaction(tx);
@@ -978,6 +980,14 @@ export class SolanaClient extends Client<
     readonly sourceChainConfig: ChainConfig;
     readonly signedVaa: Buffer;
   }): Promise<SolanaTx | null> {
+    const completed = await getIsTransferCompletedSolana(
+      this.chainConfig.wormhole.portal,
+      signedVaa,
+      this.connection,
+    );
+    if (completed) {
+      return null;
+    }
     const walletPublicKey = wallet.publicKey;
     if (walletPublicKey === null) {
       throw new Error("Missing Solana wallet public key");
@@ -990,14 +1000,6 @@ export class SolanaClient extends Client<
       sourceWormholeChainId,
       sourceChainConfig,
     );
-    const completed = await getIsTransferCompletedSolana(
-      this.chainConfig.wormhole.portal,
-      signedVaa,
-      this.connection,
-    );
-    if (completed) {
-      return null;
-    }
     const setComputeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
       units: 900_000,
     });
@@ -1040,7 +1042,7 @@ export class SolanaClient extends Client<
     ].map((address) => new PublicKey(address));
     const accounts = await getProcessSwimPayloadAccounts(
       this.chainConfig,
-      new PublicKey(walletPublicKey),
+      walletPublicKey,
       signedVaa,
       poolTokenAccountPublicKeys,
       new PublicKey(twoPoolConfig.governanceFeeAccount),

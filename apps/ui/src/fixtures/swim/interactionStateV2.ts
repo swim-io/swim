@@ -371,7 +371,7 @@ export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT: CrossChainEv
     approvalTxIds: [],
     crossChainInitiateTxId: null,
     auxiliarySignerPublicKey: null,
-    verifySignaturesTxId: null,
+    verifySignaturesTxIds: [],
     postVaaOnSolanaTxId: null,
     completeNativeWithPayloadTxId: null,
     processSwimPayloadTxId: null,
@@ -399,8 +399,9 @@ export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_
 export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_POST_VAA_COMPLETED: CrossChainEvmToSolanaSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
-    verifySignaturesTxId:
+    verifySignaturesTxIds: [
       "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK8",
+    ],
     postVaaOnSolanaTxId:
       "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK9",
   };

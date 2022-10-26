@@ -98,40 +98,6 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
         fromChainConfig.routingContractAddress,
         evmClient.provider,
       );
-      const splTokenAccounts = await Promise.all(
-        Object.keys(requiredSplTokenAccounts).map(async (mint) => {
-          const { tokenAccount, creationTxId } =
-            await findOrCreateSplTokenAccount({
-              env: interaction.env,
-              solanaClient,
-              wallet: toWallet,
-              queryClient,
-              splTokenMintAddress: mint,
-              splTokenAccounts: existingSplTokenAccounts,
-            });
-          // Update interactionState
-          if (creationTxId !== null) {
-            updateInteractionState(interaction.id, (draft) => {
-              if (
-                draft.interactionType !== InteractionType.SwapV2 ||
-                draft.swapType !== SwapType.SingleChainSolana
-              ) {
-                throw new Error("Interaction type mismatch");
-              }
-              draft.requiredSplTokenAccounts[mint].txId = creationTxId;
-            });
-          }
-          return tokenAccount;
-        }),
-      );
-      const swimUsdAccount = findTokenAccountForMint(
-        swimUsd.nativeDetails.address,
-        toWallet.address,
-        splTokenAccounts,
-      );
-      if (swimUsdAccount === null) {
-        throw new Error("SwimUsd account not found");
-      }
       const memo = Buffer.from(interaction.id, "hex");
       let crossChainInitiateTxId = interactionState.crossChainInitiateTxId;
       if (crossChainInitiateTxId === null) {
@@ -206,6 +172,40 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
         undefined,
         retries,
       );
+      const splTokenAccounts = await Promise.all(
+        Object.keys(requiredSplTokenAccounts).map(async (mint) => {
+          const { tokenAccount, creationTxId } =
+            await findOrCreateSplTokenAccount({
+              env: interaction.env,
+              solanaClient,
+              wallet: toWallet,
+              queryClient,
+              splTokenMintAddress: mint,
+              splTokenAccounts: existingSplTokenAccounts,
+            });
+          // Update interactionState
+          if (creationTxId !== null) {
+            updateInteractionState(interaction.id, (draft) => {
+              if (
+                draft.interactionType !== InteractionType.SwapV2 ||
+                draft.swapType !== SwapType.SingleChainSolana
+              ) {
+                throw new Error("Interaction type mismatch");
+              }
+              draft.requiredSplTokenAccounts[mint].txId = creationTxId;
+            });
+          }
+          return tokenAccount;
+        }),
+      );
+      const swimUsdAccount = findTokenAccountForMint(
+        swimUsd.nativeDetails.address,
+        toWallet.address,
+        splTokenAccounts,
+      );
+      if (swimUsdAccount === null) {
+        throw new Error("SwimUsd account not found");
+      }
       if (interactionState.postVaaOnSolanaTxId === null) {
         const auxiliarySigner = Keypair.generate();
         const postVaaTxGenerator =
@@ -226,7 +226,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
 
             switch (result.type) {
               case SolanaTxType.WormholeVerifySignatures:
-                draft.verifySignaturesTxId = result.tx.id;
+                draft.verifySignaturesTxIds.push(result.tx.id);
                 break;
               case SolanaTxType.WormholePostVaa:
                 draft.postVaaOnSolanaTxId = result.tx.id;
@@ -249,7 +249,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
         toTokenData.ecosystemId,
       );
       const completeTransferTxGenerator =
-        solanaClient.generateCompleteTransferTxs({
+        solanaClient.generateCompleteSwimSwapTxs({
           wallet: toWallet,
           interactionId: interaction.id,
           signedVaa: Buffer.from(signedVaa),

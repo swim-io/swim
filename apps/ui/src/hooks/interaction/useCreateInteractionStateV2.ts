@@ -213,7 +213,7 @@ const createSwapInteractionState = (
         approvalTxIds: [],
         crossChainInitiateTxId: null,
         auxiliarySignerPublicKey: null,
-        verifySignaturesTxId: null,
+        verifySignaturesTxIds: [],
         postVaaOnSolanaTxId: null,
         completeNativeWithPayloadTxId: null,
         processSwimPayloadTxId: null,

@@ -42,7 +42,7 @@ export class TokenWrapper {
         ? 0
         : Object.values(TokenProjectId)
             .map((id) => TOKEN_PROJECTS_BY_ID[id])
-            //TODO we're using includes() and lenght checking here instead of === here because e.g.
+            //TODO we're using includes() and length checking here instead of === here because e.g.
             //      on Avalanche USDC is called aUSDC... ultimately a better solution than this is
             //      obviously required to dynamically look up tokennumbers
             .filter(

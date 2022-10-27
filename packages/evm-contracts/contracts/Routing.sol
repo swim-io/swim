@@ -36,13 +36,16 @@ contract Routing is
 
   struct PropellerFeeConfig {
     GasTokenPriceMethod   method;
+
     //service fee specified in swimUSD
     uint64                serviceFee;
+
     //specified in atomic with 18 decimals, i.e. how many atomic swimUSD per 1 wei?
     // assuming a gas token price of 1 (human) swimUSD / 1 (human) gas token where swimUSD has
     // 6 decimals and gas token has 18 decimals means 10^-12 atomic swimUSD per 1 wei gas token
     // and thus taking 18 decimals into account fixedSwimUsdPerGasToken would equal 10^6
     uint                  fixedSwimUsdPerGasToken;
+
     UniswapOracleParams   uniswap;
   }
 
@@ -254,27 +257,6 @@ contract Routing is
       swimUsdAddress_
     );
 
-    //old way of not going through the Solana Routing contract but doing a direct transfer
-    // leaving in for testing purposes / as a workaround for now.
-    // if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
-    //   IERC20(swimUsdAddress_).safeApprove(address(tokenBridge), swimUsdAmount);
-
-    //   try
-    //     tokenBridge.transferTokens{value: msg.value}(
-    //       swimUsdAddress_,
-    //       swimUsdAmount,
-    //       WORMHOLE_SOLANA_CHAIN_ID,
-    //       toOwner,
-    //       0, //arbiterFee
-    //       wormholeNonce
-    //     )
-    //   returns (uint64 _wormholeSequence) {
-    //     wormholeSequence = _wormholeSequence;
-    //   } catch (bytes memory lowLevelData) {
-    //     revert WormholeInteractionFailed(lowLevelData);
-    //   }
-    //   ++wormholeNonce;
-    // } else {
     wormholeSequence = wormholeTransferWithPayload(
       swimUsdAmount,
       wormholeRecipientChain,
@@ -282,7 +264,6 @@ contract Routing is
       wormholeNonce,
       swimUsdAddress_
     );
-    // }
   }
 
   function propellerInitiate(

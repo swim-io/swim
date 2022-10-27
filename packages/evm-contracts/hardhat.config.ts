@@ -36,12 +36,24 @@ task("deploy", "Run the deployment script", async (_, hre) => {
 task(
   "update",
   "Updates a given proxy contract to a new implementation via updateTo",
-  async ({ proxy, logic, owner }, hre) => {
+  async (
+    {
+      proxy,
+      logic,
+      owner,
+    }: { readonly proxy: string; readonly logic: string; readonly owner?: string },
+    hre
+  ) => {
     const { ethers } = hre;
-    const _owner = owner ? await ethers.getSigner(owner as string) : (await ethers.getSigners())[0];
-    //TODO check that proxy and logic exist
-    const _proxy = (await ethers.getContractAt("BlankLogic", proxy as string)).connect(_owner);
-    await (await _proxy.upgradeTo(logic as string)).wait();
+    const requireExists = async (address: string) => {
+      if ((await ethers.provider.getCode(address)).length <= 2)
+        throw Error(`No contract deployed at ${address}`);
+    };
+    await Promise.all([proxy, logic].map(requireExists));
+
+    const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
+    const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
+    await (await _proxy.upgradeTo(logic)).wait();
   }
 )
   .addPositionalParam("proxy", "address of the proxy that will be upgraded")
@@ -51,34 +63,38 @@ task(
   )
   .addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
 
-task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => {
-  const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
-    await ethers.getContractAt("Pool", pool as string)
-  ).getState();
-  const decimaltoFixed = (decimal: readonly [BigNumber, number]) =>
-    formatFixed(decimal[0], decimal[1]);
-  const getDecimals = async (address: string) =>
-    (await ethers.getContractAt("ERC20", address)).decimals();
-  const toTokenInfo = async (token: readonly [string, BigNumber]) => ({
-    address: token[0],
-    amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
-  });
-  const state = {
-    isPaused,
-    balances: await Promise.all(balances.map(toTokenInfo)),
-    lpSupply: await toTokenInfo(lpSupply),
-    ampFactor: decimaltoFixed(ampFactorDec),
-    lpFee: decimaltoFixed(lpFeeDec),
-    govFee: decimaltoFixed(govFeeDec),
-  };
-  console.log(JSON.stringify(state, null, 2));
-}).addPositionalParam("pool", "Address of the pool");
+task(
+  "pool-state",
+  "Print state of given pool",
+  async ({ pool }: { readonly pool: string }, { ethers }) => {
+    const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
+      await ethers.getContractAt("Pool", pool)
+    ).getState();
+    const decimaltoFixed = (decimal: readonly [BigNumber, number]) =>
+      formatFixed(decimal[0], decimal[1]);
+    const getDecimals = async (address: string) =>
+      (await ethers.getContractAt("ERC20", address)).decimals();
+    const toTokenInfo = async (token: readonly [string, BigNumber]) => ({
+      address: token[0],
+      amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
+    });
+    const state = {
+      isPaused,
+      balances: await Promise.all(balances.map(toTokenInfo)),
+      lpSupply: await toTokenInfo(lpSupply),
+      ampFactor: decimaltoFixed(ampFactorDec),
+      lpFee: decimaltoFixed(lpFeeDec),
+      govFee: decimaltoFixed(govFeeDec),
+    };
+    console.log(JSON.stringify(state, null, 2));
+  }
+).addPositionalParam("pool", "Address of the pool");
 
 task(
   "selectors",
   "Print the selectors of all functions, events, and errors of a given contract",
-  async ({ name }, { ethers }) => {
-    const interfce = (await ethers.getContractFactory(name as string)).interface;
+  async ({ name }: { readonly name: string }, { ethers }) => {
+    const interfce = (await ethers.getContractFactory(name)).interface;
     const printType = (type: "functions" | "events" | "errors") =>
       console.log(
         type + ":\n",

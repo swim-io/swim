@@ -24,7 +24,6 @@ const COINGECKO_ID_TO_TOKEN_IDS: ReadonlyRecord<string, readonly string[]> = {
   fantom: ["FTM"],
   karura: ["KAR"],
   "matic-network": ["MATIC"],
-  solana: ["SOL"],
 };
 
 export const useCoinGeckoPricesQuery = (): UseQueryResult<

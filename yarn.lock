@@ -7156,21 +7156,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@npm:^0.40.0":
-  version: 0.40.0
-  resolution: "@swim-io/aptos@npm:0.40.0"
-  dependencies:
-    "@swim-io/core": ^0.40.0
-    "@swim-io/utils": ^0.40.0
-    aptos: ^1.3.13
-  peerDependencies:
-    decimal.js: ^10.3.1
-    eventemitter3: ^4.0.7
-  checksum: c20ed5033c04f12909ba46605ea40a5866db25cfe5ae08a8fe2e99c1a99fab2c8488e11d5737c74b5cc6ae282f2819097fd71e8a9af2a7dc507f08785d3a8496
-  languageName: node
-  linkType: hard
-
-"@swim-io/aptos@workspace:packages/aptos":
+"@swim-io/aptos@workspace:^, @swim-io/aptos@workspace:packages/aptos":
   version: 0.0.0-use.local
   resolution: "@swim-io/aptos@workspace:packages/aptos"
   dependencies:
@@ -7426,27 +7412,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.40.0":
-  version: 0.40.0
-  resolution: "@swim-io/evm@npm:0.40.0"
-  dependencies:
-    "@swim-io/core": ^0.40.0
-    "@swim-io/evm-contracts": ^0.40.0
-    "@swim-io/token-projects": ^0.40.0
-    "@swim-io/utils": ^0.40.0
-    graphql: ^16.6.0
-    graphql-request: ^4.3.0
-    moralis: ^1.8.0
-  peerDependencies:
-    "@certusone/wormhole-sdk": ^0.6.2
-    decimal.js: ^10.3.1
-    ethers: ^5.6.9
-    eventemitter3: ^4.0.7
-  checksum: ba65ee3dcf51c9a4c1e329a7597b41c4226028f2fc76afd57c9e8185b20e04ef5563d47cdf017ec9aa122e148162408b16d544a167c6953b251a77fc83cebdfb
-  languageName: node
-  linkType: hard
-
-"@swim-io/evm@workspace:packages/evm":
+"@swim-io/evm@workspace:^, @swim-io/evm@workspace:packages/evm":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
@@ -7514,7 +7480,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/pool-math@workspace:^, @swim-io/pool-math@workspace:packages/pool-math":
+"@swim-io/pool-math@npm:~0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/pool-math@npm:0.39.0"
+  peerDependencies:
+    decimal.js: ^10.3.1
+  checksum: 68f86c9a614630192dd54a04a7f96765823e2fb2444a8807de172714570695f0ee0f8c82a676b682973dc64f54eca422b95828b7df9eacfa9b71d5cc5a819a63
+  languageName: node
+  linkType: hard
+
+"@swim-io/pool-math@workspace:packages/pool-math":
   version: 0.0.0-use.local
   resolution: "@swim-io/pool-math@workspace:packages/pool-math"
   dependencies:
@@ -7714,8 +7689,8 @@ __metadata:
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/pool-math": "workspace:^"
-    "@swim-io/solana": "workspace:^"
+    "@swim-io/pool-math": ~0.39.0
+    "@swim-io/solana": ~0.39.0
     "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
@@ -7757,7 +7732,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.39.0":
+"@swim-io/solana@npm:^0.39.0, @swim-io/solana@npm:~0.39.0":
   version: 0.39.0
   resolution: "@swim-io/solana@npm:0.39.0"
   dependencies:
@@ -7971,13 +7946,13 @@ __metadata:
     "@storybook/manager-webpack4": ^6.5.10
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
-    "@swim-io/aptos": ^0.40.0
-    "@swim-io/core": ^0.40.0
+    "@swim-io/aptos": "workspace:^"
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.40.0
+    "@swim-io/evm": "workspace:^"
     "@swim-io/evm-contracts": ^0.40.0
     "@swim-io/pool-math": ^0.40.0
-    "@swim-io/solana": ^0.40.0
+    "@swim-io/solana": "workspace:^"
     "@swim-io/solana-contracts": ^0.40.0
     "@swim-io/token-projects": ^0.40.0
     "@swim-io/tsconfig": "workspace:^"

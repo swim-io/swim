@@ -3,6 +3,7 @@ import type { TokenProjectId } from "@swim-io/token-projects";
 import type Decimal from "decimal.js";
 
 import type { ChainConfig } from "./chain";
+import type { PoolState } from "./pool";
 import type { TokenDetails } from "./token";
 import type { Tx } from "./tx";
 
@@ -82,6 +83,7 @@ export abstract class Client<
     owner: string,
     tokenDetails: readonly TokenDetails[],
   ): Promise<readonly Decimal[]>;
+  public abstract getPoolState(id: string): Promise<PoolState>;
 
   public abstract generateInitiatePortalTransferTxs(
     params: InitiatePortalTransferParams<Wallet>,

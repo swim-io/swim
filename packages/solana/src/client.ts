@@ -160,11 +160,6 @@ export class SolanaClient extends Client<
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex: number;
   private readonly endpoints: readonly string[];
-  // TODO: Check if this is still necessary.
-  // The websocket library solana/web3.js closes its websocket connection when the subscription list
-  // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
-  // This is a hack to prevent the list from ever getting empty
-  private dummySubscriptionId?: number;
 
   public constructor(
     chainConfig: SolanaChainConfig,
@@ -623,22 +618,12 @@ export class SolanaClient extends Client<
       // and it is not being called in the constructor (when this.connection is still undefined)
       return;
     }
-    if (this.dummySubscriptionId !== undefined) {
-      // Remove old dummy subscription if it has been initialized.
-      this.connection
-        .removeAccountChangeListener(this.dummySubscriptionId)
-        .catch(console.error);
-    }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
     this.connection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
-    this.dummySubscriptionId = this.connection.onAccountChange(
-      Keypair.generate().publicKey,
-      () => {},
-    );
   }
 
   // Looks for a signature, only returns a value if there's no error

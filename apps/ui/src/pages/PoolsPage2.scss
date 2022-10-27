@@ -1,0 +1,29 @@
+.poolsPage {
+  .euiTableHeaderCell:nth-child(2) {
+    .euiTableCellContent__text {
+      text-align: center !important;
+      width: 100% !important;
+    }
+  }
+
+  .euiTableHeaderCell:nth-child(3),
+  .euiTableFooterCell:nth-child(3),
+  .euiTableHeaderCell:nth-child(4),
+  .euiTableFooterCell:nth-child(4) {
+    .euiTableCellContent__text {
+      text-align: right !important;
+      width: 100% !important;
+      font-size: 14px;
+    }
+  }
+  .chain {
+    text-align: center;
+    font-weight: 500;
+  }
+  .tokens {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+}

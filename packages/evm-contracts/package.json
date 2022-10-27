@@ -33,8 +33,7 @@
     "coverage": "hardhat coverage",
     "typecheck": "tsc",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test",
-    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && yarn clean && yarn compile && yarn build:ts",
-    "build:ts": "yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/evm-contracts run build",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && yarn clean && yarn compile && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "devDependencies": {

@@ -1058,7 +1058,7 @@ export type TwoPool = {
         {
           "name": "upcomingGovernanceKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -1159,7 +1159,7 @@ export type TwoPool = {
         {
           "name": "newPauseKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -3269,7 +3269,7 @@ export const IDL: TwoPool = {
         {
           "name": "upcomingGovernanceKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -3370,7 +3370,7 @@ export const IDL: TwoPool = {
         {
           "name": "newPauseKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [

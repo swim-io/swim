@@ -2,9 +2,7 @@ use {
     crate::{error::PropellerError, TOKEN_COUNT},
     anchor_lang::prelude::*,
     anchor_spl::token::TokenAccount,
-    std::{
-        io::{Write},
-    },
+    std::io::Write,
     two_pool::state::TwoPool,
 };
 
@@ -38,9 +36,8 @@ pub struct Propeller {
     // gas kickstart parameters
     // 1. marginal_price_pool will be pool used to calculate token_bridge_mint -> stablecoin
     // 2. marginal_price_pool_token_index will be index of token in pool used to calculate token_bridge_mint -> stablecoin
-
-    // pool used to get marginal price
-    // e.g. usdc-usdt pool
+    /// pool used to get marginal price of swimUSD -> stablecoin for gas conversion
+    /// e.g. usdc-usdt pool
     pub marginal_price_pool: Pubkey,
     pub marginal_price_pool_token_mint: Pubkey,
     // index of token used for calculating gas price
@@ -49,13 +46,29 @@ pub struct Propeller {
     // pub evm_routing_contract_address: [u8; 32],
     pub fee_vault: Pubkey, //32
 
-    /** switchboard **/
+    // switchboard
+    //
+    // from discord:
+    // default sol/usd feed has 10K samples => ~0.7 days of data
+    // https://switchboard.xyz/explorer/3/GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR
+    //      should be safe to use unless we need custom sources or larger history buffer size
+    // example feed eefn:
+    //  1. switchboard feed w/ SOL/USD prices from variety of exchanges weighed by 7D volume along w/ history buffer
+    //  2. switchboard feed w/ oracleTask to fetch Pyth SOL/USD prices every 10 seconds + history buffer
+    //  3. switchboard feed w/ oracleTask to fetch ChainLink SOL/USD prices every 10 seconds + history buffer
+    //  4. switchboard feed calculating 1 min TWAP of (1) (2) and (3) and returns median of results
     pub aggregator: Pubkey, //32
     pub max_staleness: i64, //8
                             // pub max_confidence_interval: i64, //8
 
                             //TODO: add this?
                             // pub fallback_oracle: Pubkey, //32
+
+                            //  pyth
+                            //
+                            // mango
+                            // conf = price.agg.conf / price.agg.value
+                            // => if conf > 0.10 => conf > 10% of price => filter out
 }
 // better to save pda keys on chain and always calculate/derive client side?
 //  - if save pubkeys and don't use #[account(seeds=[...])] then need to manually call or save
@@ -83,8 +96,6 @@ impl Propeller {
         8 + //process_swim_payload_fee
         8 + // complete_with_payload_cost
         8 + // process_swim_payload_cost
-        // 8 + //propeller_min_transfer_amount
-        // 8 +  //propeller_eth_min_transfer_amount
         32 + //fee_vault
         32 + //aggregator
         8; //max_staleness
@@ -166,27 +177,8 @@ impl SwimPayloadMessage {
     // SwimPayload::LEN; // swim_payload
 }
 
-/// Utility function that verifies:
-/// 1. pool_token_index < TOKEN_COUNT
-/// 2. marginal_price_pool_token_accounts[pool_token_index].mint = propeller.marginal_price_pool_token_mint
-/// 3. marginal_price_pool.token_mint_keys[pool_token_index] = propeller.marginal_price_pool_token_mint
-pub fn validate_marginal_prices_pool_accounts<'info>(
-    propeller: &Propeller,
-    marginal_price_pool: &Account<'info, TwoPool>,
-    marginal_price_pool_token_accounts: &[&Account<'info, TokenAccount>; TOKEN_COUNT],
-) -> Result<()> {
-    let pool_token_index = propeller.marginal_price_pool_token_index as usize;
-    require_gt!(TOKEN_COUNT, pool_token_index, PropellerError::InvalidMarginalPricePoolAccounts);
-    let pool_token_account = marginal_price_pool_token_accounts[pool_token_index];
-    require_keys_eq!(pool_token_account.mint, propeller.marginal_price_pool_token_mint);
-    require_keys_eq!(marginal_price_pool.token_mint_keys[pool_token_index], propeller.marginal_price_pool_token_mint);
-    require_keys_eq!(pool_token_account.key(), marginal_price_pool_token_accounts[pool_token_index].key());
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_non_propeller_swim_payload() {}

@@ -81,7 +81,7 @@ async fn test_governance_transition() {
     let prepare_gov_transition_txn = Transaction::new_signed_with_payer(
         &[prepare_gov_transition_ix],
         Some(&pt_ctxt.get_payer().pubkey()),
-        &[pt_ctxt.get_payer(), pt_ctxt.get_governance(), &new_governance_key],
+        &[pt_ctxt.get_payer(), pt_ctxt.get_governance()],
         recent_blockhash,
     );
 

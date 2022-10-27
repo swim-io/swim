@@ -1567,11 +1567,17 @@ describe("propeller", () => {
       const wormholeMessage = web3.Keypair.generate();
 
       const nonce = createNonce().readUInt32LE(0);
+      const targetChain = CHAIN_ID_ETH;
+      const [targetChainMap] = await getTargetChainMapAddr(
+        propeller,
+        targetChain,
+        propellerProgram.programId,
+      );
       const transferNativeTxn = await propellerProgram.methods
         .crossChainTransferNativeWithPayload(
           nonce,
           transferAmount,
-          CHAIN_ID_ETH,
+          targetChain,
           evmOwner,
         )
         .accounts({
@@ -1597,6 +1603,7 @@ describe("propeller", () => {
           // systemProgram,
           wormhole,
           tokenProgram: splToken.programId,
+          targetChainMap,
         })
         .preInstructions([setComputeUnitLimitIx])
         .postInstructions([createMemoInstruction(memo.toString("hex"))])
@@ -1706,11 +1713,17 @@ describe("propeller", () => {
       const maxFee = new BN(100_000);
       const nonce = createNonce().readUInt32LE(0);
 
+      const targetChain = CHAIN_ID_ETH;
+      const [targetChainMap] = await getTargetChainMapAddr(
+        propeller,
+        targetChain,
+        propellerProgram.programId,
+      );
       const propellerTransferNativeTxn = await propellerProgram.methods
         .propellerTransferNativeWithPayload(
           nonce,
           transferAmount,
-          CHAIN_ID_ETH,
+          targetChain,
           evmOwner,
           gasKickstart,
           maxFee,
@@ -1740,6 +1753,7 @@ describe("propeller", () => {
           // systemProgram,
           wormhole,
           tokenProgram: splToken.programId,
+          targetChainMap,
         })
         .preInstructions([setComputeUnitLimitIx])
         .postInstructions([createMemoInstruction(memo.toString("hex"))])
@@ -1850,12 +1864,18 @@ describe("propeller", () => {
       const gasKickstart = false;
       const maxFee = new BN(100_000);
       const nonce = createNonce().readUInt32LE(0);
+      const targetChain = CHAIN_ID_ETH;
+      const [targetChainMap] = await getTargetChainMapAddr(
+        propeller,
+        targetChain,
+        propellerProgram.programId,
+      );
 
       const propellerTransferNativeTxn = await propellerProgram.methods
         .propellerTransferNativeWithPayload(
           nonce,
           transferAmount,
-          CHAIN_ID_ETH,
+          targetChain,
           evmOwner,
           gasKickstart,
           maxFee,
@@ -1885,6 +1905,7 @@ describe("propeller", () => {
           // systemProgram,
           wormhole,
           tokenProgram: splToken.programId,
+          targetChainMap,
         })
         .preInstructions([setComputeUnitLimitIx])
         .transaction();

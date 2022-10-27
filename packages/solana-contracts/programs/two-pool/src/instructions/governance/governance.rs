@@ -115,7 +115,8 @@ pub fn handle_change_governance_fee_account(
 #[derive(Accounts)]
 pub struct PrepareGovernanceTransition<'info> {
     pub governance: Governance<'info>,
-    pub upcoming_governance_key: Signer<'info>,
+    ///CHECK: not specifying type of account since it doesn't matter
+    pub upcoming_governance_key: UncheckedAccount<'info>,
 }
 
 pub fn handle_prepare_governance_transition(
@@ -156,11 +157,13 @@ pub fn handle_enact_governance_transition(ctx: Context<Governance>) -> Result<()
 #[derive(Accounts)]
 pub struct ChangePauseKey<'info> {
     pub governance: Governance<'info>,
-    pub new_pause_key: Signer<'info>,
+    ///CHECK: not specifying type of account since it doesn't matter
+    pub new_pause_key: UncheckedAccount<'info>,
 }
 
 pub fn handle_change_pause_key(ctx: Context<ChangePauseKey>, new_pause_key: Pubkey) -> Result<()> {
     require_keys_eq!(ctx.accounts.new_pause_key.key(), new_pause_key, PoolError::InvalidNewPauseKey);
+    require_keys_neq!(ctx.accounts.new_pause_key.key(), Pubkey::default(), PoolError::InvalidNewPauseKey);
     let pool = &mut ctx.accounts.governance.pool;
     pool.pause_key = new_pause_key;
     Ok(())

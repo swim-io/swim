@@ -1,10 +1,8 @@
-use crate::{
-    get_memo_as_utf8, wormhole::SwimPayload, Fees,
-};
 use {
     crate::{
-        error::*, fees::*, get_message_data,
-        state::SwimPayloadMessage, ClaimData, MessageData, PayloadTransferWithPayload, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        error::*, fees::*, get_memo_as_utf8, get_message_data, state::SwimPayloadMessage, wormhole::SwimPayload,
+        ClaimData, Fees, MessageData, PayloadTransferWithPayload, Propeller, TokenBridge, Wormhole,
+        COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -12,8 +10,7 @@ use {
     },
     anchor_spl::{
         associated_token::get_associated_token_address,
-        token,
-        token::{Mint, Token, TokenAccount, Transfer},
+        token::{self, Mint, Token, TokenAccount, Transfer},
     },
     solana_program::program::invoke,
 };
@@ -99,9 +96,11 @@ pub struct CompleteNativeWithPayload<'info> {
     // )]
     #[account(mut)]
     /// CHECK: wormhole claim account to prevent double spending
+    /// checked in CPI
     pub claim: UncheckedAccount<'info>,
 
     /// CHECK: wormhole endpoint account. seeds = [ vaa.emitter_chain, vaa.emitter_address ]
+    /// checked in CPI
     pub endpoint: UncheckedAccount<'info>,
     /// `to` account in `CompleteNativeWithPayload`
     #[account(
@@ -147,10 +146,10 @@ pub struct CompleteNativeWithPayload<'info> {
     // /// CHECK: recipient of fees for executing complete transfer (e.g. relayer)
     // pub fee_recipient: AccountInfo<'info>,
     #[account(
-        mut,
-        seeds = [swim_usd_mint.key().as_ref()],
-        seeds::program = token_bridge.key(),
-        bump,
+    mut,
+    seeds = [swim_usd_mint.key().as_ref()],
+    seeds::program = token_bridge.key(),
+    bump,
     )]
     /// CHECK: wormhole_custody_account: seeds = [mint], seeds::program = token_bridge
     pub custody: UncheckedAccount<'info>,
@@ -421,21 +420,11 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         transfer_amount *= 10u64.pow(ctx.accounts.complete_native_with_payload.swim_usd_mint.decimals as u32);
     }
     msg!("transfer_amount(swimUSD atomic): {:?}", transfer_amount);
-    msg!(
-        "redeemer escrow balance before reload: {:?}",
-        ctx.accounts.complete_native_with_payload.redeemer_escrow.amount
-    );
-    ctx.accounts.complete_native_with_payload.redeemer_escrow.reload()?;
-    msg!(
-        "redeemer escrow balance after reload: {:?}",
-        ctx.accounts.complete_native_with_payload.redeemer_escrow.amount
-    );
     // Only tracking & converting fee from SOL -> swimUSD if the payer isn't the actual logical owner.
     // This is for if the propeller engine is unavailable and the user is manually calling
     // this ix. They should use the `CompleteNativeWithPayload` ix instead but adding this just in case.\
     // if swim payload owner calling though they will need a fee tracker account already.
     let swim_payload_owner = Pubkey::new_from_array(swim_payload.owner);
-    let _token_program = &ctx.accounts.complete_native_with_payload.token_program;
     if swim_payload_owner != ctx.accounts.complete_native_with_payload.payer.key() {
         let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
         // let fees_in_swim_usd_atomic = ctx.accounts.convert_fees_to_swim_usd_atomic(fees_in_lamports)?;

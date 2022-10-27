@@ -1,9 +1,6 @@
 use {
-    crate::two_pool_cpi::{
-        init_to_swim_usd::*,
-        // remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_output::*,
-    },
-    anchor_lang::{prelude::*},
+    crate::two_pool_cpi::init_to_swim_usd::*,
+    anchor_lang::prelude::*,
     // crate::two_pool_cpi::*,
     constants::TOKEN_COUNT,
     fees::*,
@@ -19,7 +16,6 @@ mod instructions;
 mod state;
 mod token_bridge;
 mod wormhole;
-
 
 pub use {error::*, instructions::*};
 
@@ -43,16 +39,20 @@ pub mod propeller {
         handle_change_pause_key(ctx, new_pause_key)
     }
 
-    pub fn prepare_governance_transition(ctx: Context<Governance>, upcoming_governance_key: Pubkey) -> Result<()> {
+    pub fn prepare_governance_transition(
+        ctx: Context<PrepareGovernanceTransition>,
+        upcoming_governance_key: Pubkey,
+    ) -> Result<()> {
         handle_prepare_governance_transition(ctx, upcoming_governance_key)
     }
 
-    pub fn enact_governance_transition(_ctx: Context<Governance>) -> Result<()> {
-        Ok(())
+    pub fn enact_governance_transition(ctx: Context<Governance>) -> Result<()> {
+        handle_enact_governance_transition(ctx)
     }
 
-    // pub fn prepare_fee_change(ctx: Context<Governance>, fee_updates: FeeUpdates) -> Result<()> {}
-    // pub fn enact_fee_change(ctx: Context<Governance>) -> Result<()> {}
+    pub fn update_fees(ctx: Context<Governance>, fee_updates: FeeUpdates) -> Result<()> {
+        handle_update_fees(ctx, fee_updates)
+    }
 
     #[inline(never)]
     #[access_control(
@@ -146,7 +146,6 @@ pub mod propeller {
     }
 
     #[inline(never)]
-    #[access_control(TransferNativeWithPayload::accounts(&ctx))]
     pub fn cross_chain_transfer_native_with_payload(
         ctx: Context<TransferNativeWithPayload>,
         nonce: u32,
@@ -158,7 +157,6 @@ pub mod propeller {
     }
 
     #[inline(never)]
-    #[access_control(TransferNativeWithPayload::accounts(&ctx))]
     pub fn propeller_transfer_native_with_payload(
         ctx: Context<TransferNativeWithPayload>,
         nonce: u32,

@@ -1058,7 +1058,7 @@
         {
           "name": "upcomingGovernanceKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -1159,7 +1159,7 @@
         {
           "name": "newPauseKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [

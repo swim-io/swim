@@ -1023,7 +1023,7 @@ describe("TwoPool", () => {
           },
           newPauseKey: newPauseKeypair.publicKey,
         })
-        .signers([governanceKeypair, newPauseKeypair])
+        .signers([governanceKeypair])
         .rpc();
 
       console.info(`changePauseKeyTxn: ${changePauseKeyTxn}`);
@@ -1128,7 +1128,7 @@ describe("TwoPool", () => {
           },
           upcomingGovernanceKey: upcomingGovernanceKey,
         })
-        .signers([governanceKeypair, upcomingGovernanceKeypair])
+        .signers([governanceKeypair])
         .rpc();
       console.info(
         `send prepareGovernanceTransitionTxn: ${prepareGovernanceTransitionTxn}`,

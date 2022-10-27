@@ -1,4 +1,4 @@
-pub use {gov::*, pause::*};
+pub use {governance::*, pause::*};
 
-mod gov;
+mod governance;
 mod pause;

@@ -27,19 +27,20 @@ pub struct TransferNativeWithPayload<'info> {
 
     #[account(mut)]
     pub payer: Signer<'info>,
+
     #[account(
-	mut,
-	seeds = [ b"config".as_ref() ],
-	bump,
-	seeds::program = propeller.token_bridge()
-	)]
+    mut,
+    seeds = [ b"config".as_ref() ],
+    bump,
+    seeds::program = token_bridge.key()
+    )]
     /// CHECK: Token Bridge Config
     pub token_bridge_config: UncheckedAccount<'info>,
 
     #[account(
-	mut,
+    mut,
     address = get_associated_token_address(&payer.key(), &swim_usd_mint.key()),
-	)]
+    )]
     pub user_swim_usd_ata: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
@@ -58,29 +59,29 @@ pub struct TransferNativeWithPayload<'info> {
     pub token_bridge: Program<'info, TokenBridge>,
 
     #[account(
-	seeds=[b"custody_signer".as_ref()],
-	bump,
-	seeds::program = token_bridge.key()
-	)]
+    seeds=[b"custody_signer".as_ref()],
+    bump,
+    seeds::program = token_bridge.key()
+    )]
     /// CHECK: Only used for bridging assets native to Solana.
     pub custody_signer: UncheckedAccount<'info>,
 
     #[account(
-	seeds=[b"authority_signer".as_ref()],
-	bump,
-	seeds::program = token_bridge.key()
-	)]
+    seeds=[b"authority_signer".as_ref()],
+    bump,
+    seeds::program = token_bridge.key()
+    )]
     /// CHECK: Token Bridge Authority Signer, delegated approval for transfer
-    pub authority_signer: AccountInfo<'info>,
+    pub authority_signer: UncheckedAccount<'info>,
 
     #[account(
-	mut,
-	seeds = [b"Bridge".as_ref()],
-	bump,
-	seeds::program = propeller.wormhole()
-	)]
+    mut,
+    seeds = [b"Bridge".as_ref()],
+    bump,
+    seeds::program = wormhole.key()
+    )]
     /// CHECK: Wormhole Config
-    pub wormhole_config: AccountInfo<'info>,
+    pub wormhole_config: UncheckedAccount<'info>,
 
     #[account(mut)]
     // Note:
@@ -97,32 +98,32 @@ pub struct TransferNativeWithPayload<'info> {
     pub wormhole_message: Signer<'info>,
 
     #[account(
-	mut,
-	seeds = [b"emitter".as_ref()],
-	bump,
-	seeds::program = propeller.token_bridge()
-	)]
+    mut,
+    seeds = [b"emitter".as_ref()],
+    bump,
+    seeds::program = token_bridge.key()
+    )]
     /// CHECK: Wormhole Emitter is PDA representing the Token Bridge Program
     pub wormhole_emitter: UncheckedAccount<'info>,
 
     #[account(
-	mut,
-	seeds = [
-	b"Sequence".as_ref(),
-	wormhole_emitter.key().as_ref()
-	],
-	bump,
-	seeds::program = propeller.wormhole()
-	)]
+    mut,
+    seeds = [
+    b"Sequence".as_ref(),
+    wormhole_emitter.key().as_ref()
+    ],
+    bump,
+    seeds::program = wormhole.key()
+    )]
     /// CHECK: Wormhole Sequence Number
     pub wormhole_sequence: UncheckedAccount<'info>,
 
     #[account(
-	mut,
-	seeds = [b"fee_collector".as_ref()],
-	bump,
-	seeds::program = propeller.wormhole()
-	)]
+    mut,
+    seeds = [b"fee_collector".as_ref()],
+    bump,
+    seeds::program = wormhole.key()
+    )]
     /// CHECK: Wormhole Fee Collector. leaving as UncheckedAccount since it could be uninitialized for the first transfer.
     pub wormhole_fee_collector: UncheckedAccount<'info>,
 
@@ -159,9 +160,9 @@ pub struct TransferNativeWithPayload<'info> {
     /// that case the PDA's address will directly be encoded into the payload
     /// instead of the sender program's id.
     #[account(
-		seeds = [ b"sender".as_ref()],
-		bump = propeller.sender_bump,
-	)]
+    seeds = [ b"sender".as_ref() ],
+    bump = propeller.sender_bump,
+    )]
     /// CHECK: Sender Account
     pub sender: SystemAccount<'info>,
 
@@ -189,21 +190,6 @@ pub struct TransferNativeWithPayload<'info> {
 }
 
 impl<'info> TransferNativeWithPayload<'info> {
-    //Note: some of the checks are excessive (checked in CPI etc) and add to compute budget but since we now have access to requesting
-    //  up to 1.4M compute budget per transaction, better safe than sorry to perform them.
-    pub fn accounts(ctx: &Context<TransferNativeWithPayload>) -> Result<()> {
-        require_keys_eq!(
-            ctx.accounts.swim_usd_mint.key(),
-            ctx.accounts.propeller.swim_usd_mint,
-            PropellerError::InvalidSwimUsdMint
-        );
-        // let pool_state_acct = &ctx.accounts.pool_state;
-        // let pool: two_pool::state::PoolState<{two_pool::TOKEN_COUNT}> = two_pool::state::PoolState::try_from_slice(&pool_state_acct.data.borrow())?;
-        // constraint = lp_mint.key() == propeller.token_bridge_mint @ PropellerError::InvalidMint
-        msg!("finished accounts context check");
-        Ok(())
-    }
-
     fn invoke_transfer_native_with_payload(&self, transfer_with_payload_data: TransferWithPayloadData) -> Result<()> {
         let wh_token_transfer_acct_infos = vec![
             self.payer.to_account_info(),

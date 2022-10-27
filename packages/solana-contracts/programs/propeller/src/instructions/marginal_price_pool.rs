@@ -1,14 +1,7 @@
-
 use {
-    crate::{
-        error::*, Propeller, TOKEN_COUNT,
-    },
-    anchor_lang::{
-        prelude::*,
-    },
-    anchor_spl::{
-        token::{Mint, TokenAccount},
-    },
+    crate::{error::*, Propeller, TOKEN_COUNT},
+    anchor_lang::prelude::*,
+    anchor_spl::token::{Mint, TokenAccount},
     // primitive_types::U256,
     rust_decimal::Decimal,
     two_pool::{state::TwoPool, BorshDecimal},
@@ -101,6 +94,7 @@ impl<'info> MarginalPricePool<'info> {
         Ok(marginal_price)
     }
 
+    //TODO: fix/test this - maybe just store decimals in propeller state.
     pub fn get_swim_usd_mint_decimals(&self, propeller: &Propeller) -> Result<u8> {
         let swim_usd_mint = propeller.swim_usd_mint;
         let marginal_price_pool = &self.pool;

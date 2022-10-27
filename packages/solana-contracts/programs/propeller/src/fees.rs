@@ -1,14 +1,10 @@
 use {
-    crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, marginal_price_pool::*, FeeTracker, Propeller, PropellerError,
-    },
+    crate::{constants::LAMPORTS_PER_SOL_DECIMAL, marginal_price_pool::*, FeeTracker, Propeller, PropellerError},
     anchor_lang::prelude::*,
-    anchor_spl::{
-        token::{TokenAccount},
-    },
+    anchor_spl::token::TokenAccount,
     num_traits::{FromPrimitive, ToPrimitive},
     rust_decimal::Decimal,
-    switchboard_v2::{AggregatorAccountData, SWITCHBOARD_PROGRAM_ID},
+    switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID},
 };
 
 pub trait Fees<'info> {
@@ -112,10 +108,10 @@ impl<'info> FeeTracking<'info> {
             .map_err(|_| error!(PropellerError::StaleFeed))?;
 
         // check feed does not exceed max_confidence_interval
-        // if let Some(max_confidence_interval) = params.max_confidence_interval {
-        // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
-        // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
-        // }
+        // let max_confidence_interval = f64::MAX;
+        // // let max_confidence_interval = propeller.max_confidence_interval;
+        // feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
+        //     .map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
 
         let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
 

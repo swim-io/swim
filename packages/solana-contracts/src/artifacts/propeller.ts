@@ -215,34 +215,39 @@ export type Propeller = {
       "name": "changePauseKey",
       "accounts": [
         {
-          "name": "propeller",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.swim_usd_mint"
+          "name": "governance",
+          "accounts": [
+            {
+              "name": "propeller",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller.swim_usd_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "governanceKey",
-          "isMut": false,
-          "isSigner": true
+            },
+            {
+              "name": "governanceKey",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
         },
         {
           "name": "newPauseKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -256,34 +261,39 @@ export type Propeller = {
       "name": "prepareGovernanceTransition",
       "accounts": [
         {
-          "name": "propeller",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.swim_usd_mint"
+          "name": "governance",
+          "accounts": [
+            {
+              "name": "propeller",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller.swim_usd_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "governanceKey",
-          "isMut": false,
-          "isSigner": true
+            },
+            {
+              "name": "governanceKey",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
         },
         {
           "name": "upcomingGovernanceKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -320,14 +330,47 @@ export type Propeller = {
           "name": "governanceKey",
           "isMut": false,
           "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateFees",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.swim_usd_mint"
+              }
+            ]
+          }
         },
         {
-          "name": "upcomingGovernanceKey",
+          "name": "governanceKey",
           "isMut": false,
           "isSigner": true
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "feeUpdates",
+          "type": {
+            "defined": "FeeUpdates"
+          }
+        }
+      ]
     },
     {
       "name": "createTokenNumberMap",
@@ -1312,8 +1355,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -1390,8 +1432,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -1415,8 +1456,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -1440,8 +1480,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -1460,8 +1499,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -1626,8 +1664,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -1704,8 +1741,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -1729,8 +1765,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -1754,8 +1789,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -1774,8 +1808,7 @@ export type Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -1992,13 +2025,17 @@ export type Propeller = {
             "seeds = [",
             "vaa.emitter_address, vaa.emitter_chain, vaa.sequence",
             "],",
-            "seeds::program = token_bridge"
+            "seeds::program = token_bridge",
+            "checked in CPI"
           ]
         },
         {
           "name": "endpoint",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "checked in CPI"
+          ]
         },
         {
           "name": "redeemerEscrow",
@@ -2483,13 +2520,17 @@ export type Propeller = {
                 "seeds = [",
                 "vaa.emitter_address, vaa.emitter_chain, vaa.sequence",
                 "],",
-                "seeds::program = token_bridge"
+                "seeds::program = token_bridge",
+                "checked in CPI"
               ]
             },
             {
               "name": "endpoint",
               "isMut": false,
-              "isSigner": false
+              "isSigner": false,
+              "docs": [
+                "checked in CPI"
+              ]
             },
             {
               "name": "redeemerEscrow",
@@ -4183,6 +4224,10 @@ export type Propeller = {
           },
           {
             "name": "marginalPricePool",
+            "docs": [
+              "pool used to get marginal price of swimUSD -> stablecoin for gas conversion",
+              "e.g. usdc-usdt pool"
+            ],
             "type": "publicKey"
           },
           {
@@ -4199,9 +4244,6 @@ export type Propeller = {
           },
           {
             "name": "aggregator",
-            "docs": [
-              "switchboard *"
-            ],
             "type": "publicKey"
           },
           {
@@ -4307,6 +4349,82 @@ export type Propeller = {
     }
   ],
   "types": [
+    {
+      "name": "FeeUpdates",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "secpVerifyInitFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "secpVerifyFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "postVaaFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "initAtaFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "completeWithPayloadFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "processSwimPayloadFee",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GasOracleUpdates",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "aggregator",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "maxStaleness",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "maxConfidenceInterval",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "fallbackOracle",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "InitializeParams",
       "type": {
@@ -5285,34 +5403,39 @@ export const IDL: Propeller = {
       "name": "changePauseKey",
       "accounts": [
         {
-          "name": "propeller",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.swim_usd_mint"
+          "name": "governance",
+          "accounts": [
+            {
+              "name": "propeller",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller.swim_usd_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "governanceKey",
-          "isMut": false,
-          "isSigner": true
+            },
+            {
+              "name": "governanceKey",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
         },
         {
           "name": "newPauseKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -5326,34 +5449,39 @@ export const IDL: Propeller = {
       "name": "prepareGovernanceTransition",
       "accounts": [
         {
-          "name": "propeller",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.swim_usd_mint"
+          "name": "governance",
+          "accounts": [
+            {
+              "name": "propeller",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller.swim_usd_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "governanceKey",
-          "isMut": false,
-          "isSigner": true
+            },
+            {
+              "name": "governanceKey",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
         },
         {
           "name": "upcomingGovernanceKey",
           "isMut": false,
-          "isSigner": true
+          "isSigner": false
         }
       ],
       "args": [
@@ -5390,14 +5518,47 @@ export const IDL: Propeller = {
           "name": "governanceKey",
           "isMut": false,
           "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateFees",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.swim_usd_mint"
+              }
+            ]
+          }
         },
         {
-          "name": "upcomingGovernanceKey",
+          "name": "governanceKey",
           "isMut": false,
           "isSigner": true
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "feeUpdates",
+          "type": {
+            "defined": "FeeUpdates"
+          }
+        }
+      ]
     },
     {
       "name": "createTokenNumberMap",
@@ -6382,8 +6543,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -6460,8 +6620,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -6485,8 +6644,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -6510,8 +6668,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -6530,8 +6687,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -6696,8 +6852,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -6774,8 +6929,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -6799,8 +6953,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "token_bridge"
             }
           }
         },
@@ -6824,8 +6977,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -6844,8 +6996,7 @@ export const IDL: Propeller = {
             "programId": {
               "kind": "account",
               "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
+              "path": "wormhole"
             }
           }
         },
@@ -7062,13 +7213,17 @@ export const IDL: Propeller = {
             "seeds = [",
             "vaa.emitter_address, vaa.emitter_chain, vaa.sequence",
             "],",
-            "seeds::program = token_bridge"
+            "seeds::program = token_bridge",
+            "checked in CPI"
           ]
         },
         {
           "name": "endpoint",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "checked in CPI"
+          ]
         },
         {
           "name": "redeemerEscrow",
@@ -7553,13 +7708,17 @@ export const IDL: Propeller = {
                 "seeds = [",
                 "vaa.emitter_address, vaa.emitter_chain, vaa.sequence",
                 "],",
-                "seeds::program = token_bridge"
+                "seeds::program = token_bridge",
+                "checked in CPI"
               ]
             },
             {
               "name": "endpoint",
               "isMut": false,
-              "isSigner": false
+              "isSigner": false,
+              "docs": [
+                "checked in CPI"
+              ]
             },
             {
               "name": "redeemerEscrow",
@@ -9253,6 +9412,10 @@ export const IDL: Propeller = {
           },
           {
             "name": "marginalPricePool",
+            "docs": [
+              "pool used to get marginal price of swimUSD -> stablecoin for gas conversion",
+              "e.g. usdc-usdt pool"
+            ],
             "type": "publicKey"
           },
           {
@@ -9269,9 +9432,6 @@ export const IDL: Propeller = {
           },
           {
             "name": "aggregator",
-            "docs": [
-              "switchboard *"
-            ],
             "type": "publicKey"
           },
           {
@@ -9377,6 +9537,82 @@ export const IDL: Propeller = {
     }
   ],
   "types": [
+    {
+      "name": "FeeUpdates",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "secpVerifyInitFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "secpVerifyFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "postVaaFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "initAtaFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "completeWithPayloadFee",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "processSwimPayloadFee",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GasOracleUpdates",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "aggregator",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "maxStaleness",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "maxConfidenceInterval",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "fallbackOracle",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "InitializeParams",
       "type": {

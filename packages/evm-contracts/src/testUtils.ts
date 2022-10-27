@@ -104,9 +104,7 @@ export class PoolWrapper {
       pool,
       await Promise.all(
         state.balances.map(async (balance) =>
-          TokenWrapper.create(
-            (await ethers.getContractAt("ERC20Token", balance.tokenAddress)) as ERC20Token
-          )
+          TokenWrapper.create(await ethers.getContractAt("ERC20Token", balance.tokenAddress))
         )
       ),
       await TokenWrapper.create(

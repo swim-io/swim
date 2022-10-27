@@ -583,8 +583,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
           toExternalAmpValue(uint32(threshold))
         );
     }
-    // solhint-disable-next-line not-rely-on-time
     _ampInitialValue     = uint32(currentAmpFactor);
+  // solhint-disable-next-line not-rely-on-time
     _ampInitialTimestamp = uint32(block.timestamp);
     _ampTargetValue      = uint32(ampTargetValue);
     _ampTargetTimestamp  = targetTimestamp;

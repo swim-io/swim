@@ -14,8 +14,8 @@ library Invariant {
 
   using CenterAlignment for uint;
 
-  uint constant MARGINAL_PRICE_MULTIPLIER = 10**MARGINAL_PRICE_DECIMALS;
-  uint constant ONE_AMP_SHIFTED = 1 << AMP_SHIFT;
+  uint private constant MARGINAL_PRICE_MULTIPLIER = 10**MARGINAL_PRICE_DECIMALS;
+  uint private constant ONE_AMP_SHIFTED = 1 << AMP_SHIFT;
 
   // RESTRICTIONS:
   // * Equalizeds use at most 61 bits (= ~18 digits).

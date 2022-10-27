@@ -6,6 +6,7 @@ import {
   EuiFormRow,
   EuiSpacer,
 } from "@elastic/eui";
+import type { TokenConfig } from "@swim-io/core/types";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
@@ -20,6 +21,7 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
 import {
+  useCoinGeckoPricesQuery,
   useGetSwapFormErrors,
   useIsLargeSwap,
   usePoolMaths,
@@ -98,6 +100,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   );
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
+  const { data: prices = new Map<TokenConfig["id"], Decimal | null>() } =
+    useCoinGeckoPricesQuery();
   const userNativeBalances = useUserNativeBalances([
     fromToken.nativeEcosystemId,
     toToken.nativeEcosystemId,
@@ -298,7 +302,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         toEcosystem={toToken.nativeEcosystemId}
       />
       {isInputAmountPositive && (
-        <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
+        <EstimatedTxFeesCallout
+          feesEstimation={feesEstimation}
+          prices={prices}
+        />
       )}
       {formErrors.length > 0 && (
         <>

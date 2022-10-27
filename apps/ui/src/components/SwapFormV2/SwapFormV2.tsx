@@ -16,11 +16,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
+import type { TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
 import {
+  useCoinGeckoPricesQuery,
   useGetSwapFormErrorsV2,
   useIsLargeSwapV2,
   useIsRequiredPoolPaused,
@@ -96,6 +98,9 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     fromTokenOption,
     toTokenOption,
   );
+
+  const { data: prices = new Map<TokenConfig["id"], Decimal | null>() } =
+    useCoinGeckoPricesQuery();
 
   const inputAmount = defaultIfError(
     () => new Decimal(formInputAmount.replace(/,/g, "")),
@@ -311,7 +316,10 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
       <EuiSpacer />
 
       {isInputAmountPositive && (
-        <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
+        <EstimatedTxFeesCallout
+          feesEstimation={feesEstimation}
+          prices={prices}
+        />
       )}
 
       {formErrors.length > 0 && (

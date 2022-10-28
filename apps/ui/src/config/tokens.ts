@@ -190,8 +190,8 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "mainnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    id: "mainnet-solana-lp-meta-aurora-usdte",
+    projectId: TokenProjectId.SwimAuroraUsdteLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "4XPDxtGbcM7bAPKZxALd2s862n3WoG4xPPvyCPVULKAb",
@@ -451,8 +451,8 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "mainnet-aurora-usdt",
-    projectId: TokenProjectId.Usdt,
+    id: "mainnet-aurora-usdte",
+    projectId: TokenProjectId.Usdte,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
@@ -946,8 +946,8 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "testnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    id: "testnet-solana-lp-meta-aurora-usdte",
+    projectId: TokenProjectId.SwimAuroraUsdteLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
@@ -1206,8 +1206,8 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "testnet-aurora-usdt",
-    projectId: TokenProjectId.Usdt,
+    id: "testnet-aurora-usdte",
+    projectId: TokenProjectId.Usdte,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",

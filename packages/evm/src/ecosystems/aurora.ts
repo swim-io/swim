@@ -50,8 +50,8 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      id: "mainnet-aurora-usdt",
-      projectId: TokenProjectId.Usdt,
+      id: "mainnet-aurora-usdte",
+      projectId: TokenProjectId.Usdte,
       nativeDetails: {
         address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
         decimals: 6,
@@ -119,8 +119,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      id: "testnet-aurora-usdt",
-      projectId: TokenProjectId.Usdt,
+      id: "testnet-aurora-usdte",
+      projectId: TokenProjectId.Usdte,
       nativeDetails: {
         address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
         decimals: 6,
@@ -153,8 +153,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
       ]),
     },
     {
-      id: "testnet-aurora-lp-usdc-usdt",
-      projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
+      id: "testnet-aurora-lp-usdc-usdte",
+      projectId: TokenProjectId.SwimLpAuroraUsdcUsdte,
       nativeDetails: {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
         decimals: 8,

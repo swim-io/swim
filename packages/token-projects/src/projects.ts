@@ -55,7 +55,7 @@ export enum TokenProjectId {
   SwimLpBnbBusdUsdt = "swim-lp-bnb-busd-usdt",
   SwimLpAvalancheUsdcUsdt = "swim-lp-avalanche-usdc-usdt",
   SwimLpPolygonUsdcUsdt = "swim-lp-polygon-usdc-usdt",
-  SwimLpAuroraUsdcUsdt = "swim-lp-aurora-usdc-usdt",
+  SwimLpAuroraUsdcUsdte = "swim-lp-aurora-usdc-usdte",
   SwimLpAuroraUsn = "swim-lp-aurora-usn",
   SwimLpFantomUsdc = "swim-lp-fantom-usdc",
   SwimLpKaruraUsdt = "swim-lp-karura-usdt",
@@ -248,7 +248,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
   [TokenProjectId.SwimAuroraUsdteLp]: {
     id: TokenProjectId.SwimAuroraUsdteLp,
     symbol: "SWIM-AURORA-USDTE-LP",
-    displayName: "Aurora USDTe LP",
+    displayName: "Aurora USDT.e LP",
     icon: LP_AURORA_USDTE_SVG,
     isStablecoin: false,
     isLp: true,
@@ -346,10 +346,10 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     isLp: true,
     tokenNumber: null,
   },
-  [TokenProjectId.SwimLpAuroraUsdcUsdt]: {
-    id: TokenProjectId.SwimLpAuroraUsdcUsdt,
-    symbol: "SWIM-LP-AURORA-USDC-USDT",
-    displayName: "Aurora USDC/USDT Pool LP",
+  [TokenProjectId.SwimLpAuroraUsdcUsdte]: {
+    id: TokenProjectId.SwimLpAuroraUsdcUsdte,
+    symbol: "SWIM-LP-AURORA-USDC-USDT.e",
+    displayName: "Aurora USDC/USDT.e Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,

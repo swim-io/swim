@@ -35,7 +35,7 @@ jobs:
       - name: Check Solidity lint
         run: yarn lint:sol --max-warnings=0
       - name: Check build
-        run: yarn build
+        run: yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/evm-contracts run build
       - name: Check TypeScript lint
         run: yarn lint:ts --max-warnings=0
       - name: "Create .env file for deployment"

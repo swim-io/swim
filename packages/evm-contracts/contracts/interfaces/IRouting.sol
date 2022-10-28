@@ -1,27 +1,38 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
+import "./Decimal.sol";
+import "./PoolState.sol";
 import "./IMemoInteractor.sol";
-import "./IPool.sol";
 
 interface IRouting is IMemoInteractor {
-  event TokenRegistered(uint16 indexed tokenNumber, address indexed token, address pool);
+  struct TokenInfo {
+    uint16  tokenNumber;
+    address tokenAddress;
+    address poolAddress;
+    uint8   tokenIndexInPool;
+  }
+
+  enum GasTokenPriceMethod {
+    FixedPrice,
+    UniswapOracle
+  }
 
   enum CodeLocation {
     DetermineGasCostViaUniswap1,
     DetermineGasCostViaUniswap2
   }
 
+  error NumericError(CodeLocation location, bytes data);
+  error NotAPropellerTransaction();
   error SwimUsdNotAttested();
+  error WormholeInteractionFailed(bytes lowLevelData);
+  error GasKickstartFailed(address owner);
   error TokenNotInPool(address passedToken, address pool);
   error SenderIsNotOwner(address sender, address owner);
-  error TokenNotRegistered(bytes20 addressOrTokenNumber);
-  error WormholeInteractionFailed(bytes lowLevelData);
-  error TooSmallForPropeller(uint swimUsdAmount, uint propellerMinimumThreshold);
   error IncorrectMessageValue(uint value, uint expected);
-  error NumericError(CodeLocation location, bytes data);
-  error GasKickstartFailed(address owner);
-  error ExcessivePropellerFee(uint propellerFee);
+  error TokenNotRegistered(bytes20 addressOrTokenNumber);
+  error InvalidZeroValue();
   error InvalidWormholeToken(
     bytes32 originAddress,
     uint16 originChain,
@@ -29,7 +40,14 @@ interface IRouting is IMemoInteractor {
     uint16 expectedChain
   );
 
+  event TokenRegistered(uint16 indexed tokenNumber, address indexed token, address pool);
+  event PropellerServiceFeeChanged(uint serviceFee);
+  event PropellerGasTokenPriceMethodChanged(GasTokenPriceMethod latest);
+  event PropellerFixedSwimUsdPerGasTokenChanged(Decimal fixedSwimUsdPerGasToken);
+  event PropellerUniswapFeeConfigChanged(address intermediateToken, address uniswapPool);
+
   function swimUsdAddress() external view returns (address);
+  function engineFees(address engine) external view returns (uint);
 
   function getPoolStates(address[] memory poolAddresses) external view returns (PoolState[] memory);
 
@@ -67,6 +85,25 @@ interface IRouting is IMemoInteractor {
     bytes16 memo
   ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
+  function crossChainInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    uint32 wormholeNonce
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
+
+  function crossChainInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    uint32 wormholeNonce,
+    bytes16 memo
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
+
   function propellerInitiate(
     address fromToken,
     uint inputAmount,
@@ -85,6 +122,29 @@ interface IRouting is IMemoInteractor {
     bool gasKickstart,
     uint64 maxPropellerFee,
     uint16 toTokenNumber,
+    bytes16 memo
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
+
+  function propellerInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber,
+    uint32 wormholeNonce
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
+
+  function propellerInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber,
+    uint32 wormholeNonce,
     bytes16 memo
   ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
@@ -116,8 +176,7 @@ interface IRouting is IMemoInteractor {
 
   function adjustPropellerServiceFee(uint64 serviceFee) external;
 
-  //swimUsdPerGasToken in 18 decimals
-  function usePropellerFixedGasTokenPrice(uint fixedSwimUsdPerGasToken) external;
+  function usePropellerFixedGasTokenPrice(Decimal calldata fixedSwimUsdPerGasToken) external;
 
   function usePropellerUniswapOracle(
     address intermediateToken,

@@ -12,7 +12,7 @@ import { task } from "hardhat/config";
 import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 
 dotenv.config();
-//update .env.examples if you add additional environment variables!
+//update .env.example if you add additional environment variables!
 const { FACTORY_MNEMONIC, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 
 task(

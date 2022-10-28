@@ -701,8 +701,8 @@ export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "testnet-aurora-lp-usdc-usdt",
-    projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
+    id: "testnet-aurora-lp-usdc-usdte",
+    projectId: TokenProjectId.SwimLpAuroraUsdcUsdte,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update

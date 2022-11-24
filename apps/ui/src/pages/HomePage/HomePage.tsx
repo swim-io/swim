@@ -1,5 +1,6 @@
 import {
   EuiButton,
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHideFor,
@@ -18,7 +19,7 @@ import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 import type { ReactElement, VFC } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
 import { atomicToCurrencyString } from "../../amounts";
@@ -58,6 +59,21 @@ const HomePage = (): ReactElement => {
   return (
     <EuiPage restrictWidth className="homepage">
       <EuiPageBody>
+        <EuiCallOut
+          title={t("shutdown.announcement_title")}
+          color="warning"
+          iconType="alert"
+        >
+          <Trans
+            i18nKey="shutdown.announcement_explanation"
+            components={{
+              a: (
+                // eslint-disable-next-line jsx-a11y/anchor-has-content
+                <a href="https://twitter.com/SwimProtocol/status/1589717317822611456" />
+              ),
+            }}
+          />
+        </EuiCallOut>
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />

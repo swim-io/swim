@@ -604,12 +604,18 @@ export const AddForm = ({
         />
       )}
 
+      <EuiCallOut title={t("shutdown.adds_disabled")} color="danger">
+        {t("shutdown.adds_disabled_explanation")}
+      </EuiCallOut>
+
+      <EuiSpacer />
+
       <EuiButton
         type="submit"
         fullWidth
         fill
         isLoading={isInteractionInProgress}
-        isDisabled={isPoolPaused || isSubmitted}
+        isDisabled
       >
         {poolSpec.isStakingPool
           ? t("glossary.stake_tokens")

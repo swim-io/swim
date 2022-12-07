@@ -138,8 +138,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-aurora-lp-usdc-usdt",
-    projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
+    id: "devnet-aurora-lp-usdc-usdte",
+    projectId: TokenProjectId.SwimLpAuroraUsdcUsdte,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -363,8 +363,8 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    id: "devnet-solana-lp-meta-aurora-usdte",
+    projectId: TokenProjectId.SwimAuroraUsdteLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
@@ -626,8 +626,8 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-aurora-usdt",
-    projectId: TokenProjectId.Usdt,
+    id: "devnet-aurora-usdte",
+    projectId: TokenProjectId.Usdte,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",

@@ -9,7 +9,11 @@ import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { PoolState } from "../../models";
-import { getPoolUsdValue, isEvmPoolState } from "../../models";
+import {
+  getPoolUsdValue,
+  isAptosPoolState,
+  isEvmPoolState,
+} from "../../models";
 import {
   useSolanaTokenAccountQueries,
   useSolanaWallet,
@@ -70,6 +74,22 @@ const constructPool = (
       userLpTokenAccount: null,
       poolUsdValue: null,
       isPoolPaused: null,
+    };
+  }
+
+  if (isAptosPoolState(poolState)) {
+    return {
+      spec: poolSpec,
+      nativeEcosystems,
+      lpToken,
+      tokens,
+      state: poolState,
+      poolUsdValue: Decimal.sum(...poolState.balances),
+      isPoolPaused: poolState.isPaused,
+      // solana based attributes
+      poolLpMint: null,
+      poolTokenAccounts: null,
+      userLpTokenAccount: null,
     };
   }
 

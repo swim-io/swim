@@ -46,7 +46,7 @@ import {
 } from "../hooks";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import { isEvmPoolState } from "../models";
+import { isAptosPoolState, isEvmPoolState } from "../models";
 
 import "./PoolPage.scss";
 
@@ -134,7 +134,27 @@ export const PoolPageInner = ({
   );
 
   const reserveStats = tokens.map((tokenConfig, i) => {
-    const solanaDetails = getSolanaTokenDetails(tokenConfig);
+    // loading state
+    if (poolState === null) {
+      return {
+        title: <TokenConfigIcon token={tokenConfig} />,
+        description: "-",
+        key: tokenConfig.id,
+      };
+    }
+
+    if (isAptosPoolState(poolState)) {
+      return {
+        title: (
+          <TokenConfigIcon token={tokenConfig} ecosystem={poolSpec.ecosystem} />
+        ),
+        description: atomicToHumanString(
+          new Decimal(poolState.balances[i].toString()),
+          2,
+        ),
+        key: tokenConfig.id,
+      };
+    }
 
     if (isEvmPoolState(poolState)) {
       return {
@@ -149,6 +169,7 @@ export const PoolPageInner = ({
       };
     }
 
+    const solanaDetails = getSolanaTokenDetails(tokenConfig);
     const poolTokenAccount =
       poolTokenAccounts?.find(
         (account) =>

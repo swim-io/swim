@@ -1,3 +1,4 @@
+import { getAddLiquidityTransactionPayload } from "@swim-io/aptos";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Pool__factory } from "@swim-io/evm-contracts";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -12,6 +13,7 @@ import {
   createOperationSpecs,
   doSingleSolanaPoolOperationV2,
   findOrCreateSplTokenAccount,
+  getSortedAmounts,
   getTokensByPool,
 } from "../../models";
 import type { AddInteractionState } from "../../models";
@@ -165,7 +167,36 @@ export const useAddInteractionMutation = () => {
           draft.addTxId = tx.id;
         });
       } else {
-        throw new Error("Unexpected ecosystem for add interaction");
+        const { inputAmounts } = interaction.params;
+
+        const { wallet } = wallets[ecosystem];
+        if (wallet === null) {
+          throw new Error(`${ecosystem} wallet not found`);
+        }
+        const { address } = wallet;
+        if (address === null) {
+          throw new Error(`${ecosystem} wallet not connected`);
+        }
+
+        const atomicAmounts = getSortedAmounts([
+          inputAmounts[0],
+          inputAmounts[1],
+        ]).map((amount) => amount.toAtomicString(ecosystem));
+
+        const txId = await wallet.signAndSubmitTransaction(
+          getAddLiquidityTransactionPayload({
+            poolAddress: poolSpec.address,
+            coinXAmountAtomic: atomicAmounts[0],
+            coinYAmountAtomic: atomicAmounts[1],
+          }),
+        );
+
+        updateInteractionState(interaction.id, (draft) => {
+          if (draft.interactionType !== interaction.type) {
+            throw new Error("Interaction type mismatch");
+          }
+          draft.addTxId = txId;
+        });
       }
     },
     {

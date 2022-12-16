@@ -7156,26 +7156,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@npm:^0.40.0":
-  version: 0.40.0
-  resolution: "@swim-io/aptos@npm:0.40.0"
-  dependencies:
-    "@swim-io/core": ^0.40.0
-    "@swim-io/utils": ^0.40.0
-    aptos: ^1.3.13
-  peerDependencies:
-    decimal.js: ^10.3.1
-    eventemitter3: ^4.0.7
-  checksum: c20ed5033c04f12909ba46605ea40a5866db25cfe5ae08a8fe2e99c1a99fab2c8488e11d5737c74b5cc6ae282f2819097fd71e8a9af2a7dc507f08785d3a8496
-  languageName: node
-  linkType: hard
-
-"@swim-io/aptos@workspace:packages/aptos":
+"@swim-io/aptos@workspace:^, @swim-io/aptos@workspace:packages/aptos":
   version: 0.0.0-use.local
   resolution: "@swim-io/aptos@workspace:packages/aptos"
   dependencies:
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
     "@types/jest": ^28.1.3
@@ -7301,6 +7288,7 @@ __metadata:
     typescript: ~4.8.4
   peerDependencies:
     "@certusone/wormhole-sdk": ^0.6.2
+    decimal.js: ^10.3.1
   languageName: unknown
   linkType: soft
 
@@ -7971,15 +7959,15 @@ __metadata:
     "@storybook/manager-webpack4": ^6.5.10
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
-    "@swim-io/aptos": ^0.40.0
-    "@swim-io/core": ^0.40.0
+    "@swim-io/aptos": "workspace:^"
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.40.0
     "@swim-io/evm-contracts": ^0.40.0
     "@swim-io/pool-math": ^0.40.0
     "@swim-io/solana": ^0.40.0
     "@swim-io/solana-contracts": ^0.40.0
-    "@swim-io/token-projects": ^0.40.0
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.40.0
     "@swim-io/wormhole": ^0.40.0

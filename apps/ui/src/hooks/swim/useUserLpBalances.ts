@@ -6,6 +6,7 @@ import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { EcosystemId, TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
+import { useAptosTokenBalanceQuery } from "../aptos";
 import { useErc20BalanceQuery } from "../evm";
 
 export const useUserLpBalances = (
@@ -45,8 +46,20 @@ export const useUserLpBalances = (
       ? Amount.fromHuman(lpTokenConfig, userLpBalanceBnbHuman)
       : null;
 
+  // aptos
+  const aptosTokenDetails =
+    getTokenDetailsForEcosystem(lpTokenConfig, APTOS_ECOSYSTEM_ID) ?? null;
+  const { data: userLpBalanceAptosHuman = null } = useAptosTokenBalanceQuery(
+    aptosTokenDetails,
+    { enabled: !!aptosTokenDetails },
+  );
+  const userLpBalanceAptos =
+    aptosTokenDetails && userLpBalanceAptosHuman
+      ? Amount.fromHuman(lpTokenConfig, userLpBalanceAptosHuman)
+      : null;
+
   return {
-    [APTOS_ECOSYSTEM_ID]: null,
+    [APTOS_ECOSYSTEM_ID]: userLpBalanceAptos,
     [SOLANA_ECOSYSTEM_ID]: userLpBalanceSolana,
     [EvmEcosystemId.Ethereum]: userLpBalanceEthereum,
     [EvmEcosystemId.Bnb]: userLpBalanceBnb,

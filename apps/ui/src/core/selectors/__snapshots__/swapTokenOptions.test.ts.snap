@@ -112,6 +112,10 @@ Array [
       "nativeEcosystemId": "solana",
       "projectId": "swim-lp-solana-usdc-usdt",
       "wrappedDetails": Map {
+        "aptos" => Object {
+          "address": "0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T",
+          "decimals": 6,
+        },
         "acala" => Object {
           "address": "0x1111111111111111111111111111111111111111",
           "decimals": 6,
@@ -159,6 +163,10 @@ Array [
       "nativeEcosystemId": "solana",
       "projectId": "swim-lp-solana-usdc-usdt",
       "wrappedDetails": Map {
+        "aptos" => Object {
+          "address": "0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T",
+          "decimals": 6,
+        },
         "acala" => Object {
           "address": "0x1111111111111111111111111111111111111111",
           "decimals": 6,
@@ -206,6 +214,10 @@ Array [
       "nativeEcosystemId": "solana",
       "projectId": "swim-lp-solana-usdc-usdt",
       "wrappedDetails": Map {
+        "aptos" => Object {
+          "address": "0x30ab37efc691ea7202540b50f3f0f6b090adb143c0746fd49a7e4b7c5870ce8b::coin::T",
+          "decimals": 6,
+        },
         "acala" => Object {
           "address": "0x1111111111111111111111111111111111111111",
           "decimals": 6,

@@ -1,4 +1,5 @@
 import { EuiListGroupItem } from "@elastic/eui";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { FC } from "react";
@@ -13,6 +14,8 @@ interface Props {
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
   // TODO: Support different environments (ie testnets).
   switch (ecosystemId) {
+    case APTOS_ECOSYSTEM_ID:
+      return `https://explorer.aptoslabs.com/txn/${txId}`;
     case SOLANA_ECOSYSTEM_ID:
       return `https://solana.fm/tx/${txId}`;
     case EvmEcosystemId.Ethereum:

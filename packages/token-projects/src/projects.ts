@@ -31,6 +31,7 @@ export enum TokenProjectId {
   Gst = "gst",
   Swim = "swim",
   SwimAcalaAusdLp = "swim-acala-ausd-lp",
+  SwimAptosUsdcLp = "swim-aptos-usdc-lp",
   SwimAuroraUsdcLp = "swim-aurora-usdc-lp",
   SwimAuroraUsdtLp = "swim-aurora-usdt-lp",
   SwimAuroraUsnLp = "swim-aurora-usn-lp",
@@ -285,6 +286,15 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     symbol: "SWIM-ACALA-AUSD-LP",
     displayName: "Acala AUSD LP",
     icon: LP_ACALA_AUSD_SVG,
+    isStablecoin: false,
+    isLp: true,
+    tokenNumber: null,
+  },
+  [TokenProjectId.SwimAptosUsdcLp]: {
+    id: TokenProjectId.SwimAptosUsdcLp,
+    symbol: "SWIM-APTOS-USDC-LP",
+    displayName: "Aptos USDC LP",
+    icon: LP_ACALA_AUSD_SVG, // TODO
     isStablecoin: false,
     isLp: true,
     tokenNumber: null,

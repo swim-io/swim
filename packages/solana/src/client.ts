@@ -30,6 +30,7 @@ import type {
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
   InitiatePropellerParams,
+  PoolState,
   TokenDetails,
   TxGeneratorResult,
 } from "@swim-io/core";
@@ -612,6 +613,12 @@ export class SolanaClient extends Client<
         ? null
         : deserializeTokenAccount(new PublicKey(keys[i]), account.data);
     });
+  }
+
+  public getPoolState(poolId: string): Promise<PoolState> {
+    throw new Error(
+      `getPoolState not implemented. Called with poolId: ${poolId}`,
+    );
   }
 
   private incrementRpcProvider() {

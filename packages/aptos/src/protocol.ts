@@ -6,6 +6,7 @@ import type {
   Tx,
 } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
+import type { Types } from "aptos";
 
 export type AptosProtocol = "aptos-protocol";
 export const APTOS_PROTOCOL: AptosProtocol = "aptos-protocol";
@@ -15,6 +16,7 @@ export const APTOS_ECOSYSTEM_ID: AptosEcosystemId = "aptos";
 
 export interface AptosPoolConfig extends PoolConfig {
   readonly ecosystemId: AptosEcosystemId;
+  readonly owner: Types.Address;
 }
 
 export interface AptosChainConfig extends ChainConfig {

@@ -2,7 +2,7 @@ use {
     crate::{error::*, Propeller},
     anchor_lang::prelude::*,
     anchor_spl::{
-        associated_token::{create, AssociatedToken, Create},
+        associated_token::{AssociatedToken},
         token::{Mint, Token, TokenAccount},
     },
     switchboard_v2::{AggregatorAccountData, SWITCHBOARD_PROGRAM_ID},
@@ -41,7 +41,9 @@ pub struct Initialize<'info> {
     )]
     pub propeller_fee_vault: Box<Account<'info, TokenAccount>>,
 
-    pub admin: Signer<'info>,
+    pub governance_key: Signer<'info>,
+    /// CHECK: pause_key
+    pub pause_key: Signer<'info>,
     pub swim_usd_mint: Box<Account<'info, Mint>>,
 
     #[account(mut)]
@@ -102,19 +104,21 @@ pub struct InitializeParams {
     pub marginal_price_pool: Pubkey,
     pub marginal_price_pool_token_index: u8,
     pub marginal_price_pool_token_mint: Pubkey,
+    pub max_staleness: i64,
     // pub evm_routing_contract_address: [u8; 32],
 }
 
 pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
     // let pool = &ctx.accounts.pool;
     // let mint0 = pool.get_token_mint_0().unwrap();
+    msg!("in handle_initialize");
     let propeller = &mut ctx.accounts.propeller;
     propeller.bump = *ctx.bumps.get("propeller").unwrap();
-    propeller.nonce = 0;
-    propeller.admin = ctx.accounts.admin.key();
-    //TODO: these should be passed in as params or read based on features used when deploying?
-    propeller.wormhole = propeller.wormhole()?;
-    propeller.token_bridge = propeller.token_bridge()?;
+    propeller.is_paused = false;
+    propeller.governance_key = ctx.accounts.governance_key.key();
+    propeller.prepared_governance_key = Pubkey::default();
+    propeller.governance_transition_ts = 0;
+    propeller.pause_key = ctx.accounts.pause_key.key();
     propeller.swim_usd_mint = ctx.accounts.swim_usd_mint.key();
 
     propeller.sender_bump = *ctx.bumps.get("propeller_sender").unwrap();
@@ -135,7 +139,6 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     // propeller.evm_routing_contract_address = params.evm_routing_contract_address;
     propeller.fee_vault = ctx.accounts.propeller_fee_vault.key();
     propeller.aggregator = ctx.accounts.aggregator.key();
+    propeller.max_staleness = params.max_staleness;
     Ok(())
 }
-
-// pub fn init_redeemer_escrow

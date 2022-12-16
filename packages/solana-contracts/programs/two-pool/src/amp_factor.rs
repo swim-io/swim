@@ -1,8 +1,6 @@
 use {
     crate::{decimal::DecimalU64, error::PoolError, DecimalU64Anchor},
     anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
-    rust_decimal::prelude::*,
-    rust_decimal_macros::dec,
     std::ops::{Add, Sub},
 };
 

@@ -1,9 +1,11 @@
+import crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 
 import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_ETH,
+  createNonce,
   tryHexToNativeString,
   tryNativeToHexString,
 } from "@certusone/wormhole-sdk";
@@ -33,13 +35,14 @@ import {
   TWO_POOL_PID,
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
+  maxStaleness,
   setComputeUnitLimitIx,
 } from "../src/__tests__/consts";
 import {
   getPropellerPda,
   getPropellerRedeemerPda,
-  getTargetChainIdMapAddr,
-  getTargetTokenIdMapAddr,
+  getTargetChainMapAddr,
+  getToTokenNumberMapAddr,
 } from "../src/__tests__/propeller/propellerUtils";
 
 // import type { Propeller } from "../src/artifacts/propeller";
@@ -61,7 +64,8 @@ const propellerProgram = new Program(
 const splToken = Spl.token(provider);
 
 const payer = (provider.wallet as NodeWallet).payer;
-const propellerAdmin = payer;
+const propellerGovernanceKey = payer;
+const propellerPauseKey = payer;
 
 type InitParameters = {
   readonly gasKickstartAmount: BN;
@@ -160,7 +164,7 @@ async function setupPropeller() {
   console.info(`swimUsdPoolInfo: ${JSON.stringify(swimUsdPoolInfo)}`);
   propellerInfo = await initializePropellerState();
   console.info(`propellerInfo: ${JSON.stringify(propellerInfo, null, 2)}`);
-  targetTokenIdMaps = await createTargetTokenIdMaps();
+  targetTokenIdMaps = await createTokenNumberMaps();
   console.info(
     `targetTokenIdMaps: ${JSON.stringify(
       Object.fromEntries(targetTokenIdMaps),
@@ -168,7 +172,7 @@ async function setupPropeller() {
   );
   await fetchAndPrintIdMap(
     targetTokenIdMaps,
-    async (addr) => await propellerProgram.account.tokenIdMap.fetch(addr),
+    async (addr) => await propellerProgram.account.tokenNumberMap.fetch(addr),
     // propellerProgram.account.tokenIdMap.fetch,
     "targetTokenId",
   );
@@ -278,15 +282,16 @@ async function initializePropellerState(): Promise<PropellerInfo> {
     ...DEFAULT_INIT_PROPELLER_PARAMS,
     marginalPricePool: swimUsdPoolInfo.address,
     marginalPricePoolTokenMint: swimUsdPoolInfo.tokenMints[0],
+    maxStaleness: maxStaleness,
   };
   console.info(`
     propellerAddr: ${propellerAddr.toString()}
     propellerFeeVault: ${propellerFeeVault.toString()}
     propellerRedeemer: ${propellerRedeemer.toString()}
     propellerRedeemerEscrow: ${propellerRedeemerEscrow.toString()}
-    propellerAdmin: ${propellerAdmin.publicKey.toString()}
+    propellerGovernanceKey: ${propellerGovernanceKey.publicKey.toString()}
+    propellerPauseKey: ${propellerPauseKey.publicKey.toString()}
     payer: ${payer.publicKey.toString()}
-
   `);
 
   let propellerData = await propellerProgram.account.propeller.fetchNullable(
@@ -300,7 +305,8 @@ async function initializePropellerState(): Promise<PropellerInfo> {
         propeller: propellerAddr,
         propellerRedeemerEscrow,
         propellerFeeVault,
-        admin: propellerAdmin.publicKey,
+        governanceKey: propellerGovernanceKey.publicKey,
+        pauseKey: propellerGovernanceKey.publicKey,
         swimUsdMint,
         payer: payer.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -314,7 +320,7 @@ async function initializePropellerState(): Promise<PropellerInfo> {
         twoPoolProgram: twoPoolProgram.programId,
         aggregator,
       })
-      .signers([propellerAdmin, payer])
+      .signers([propellerGovernanceKey, payer])
       .rpc();
   }
   propellerData = await propellerProgram.account.propeller.fetch(propellerAddr);
@@ -329,83 +335,89 @@ async function initializePropellerState(): Promise<PropellerInfo> {
   };
 }
 
-async function createTargetTokenIdMaps(): Promise<
+async function createTokenNumberMaps(): Promise<
   ReadonlyMap<number, web3.PublicKey>
 > {
-  const swimUsdTokenIdMap = {
+  const swimUsdTokenNumberMap = {
     pool: swimUsdPoolInfo.address,
     poolTokenIndex: 0,
     poolTokenMint: swimUsdPoolInfo.lpMint,
-    poolIx: { transfer: {} },
+    toTokenStep: { transfer: {} },
   };
-  const usdcTokenIdMap = {
+  const usdcTokenNumberMap = {
     pool: swimUsdPoolInfo.address,
     poolTokenIndex: 0,
     poolTokenMint: swimUsdPoolInfo.tokenMints[0],
-    poolIx: { removeExactBurn: {} },
+    toTokenStep: { removeExactBurn: {} },
   };
-  const usdtTokenIdMap = {
+  const usdtTokenNumberMap = {
     pool: swimUsdPoolInfo.address,
     poolTokenIndex: 1,
     poolTokenMint: swimUsdPoolInfo.tokenMints[1],
-    poolIx: { removeExactBurn: {} },
+    toTokenStep: { removeExactBurn: {} },
   };
 
-  const outputTokenIdMapAddrEntries = await Promise.all(
+  const tokenNumberMapAddrEntries = await Promise.all(
     [
       {
-        targetTokenId: SWIM_USD_TO_TOKEN_NUMBER,
-        tokenIdMap: swimUsdTokenIdMap,
+        toTokenNumber: SWIM_USD_TO_TOKEN_NUMBER,
+        tokenNumberMap: swimUsdTokenNumberMap,
       },
-      { targetTokenId: USDC_TO_TOKEN_NUMBER, tokenIdMap: usdcTokenIdMap },
-      { targetTokenId: USDT_TO_TOKEN_NUMBER, tokenIdMap: usdtTokenIdMap },
-    ].map(async ({ targetTokenId, tokenIdMap }) => {
-      const [tokenIdMapAddr] = await getTargetTokenIdMapAddr(
+      {
+        toTokenNumber: USDC_TO_TOKEN_NUMBER,
+        tokenNumberMap: usdcTokenNumberMap,
+      },
+      {
+        toTokenNumber: USDT_TO_TOKEN_NUMBER,
+        tokenNumberMap: usdtTokenNumberMap,
+      },
+    ].map(async ({ toTokenNumber, tokenNumberMap }) => {
+      const [toTokenNumberMapAddr] = await getToTokenNumberMapAddr(
         propellerInfo.address,
-        targetTokenId,
+        toTokenNumber,
         propellerProgram.programId,
       );
       if (
-        !(await propellerProgram.account.tokenIdMap.fetchNullable(
-          tokenIdMapAddr,
+        !(await propellerProgram.account.tokenNumberMap.fetchNullable(
+          toTokenNumberMapAddr,
         ))
       ) {
         const createTokenIdMapTxn = propellerProgram.methods
-          .createTokenIdMap(
-            targetTokenId,
-            tokenIdMap.pool,
-            tokenIdMap.poolTokenIndex,
-            tokenIdMap.poolTokenMint,
-            tokenIdMap.poolIx,
+          .createTokenNumberMap(
+            toTokenNumber,
+            tokenNumberMap.pool,
+            tokenNumberMap.poolTokenIndex,
+            tokenNumberMap.poolTokenMint,
+            tokenNumberMap.toTokenStep,
           )
           .accounts({
             propeller: propellerInfo.address,
-            admin: propellerAdmin.publicKey,
+            governanceKey: propellerGovernanceKey.publicKey,
             payer: payer.publicKey,
             systemProgram: web3.SystemProgram.programId,
             // rent: web3.SYSVAR_RENT_PUBKEY,
-            pool: tokenIdMap.pool,
+            pool: tokenNumberMap.pool,
             twoPoolProgram: twoPoolProgram.programId,
           })
-          .signers([propellerAdmin]);
+          .signers([propellerGovernanceKey]);
         const pubkeys = await createTokenIdMapTxn.pubkeys();
         await createTokenIdMapTxn.rpc();
-        const derivedTokenIdMapAddr = pubkeys.tokenIdMap;
-        if (!derivedTokenIdMapAddr) {
+        const derivedTokenNumberMapAddr = pubkeys.tokenNumberMap;
+        if (!derivedTokenNumberMapAddr) {
           throw new Error("Failed to derive tokenIdMapAddr");
         }
 
         console.info(`
-      derivedTokenIdMapAddr: ${derivedTokenIdMapAddr.toString()}
-      tokenIdMapAddr: ${tokenIdMapAddr.toString()}
+      derivedTokenIdMapAddr: ${derivedTokenNumberMapAddr.toString()}
+      toTokenNumberMapAddr: ${toTokenNumberMapAddr.toString()}
       `);
       }
-      return { targetTokenId, tokenIdMapAddr };
+      return { toTokenNumber, toTokenNumberMapAddr };
     }),
   );
   return new Map(
-    outputTokenIdMapAddrEntries.map(({ targetTokenId, tokenIdMapAddr }) => {
-      return [targetTokenId, tokenIdMapAddr];
+    tokenNumberMapAddrEntries.map(({ toTokenNumber, toTokenNumberMapAddr }) => {
+      return [toTokenNumber, toTokenNumberMapAddr];
     }),
   );
 }
@@ -449,7 +461,7 @@ async function createTargetChainMaps() {
         tryNativeToHexString(targetAddress, wormholeChainId as ChainId),
         "hex",
       );
-      const [targetChainMapAddr] = await getTargetChainIdMapAddr(
+      const [targetChainMapAddr] = await getTargetChainMapAddr(
         propellerInfo.address,
         wormholeChainId,
         propellerProgram.programId,
@@ -465,13 +477,13 @@ async function createTargetChainMaps() {
           .createTargetChainMap(wormholeChainId, targetAddrWormholeFormat)
           .accounts({
             propeller: propellerInfo.address,
-            admin: propellerAdmin.publicKey,
+            governanceKey: propellerGovernanceKey.publicKey,
             payer: payer.publicKey,
             targetChainMap: targetChainMapAddr,
             systemProgram: web3.SystemProgram.programId,
             // rent: web3.SYSVAR_RENT_PUBKEY,
           })
-          .signers([propellerAdmin])
+          .signers([propellerGovernanceKey])
           .rpc();
       }
 
@@ -545,7 +557,6 @@ async function transferTokens() {
     payer.publicKey,
   );
 
-  let memo = 0;
   // const evmTargetTokenIds = [0, 1];
   const evmTargetTokenIds = [0];
   const targetChain = CHAIN_ID_ETH;
@@ -602,10 +613,7 @@ async function transferTokens() {
       //   crossChainTransferNativeWithPayloadTxnSig: ${crossChainTransferNativeWithPayloadTxnSig}`,
       // );
 
-      const memoStr = (++memo).toString().padStart(16, "0");
-      const memoBuffer2 = Buffer.alloc(16);
-      memoBuffer2.write(memoStr);
-
+      const memoBuffer = createMemoId();
       const propellerEnabledTransferAmount = transferAmount.div(new BN(2));
       const propellerEnabledWormholeMessage = web3.Keypair.generate();
 
@@ -618,21 +626,23 @@ async function transferTokens() {
       targetChain: ${targetChain},
       targetOwner(native): ${evmOwnerNative},
       targetOwner(Hex): ${evmOwnerEthHexStr},
-      memo(str): ${memoStr},
-      memo(buffer): ${memoBuffer2.toString("hex")},
+      memo("hex"): ${memoBuffer.toString("hex")},
+
     )
   `);
 
+      const nonce = createNonce().readUInt32LE(0);
       const propellerTransferNativeWithPayloadTxnSig: string =
         await propellerProgram.methods
           .propellerTransferNativeWithPayload(
+            nonce,
             propellerEnabledTransferAmount,
             targetChain,
             evmOwner,
             gasKickstart,
             maxFee,
             evmTargetTokenId,
-            memoBuffer2,
+            memoBuffer,
           )
           .accounts({
             propeller: propellerInfo.address,
@@ -659,7 +669,7 @@ async function transferTokens() {
             tokenProgram: splToken.programId,
           })
           .preInstructions([setComputeUnitLimitIx])
-          .postInstructions([createMemoInstruction(memoStr)])
+          .postInstructions([createMemoInstruction(memoBuffer.toString("hex"))])
           .signers([payer, propellerEnabledWormholeMessage])
           .rpc();
 
@@ -668,6 +678,13 @@ async function transferTokens() {
       );
     }),
   );
+}
+
+function createMemoId() {
+  const SWIM_MEMO_LENGTH = 16;
+  // NOTE: Please always use random bytes to avoid conflicts with other users
+  return crypto.randomBytes(SWIM_MEMO_LENGTH);
+  // return (++memoId).toString().padStart(16, "0");
 }
 
 void setupPropeller();

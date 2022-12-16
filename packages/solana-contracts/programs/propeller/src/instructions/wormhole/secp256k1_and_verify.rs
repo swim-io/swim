@@ -38,7 +38,7 @@ pub struct Secp256k1AndVerify<'info> {
 }
 
 impl<'info> Secp256k1AndVerify<'info> {
-    pub fn accounts(ctx: &Context<Secp256k1AndVerify>) -> Result<()> {
+    pub fn accounts(_ctx: &Context<Secp256k1AndVerify>) -> Result<()> {
         Ok(())
     }
 }
@@ -54,10 +54,10 @@ pub struct VerifySignaturesData {
 pub fn handle_secp256k1_and_verify(
     ctx: Context<Secp256k1AndVerify>,
     secp_payload: Vec<u8>,
-    guardian_set_index: u32,
+    _guardian_set_index: u32,
     verify_signatures_data: VerifySignaturesData,
 ) -> Result<()> {
-    let test = secp256k1_program::id();
+    let _test = secp256k1_program::id();
     let secp_ix =
         Instruction { program_id: ctx.accounts.secp256k1_program.key(), accounts: vec![], data: secp_payload };
     invoke(&secp_ix, &[])?;

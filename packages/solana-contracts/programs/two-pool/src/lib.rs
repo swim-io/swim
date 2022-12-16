@@ -1,4 +1,3 @@
-use rust_decimal::Decimal;
 use {
     crate::{
         amp_factor::AmpFactor,
@@ -9,8 +8,8 @@ use {
         pool_fee::PoolFee,
         state::TwoPool,
     },
-    anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
-    anchor_spl::token::*,
+    anchor_lang::prelude::*,
+    rust_decimal::Decimal,
 };
 
 pub mod amp_factor;
@@ -24,14 +23,6 @@ pub mod state;
 
 // #[macro_use]
 mod macros;
-
-//Note - using this b/c of not all bytes read error. found from using this - https://brson.github.io/2021/06/08/rust-on-solana
-// use solana_program::borsh::try_from_slice_unchecked;
-// const ENACT_DELAY: UnixTimestamp = 3 * 86400;
-// const MAX_DECIMAL_DIFFERENCE: u8 = 8;
-//
-// type AtomicT = u64;
-// type DecT = DecimalU64;
 
 pub const TOKEN_COUNT: usize = 2;
 
@@ -73,21 +64,16 @@ pub mod two_pool {
         handle_initialize(ctx, amp_factor, lp_fee, governance_fee)
     }
 
-    #[access_control(Add::accounts(&ctx))]
-    pub fn add(
-        ctx: Context<Add>,
-        input_amounts: [u64; TOKEN_COUNT],
-        minimum_mint_amount: u64,
-        // params: AddParams
-    ) -> Result<u64> {
+    // #[access_control(AddOrRemove::accounts(&ctx))]
+    pub fn add(ctx: Context<AddOrRemove>, input_amounts: [u64; TOKEN_COUNT], minimum_mint_amount: u64) -> Result<u64> {
         let params = AddParams { input_amounts, minimum_mint_amount };
         handle_add(ctx, params)
         // handle_add(ctx, input_amounts, minimum_mint_amount)
     }
 
-    #[access_control(SwapExactInput::accounts(&ctx))]
+    // #[access_control(ctx.accounts.validate())]
     pub fn swap_exact_input(
-        ctx: Context<SwapExactInput>,
+        ctx: Context<Swap>,
         exact_input_amounts: [u64; TOKEN_COUNT],
         output_token_index: u8,
         minimum_output_amount: u64,
@@ -100,19 +86,10 @@ pub mod two_pool {
         // let minimum_output_amount = params.minimum_output_amount;
         // handle_swap_exact_input(ctx, params)
     }
-    // pub fn swap_exact_input(
-    //     ctx: Context<SwapExactInput>,
-    //     params: SwapExactInputParams,
-    // ) -> Result<u64> {
-    //     handle_swap_exact_input(ctx, params)
-    // }
 
-    //returning cpi data from this is a little redundant since it's already passed in the params
-    //but keeping for parity with other ixs
-    // note using Vec<u64> instead of [u64; TOKEN_COUNT] since anchor can't handle it properly.
-    #[access_control(SwapExactOutput::accounts(&ctx))]
+    // #[access_control(ctx.accounts.validate())]
     pub fn swap_exact_output(
-        ctx: Context<SwapExactOutput>,
+        ctx: Context<Swap>,
         maximum_input_amount: u64,
         input_token_index: u8,
         exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
@@ -121,20 +98,17 @@ pub mod two_pool {
         handle_swap_exact_output(ctx, params)
     }
 
-    #[access_control(RemoveUniform::accounts(&ctx))]
     pub fn remove_uniform(
-        ctx: Context<RemoveUniform>,
+        ctx: Context<AddOrRemove>,
         exact_burn_amount: u64,
         minimum_output_amounts: [u64; TOKEN_COUNT],
-        // params: RemoveUniformParams,
     ) -> Result<Vec<u64>> {
         let params = RemoveUniformParams { exact_burn_amount, minimum_output_amounts };
         handle_remove_uniform(ctx, params)
     }
 
-    #[access_control(RemoveExactBurn::accounts(&ctx))]
     pub fn remove_exact_burn(
-        ctx: Context<RemoveExactBurn>,
+        ctx: Context<AddOrRemove>,
         exact_burn_amount: u64,
         output_token_index: u8,
         minimum_output_amount: u64,
@@ -144,65 +118,26 @@ pub mod two_pool {
         handle_remove_exact_burn(ctx, params)
     }
 
-    #[access_control(RemoveExactOutput::accounts(&ctx))]
     pub fn remove_exact_output(
-        ctx: Context<RemoveExactOutput>,
+        ctx: Context<AddOrRemove>,
         maximum_burn_amount: u64,
         exact_output_amounts: [u64; TOKEN_COUNT],
-        // params: RemoveExactOutputParams,
     ) -> Result<Vec<u64>> {
         let params = RemoveExactOutputParams { maximum_burn_amount, exact_output_amounts };
         handle_remove_exact_output(ctx, params)
     }
 
-    //TODO: using 2 instead of TOKEN_COUNT const since anchor can't handle it properly.
+    //Note: using 2 instead of TOKEN_COUNT const since anchor can't handle it properly.
     #[access_control(MarginalPrices::accounts(&ctx))]
-    // pub fn marginal_prices(ctx: Context<MarginalPrices>) -> Result<MarginalPricesResult> {
     pub fn marginal_prices(ctx: Context<MarginalPrices>) -> Result<[BorshDecimal; 2]> {
         handle_marginal_prices(ctx)
     }
 
     /** Governance Ixs **/
-    #[access_control(PrepareGovernanceTransition::accounts(&ctx))]
-    pub fn prepare_governance_transition(
-        ctx: Context<PrepareGovernanceTransition>,
-        upcoming_governance_key: Pubkey,
-    ) -> Result<()> {
-        handle_prepare_governance_transition(ctx, upcoming_governance_key)
-    }
 
-    #[access_control(EnactGovernanceTransition::accounts(&ctx))]
-    pub fn enact_governance_transition(ctx: Context<EnactGovernanceTransition>) -> Result<()> {
-        handle_enact_governance_transition(ctx)
-    }
-
-    #[access_control(PrepareFeeChange::accounts(&ctx))]
-    pub fn prepare_fee_change(
-        ctx: Context<PrepareFeeChange>,
-        lp_fee: DecimalU64Anchor,
-        governance_fee: DecimalU64Anchor,
-        // params: PrepareFeeChangeParams,
-    ) -> Result<()> {
-        // handle_prepare_fee_change(ctx, params)
-        handle_prepare_fee_change(ctx, lp_fee, governance_fee)
-    }
-
-    #[access_control(EnactFeeChange::accounts(&ctx))]
-    pub fn enact_fee_change(ctx: Context<EnactFeeChange>) -> Result<()> {
-        handle_enact_fee_change(ctx)
-    }
-
-    #[access_control(ChangeGovernanceFeeAccount::accounts(&ctx))]
-    pub fn change_governance_fee_account(
-        ctx: Context<ChangeGovernanceFeeAccount>,
-        new_governance_fee_key: Pubkey,
-    ) -> Result<()> {
-        handle_change_governance_fee_account(ctx, new_governance_fee_key)
-    }
-
-    #[access_control(AdjustAmpFactor::accounts(&ctx))]
     pub fn adjust_amp_factor(
-        ctx: Context<AdjustAmpFactor>,
+        // ctx: Context<AdjustAmpFactor>,
+        ctx: Context<Governance>,
         target_ts: i64,
         target_value: DecimalU64Anchor,
         // params: AdjustAmpFactorParams,
@@ -211,14 +146,42 @@ pub mod two_pool {
         handle_adjust_amp_factor(ctx, params)
     }
 
-    #[access_control(SetPaused::accounts(&ctx))]
-    pub fn set_paused(ctx: Context<SetPaused>, paused: bool) -> Result<()> {
-        handle_set_paused(ctx, paused)
+    pub fn prepare_fee_change(
+        ctx: Context<Governance>,
+        lp_fee: DecimalU64Anchor,
+        governance_fee: DecimalU64Anchor,
+    ) -> Result<()> {
+        handle_prepare_fee_change(ctx, lp_fee, governance_fee)
     }
 
-    #[access_control(ChangePauseKey::accounts(&ctx))]
+    pub fn enact_fee_change(ctx: Context<Governance>) -> Result<()> {
+        handle_enact_fee_change(ctx)
+    }
+
+    pub fn change_governance_fee_account(
+        ctx: Context<ChangeGovernanceFeeAccount>,
+        new_governance_fee_key: Pubkey,
+    ) -> Result<()> {
+        handle_change_governance_fee_account(ctx, new_governance_fee_key)
+    }
+
+    pub fn prepare_governance_transition(
+        ctx: Context<PrepareGovernanceTransition>,
+        upcoming_governance_key: Pubkey,
+    ) -> Result<()> {
+        handle_prepare_governance_transition(ctx, upcoming_governance_key)
+    }
+
+    pub fn enact_governance_transition(ctx: Context<Governance>) -> Result<()> {
+        handle_enact_governance_transition(ctx)
+    }
+
     pub fn change_pause_key(ctx: Context<ChangePauseKey>, new_pause_key: Pubkey) -> Result<()> {
         handle_change_pause_key(ctx, new_pause_key)
+    }
+
+    pub fn set_paused(ctx: Context<SetPaused>, paused: bool) -> Result<()> {
+        handle_set_paused(ctx, paused)
     }
 
     #[access_control(CreateLpMetadata::accounts(&ctx))]

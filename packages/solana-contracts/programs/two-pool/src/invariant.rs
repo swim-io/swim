@@ -63,7 +63,7 @@ impl From<Decimal> for DecT {
             let d = min(value.scale() as u8, unused_decimals_lower_bound);
             (value * Decimal::from(decimal::ten_to_the(d)), d)
         };
-        Self::new(v.to_u64().unwrap(), d.into()).unwrap()
+        Self::new(v.to_u64().unwrap(), d).unwrap()
     }
 }
 
@@ -159,7 +159,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
     ) -> InvariantResult<(AmountT, AmountT, AmountT)> {
         let amp_factor: Decimal = amp_factor.into();
         if lp_total_supply.is_zero() {
-            let depth = fast_round(Self::calculate_depth(&input_amounts, amp_factor, previous_depth.into())?);
+            let depth = fast_round(Self::calculate_depth(input_amounts, amp_factor, previous_depth.into())?);
             Ok((depth, 0.into(), depth))
         } else {
             let lp_fee: FeeT = lp_fee.into();
@@ -167,8 +167,8 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
             let total_fee = lp_fee + governance_fee;
             Self::add_remove(
                 true,
-                &input_amounts,
-                &pool_balances,
+                input_amounts,
+                pool_balances,
                 amp_factor,
                 total_fee,
                 governance_fee,
@@ -194,9 +194,9 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         let total_fee = lp_fee + governance_fee;
         Self::swap(
             true,
-            &input_amounts,
+            input_amounts,
             output_index,
-            &pool_balances,
+            pool_balances,
             amp_factor,
             total_fee,
             governance_fee,
@@ -221,9 +221,9 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         let total_fee = lp_fee + governance_fee;
         Self::swap(
             false,
-            &output_amounts,
+            output_amounts,
             input_index,
-            &pool_balances,
+            pool_balances,
             amp_factor,
             total_fee,
             governance_fee,
@@ -249,7 +249,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         Self::remove_exact_burn_impl(
             burn_amount,
             output_index,
-            &pool_balances,
+            pool_balances,
             amp_factor,
             total_fee,
             governance_fee,
@@ -273,8 +273,8 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         let total_fee = lp_fee + governance_fee;
         Self::add_remove(
             false,
-            &output_amounts,
-            &pool_balances,
+            output_amounts,
+            pool_balances,
             amp_factor,
             total_fee,
             governance_fee,
@@ -323,7 +323,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         let initial_depth = Self::calculate_depth(pool_balances, amp_factor, previous_depth.into())?;
         // println!("SWAP       initial_depth: {}", initial_depth);
         let mut updated_balances =
-            binary_op_balances(if is_exact_input { AmountT::add } else { AmountT::sub }, &pool_balances, &amounts);
+            binary_op_balances(if is_exact_input { AmountT::add } else { AmountT::sub }, pool_balances, amounts);
         // println!("SWAP    updated_balances: {:?}", updated_balances);
         let swap_base_balances = &(if is_exact_input && !total_fee.is_zero() {
             let input_fee_amounts = unary_op_balances(|v| fast_round(total_fee * Decimal::from(v)), amounts);
@@ -387,7 +387,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
     ) -> InvariantResult<(AmountT, AmountT, AmountT)> {
         let initial_depth = Self::calculate_depth(pool_balances, amp_factor, previous_depth.into())?;
         let updated_balances =
-            binary_op_balances(if is_add { AmountT::add } else { AmountT::sub }, &pool_balances, &amounts);
+            binary_op_balances(if is_add { AmountT::add } else { AmountT::sub }, pool_balances, amounts);
         let sum_updated_balances = sum_balances(&updated_balances);
         let sum_pool_balances = sum_balances(pool_balances);
         let updated_depth = Self::calculate_depth(
@@ -481,17 +481,17 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         previous_depth: AmountT,
     ) -> InvariantResult<(AmountT, AmountT, AmountT)> {
         debug_assert!(burn_amount > AmountT::zero());
-        let initial_depth = Self::calculate_depth(&pool_balances, amp_factor, previous_depth.into())?;
+        let initial_depth = Self::calculate_depth(pool_balances, amp_factor, previous_depth.into())?;
         let updated_depth =
             initial_depth * (Decimal::from(lp_total_supply - burn_amount) / Decimal::from(lp_total_supply));
         debug_assert!(initial_depth > updated_depth);
-        let known_balances = exclude_index(output_index, &pool_balances);
+        let known_balances = exclude_index(output_index, pool_balances);
         //we can pass the original pool balance as an initial guess because we know that the unknown balance has to be smaller
         let unknown_balance =
             Self::calculate_unknown_balance(&known_balances, updated_depth, amp_factor, pool_balances[output_index])?;
         let base_amount = pool_balances[output_index] - unknown_balance;
         let (output_amount, governance_mint_amount) = if !total_fee.is_zero() {
-            let sum_pool_balances = sum_balances(&pool_balances);
+            let sum_pool_balances = sum_balances(pool_balances);
             let taxable_percentage =
                 Decimal::from(sum_pool_balances - pool_balances[output_index]) / Decimal::from(sum_pool_balances);
             let fee = Decimal::one() / (Decimal::one() - total_fee) - Decimal::one();
@@ -529,8 +529,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
             return Ok(((pool_balances[0] * pool_balances[1]).integer_sqrt() * U128::from(2i32)).into());
         }
 
-        let pool_balances_times_n: [_; TOKEN_COUNT] =
-            create_array(|i| U128::from(pool_balances[i]) * AmountT::from(TOKEN_COUNT));
+        let pool_balances_times_n: [_; TOKEN_COUNT] = create_array(|i| pool_balances[i] * AmountT::from(TOKEN_COUNT));
         let pool_balances_sum = sum_balances(pool_balances);
 
         // use f64 to calculate either the exact result (if there's sufficient precision) or an updated initial guess
@@ -624,7 +623,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
     fn calculate_unknown_balance(
         // this should have type &[AmountT; TOKEN_COUNT-1] but Rust currently does not support const operations
         // on const generics and hence TOKEN_COUNT-1 is illegal and so it has to be a Vec instead...
-        known_balances: &Vec<AmountT>,
+        known_balances: &[AmountT],
         depth: Decimal,
         amp_factor: AmpT,
         initial_guess: AmountT,
@@ -701,7 +700,10 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
 mod tests {
     use {
         super::*,
-        crate::{array_equalize, decimal::DecimalU128, to_equalized},
+        crate::{
+            common::{array_equalize, to_equalized},
+            decimal::DecimalU128,
+        },
     };
 
     const BASE: AmountT = ten_to_the(10);
@@ -970,8 +972,8 @@ mod tests {
             amp_factor,
             lp_fee,
             governance_fee,
-            lp_total_supply.into(),
-            lp_total_supply.into(),
+            lp_total_supply,
+            lp_total_supply,
         )
         .unwrap();
         println!(

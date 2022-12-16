@@ -14,10 +14,11 @@ export const rpcCommitmentConfig = {
   skipPreflight: true,
 };
 
-const ethTokenBridgeStr = "0x0290FB167208Af455bB137780163b7B7a9a10C16";
+export const ethTokenBridgeNativeStr =
+  "0x0290FB167208Af455bB137780163b7B7a9a10C16";
 //0000000000000000000000000290fb167208af455bb137780163b7b7a9a10c16
 const ethTokenBridgeEthHexStr = tryNativeToHexString(
-  ethTokenBridgeStr,
+  ethTokenBridgeNativeStr,
   CHAIN_ID_ETH,
 );
 //ethTokenBridge.toString() = gibberish
@@ -28,10 +29,12 @@ const bscTokenBridgeBscHexStr = tryNativeToHexString(
   bscTokenBridgeStr,
   CHAIN_ID_BSC,
 );
+
 export const bscTokenBridge = Buffer.from(bscTokenBridgeBscHexStr, "hex");
-const ethRoutingContractStr = "0x0290FB167208Af455bB137780163b7B7a9a10C17";
+const evmRoutingContractNativeStr =
+  "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4";
 // const ethRoutingContractEthUint8Arr = tryNativeToUint8Array(
-//   ethRoutingContractStr,
+//   evmRoutingContractNativeStr,
 //   CHAIN_ID_ETH,
 // );
 // console.info(`
@@ -40,21 +43,21 @@ const ethRoutingContractStr = "0x0290FB167208Af455bB137780163b7B7a9a10C17";
 //   ethRoutingContractEthUint8Arr,
 // )}
 // `);
-export const ethRoutingContractEthHexStr = tryNativeToHexString(
-  ethRoutingContractStr,
+export const evmRoutingContractHexStr = tryNativeToHexString(
+  evmRoutingContractNativeStr,
   CHAIN_ID_ETH,
 );
-export const ethRoutingContract = Buffer.from(
-  ethRoutingContractEthHexStr,
+export const evmRoutingContractBuffer = Buffer.from(
+  evmRoutingContractHexStr,
   "hex",
 );
 export const routingContracts = [
-  { targetChainId: CHAIN_ID_ETH, address: ethRoutingContract },
-  { targetChainId: CHAIN_ID_BSC, address: ethRoutingContract },
+  { targetChainId: CHAIN_ID_ETH, address: evmRoutingContractBuffer },
+  { targetChainId: CHAIN_ID_BSC, address: evmRoutingContractBuffer },
 ];
+//TODO: figure out actual value for compute budget
 export const setComputeUnitLimitIx: web3.TransactionInstruction =
   web3.ComputeBudgetProgram.setComputeUnitLimit({
-    // units: 420690,
     units: 900000,
   });
 export const SWIM_USD_TO_TOKEN_NUMBER = 0;
@@ -64,16 +67,17 @@ export const marginalPricePoolTokenIndex = 0;
 export const swimPayloadVersion = 1;
 export const usdcPoolTokenIndex = 0;
 export const usdtPoolTokenIndex = 1;
-export const metapoolMint1OutputTokenIndex = 3;
+export const metapoolMint1ToTokenNumber = 3;
 export const metapoolMint1PoolTokenIndex = 1; // const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
 
-export const gasKickstartAmount: BN = new BN(0.75 * LAMPORTS_PER_SOL);
-export const initAtaFee: BN = new BN(0.25 * LAMPORTS_PER_SOL);
+export const gasKickstartAmount: BN = new BN(0.25 * LAMPORTS_PER_SOL);
+export const initAtaFee: BN = new BN(0.0025 * LAMPORTS_PER_SOL);
 export const secpVerifyInitFee: BN = new BN(0.000045 * LAMPORTS_PER_SOL);
 export const secpVerifyFee: BN = new BN(0.00004 * LAMPORTS_PER_SOL);
 export const postVaaFee: BN = new BN(0.00005 * LAMPORTS_PER_SOL);
 export const completeWithPayloadFee: BN = new BN(0.0000055 * LAMPORTS_PER_SOL);
 export const processSwimPayloadFee: BN = new BN(0.00001 * LAMPORTS_PER_SOL); // const confirmedCommitment = { commitment: "confirmed" as web3.Finality };
+export const maxStaleness = new BN("9223372036854775807");
 export const ampFactor = { value: new BN(300), decimals: 0 };
 export const lpFee = { value: new BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
 export const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
@@ -96,3 +100,5 @@ export const TWO_POOL_PID = new web3.PublicKey(
 export const PROPELLER_PID = new web3.PublicKey(
   "9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK",
 );
+
+export const SWIM_MEMO_LENGTH = 16;

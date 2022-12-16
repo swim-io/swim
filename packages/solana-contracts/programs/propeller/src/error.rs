@@ -36,6 +36,9 @@ pub enum PropellerError {
     #[msg("TransferNotAllowed")]
     TransferNotAllowed,
 
+    #[msg("Invalid Pool for Init To SwimUSD")]
+    InvalidPoolForInitToSwimUsd,
+
     #[msg("Incorrect ProgramId for CPI return value")]
     InvalidCpiReturnProgramId,
 
@@ -72,7 +75,7 @@ pub enum PropellerError {
     #[msg("Not a valid Switchboard account")]
     InvalidSwitchboardAccount,
 
-    #[msg("Switchboard feed has not been updated in 5 minutes")]
+    #[msg("Switchboard feed value is stale ")]
     StaleFeed,
 
     #[msg("Switchboard feed exceeded provided confidence interval")]
@@ -81,32 +84,41 @@ pub enum PropellerError {
     #[msg("Insufficient Amount being transferred")]
     InsufficientAmount,
 
+    #[msg("Invalid Wormhole Claim Account")]
+    InvalidWormholeClaimAccount,
+
     #[msg("Invalid claim data")]
     InvalidClaimData,
 
     #[msg("Claim Account not claimed")]
     ClaimNotClaimed,
 
-    #[msg("Invalid Propeller Admin")]
-    InvalidPropellerAdmin,
+    #[msg("Invalid Propeller GovernanceKey")]
+    InvalidPropellerGovernanceKey,
 
-    #[msg("Invalid Pool for Token Id Map")]
-    InvalidTokenIdMapPool,
+    #[msg("Invalid Propeller Pause Key")]
+    InvalidPropellerPauseKey,
+
+    #[msg("Invalid Pool for Token Number Map")]
+    InvalidTokenNumberMapPool,
 
     #[msg("Invalid Output Token Index")]
     InvalidOutputTokenIndex,
 
-    #[msg("Invalid Pool Token Index for Token Id Map")]
-    InvalidTokenIdMapPoolTokenIndex,
+    #[msg("Invalid Pool Token Index for Token Number Map")]
+    InvalidTokenNumberMapPoolTokenIndex,
 
-    #[msg("Invalid Pool Token Mint for Token Id Map")]
-    InvalidTokenIdMapPoolTokenMint,
+    #[msg("Invalid Pool Token Mint for Token Number Map")]
+    InvalidTokenNumberMapPoolTokenMint,
 
-    #[msg("Invalid Pool Ix for Token Id Map")]
-    InvalidTokenIdMapPoolIx,
+    #[msg("Invalid To Token Step for Token Number Map")]
+    InvalidTokenNumberMapToTokenStep,
 
     #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
     InvalidSwimPayloadGasKickstart,
+
+    #[msg("Invalid Marginal Price Pool")]
+    InvalidMarginalPricePool,
 
     #[msg("Invalid Marginal Price Pool Accounts")]
     InvalidMarginalPricePoolAccounts,
@@ -141,15 +153,48 @@ pub enum PropellerError {
     #[msg("Owner of token account != swimPayload.owner")]
     IncorrectOwnerForCreateTokenAccount,
 
-    #[msg("TokenIdMap exists. Please use the correct instruction")]
-    TokenIdMapExists,
-
-    #[msg("Invalid address for TokenIdMap account")]
-    InvalidTokenIdMapAccountAddress,
+    #[msg("TokenNumberMap exists. Please use the correct instruction")]
+    TokenNumberMapExists,
 
     #[msg("Invalid Swim Payload version")]
     InvalidSwimPayloadVersion,
 
     #[msg("Invalid Aggregator")]
     InvalidAggregator,
+
+    #[msg("Invalid Fee Vault")]
+    InvalidFeeVault,
+
+    #[msg("Invalid Memo")]
+    InvalidMemo,
+
+    #[msg("ToTokenNumber does not match SwimPayload.to_tokenNumber")]
+    ToTokenNumberMismatch,
+
+    #[msg("Routing Contract is paused")]
+    IsPaused,
+
+    #[msg("Target Chain is paused")]
+    TargetChainIsPaused,
+
+    #[msg("Invalid Target Chain Map")]
+    InvalidTargetChainMap,
+
+    #[msg("Invalid SwimPayloadMessagePayer")]
+    InvalidSwimPayloadMessagePayer,
+
+    #[msg("Invalid New Pause Key for UpdatePauseKey")]
+    InvalidNewPauseKey,
+
+    #[msg("Invalid Upcoming Governance Key for Prepare Governance Transition")]
+    InvalidUpcomingGovernanceKey,
+
+    #[msg("Invalid Enact Governance Transition")]
+    InvalidEnact,
+
+    #[msg("Insufficient Delay for Enact Governance Transition")]
+    InsufficientDelay,
+
+    #[msg("Invalid Fee Tracker")]
+    InvalidFeeTracker,
 }

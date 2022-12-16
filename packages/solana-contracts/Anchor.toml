@@ -32,6 +32,7 @@ initialize_pool = "yarn run ts-node scripts/initializePool.ts"
 initialize_propeller = "yarn run ts-node scripts/initializePropeller.ts"
 scratch = "yarn run ts-node scripts/scratch.ts"
 add_to_pool = "yarn run ts-node scripts/addToPool.ts"
+parse_account = "yarn run ts-node scripts/parseAccount.ts"
 
 [test]
 startup_wait = 100000

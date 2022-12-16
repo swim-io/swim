@@ -1,12 +1,13 @@
-import type { BN, Program, SplToken } from "@project-serum/anchor";
+import type { BN, Program, Program, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
 import {
+  TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
 
-import type { TwoPool } from "../../artifacts/two_pool";
+import type { TwoPool, TwoPool } from "../../artifacts/two_pool";
 
 /**
  * It initializes the mints for the tokens that will be used in the pool, and then *CALCULATES* the pool token accounts and
@@ -375,3 +376,148 @@ export function printBeforeAndAfterPoolUserBalances(
       after: ${previousDepthAfter.toString()}
   `);
 }
+
+export const getPoolTokenKeys = async (
+  pool: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+) => {
+  const poolInfo = await twoPoolProgram.account.twoPool.fetch(pool);
+  return poolInfo.tokenKeys;
+};
+
+export const getPoolTokenAccountBalances = async (
+  pool: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+  splToken: Program<SplToken>,
+): Promise<readonly BN[]> => {
+  const poolTokenKeys = await getPoolTokenKeys(pool, twoPoolProgram);
+  const poolAtaData = await Promise.all(
+    poolTokenKeys.map(async (tokenKey) => {
+      return splToken.account.token.fetch(tokenKey);
+    }),
+  );
+  return poolAtaData.map((ata) => ata.amount);
+};
+
+export const getOwnerAtaAddrsForPool = async (
+  pool: web3.PublicKey,
+  owner: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+): Promise<readonly web3.PublicKey[]> => {
+  const tokenIdMapPoolData = await twoPoolProgram.account.twoPool.fetch(pool);
+  const tokenIdMapPoolInfo = {
+    pool,
+    tokenMints: tokenIdMapPoolData.tokenMintKeys,
+    tokenAccounts: tokenIdMapPoolData.tokenKeys,
+    lpMint: tokenIdMapPoolData.lpMintKey,
+    governanceFeeAcct: tokenIdMapPoolData.governanceFeeKey,
+  };
+  const mints = [...tokenIdMapPoolInfo.tokenMints, tokenIdMapPoolInfo.lpMint];
+  return await Promise.all(
+    mints.map(async (mint) => {
+      return await getAssociatedTokenAddress(mint, owner);
+    }),
+  );
+};
+
+export const getUserAtaDataForPool = async (
+  user: web3.PublicKey,
+  pool: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+  splToken: Program<SplToken>,
+) => {
+  const userAtaAddrs = await getOwnerAtaAddrsForPool(
+    pool,
+    user,
+    twoPoolProgram,
+  );
+  return await Promise.all(
+    userAtaAddrs.map(async (ataAddr) => {
+      return splToken.account.token.fetch(ataAddr);
+    }),
+  );
+};
+
+export const getNullableUserAtaDataForPool = async (
+  user: web3.PublicKey,
+  pool: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+  splToken: Program<SplToken>,
+) => {
+  const userAtaAddrs = await getOwnerAtaAddrsForPool(
+    pool,
+    user,
+    twoPoolProgram,
+  );
+  return await Promise.all(
+    userAtaAddrs.map(async (ataAddr) => {
+      const data = await splToken.account.token.fetchNullable(ataAddr);
+      return {
+        ataAddr,
+        data,
+      };
+    }),
+  );
+};
+
+export const getUserAtaBalancesForPool = async (
+  user: web3.PublicKey,
+  pool: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+  splToken: Program<SplToken>,
+) => {
+  const userTokenAccounts = await getUserAtaDataForPool(
+    user,
+    pool,
+    twoPoolProgram,
+    splToken,
+  );
+  return userTokenAccounts.map((ata) => ata.amount);
+};
+
+export const getSwapAccounts = async (
+  pool: web3.PublicKey,
+  user: web3.PublicKey,
+  userTransferAuthority: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+) => {
+  const poolData = await twoPoolProgram.account.twoPool.fetch(pool);
+  const [userTokenAccount0, userTokenAccount1] = await getOwnerAtaAddrsForPool(
+    pool,
+    user,
+    twoPoolProgram,
+  );
+  return {
+    pool,
+    poolTokenAccount0: poolData.tokenKeys[0],
+    poolTokenAccount1: poolData.tokenKeys[1],
+    lpMint: poolData.lpMintKey,
+    governanceFee: poolData.governanceFeeKey,
+    userTransferAuthority,
+    userTokenAccount0,
+    userTokenAccount1,
+    tokenProgram: TOKEN_PROGRAM_ID,
+  };
+};
+
+export const getAddOrRemoveAccounts = async (
+  pool: web3.PublicKey,
+  user: web3.PublicKey,
+  userTransferAuthority: web3.PublicKey,
+  twoPoolProgram: Program<TwoPool>,
+) => {
+  const swapAccounts = await getSwapAccounts(
+    pool,
+    user,
+    userTransferAuthority,
+    twoPoolProgram,
+  );
+  const userLpTokenAccount = await getAssociatedTokenAddress(
+    swapAccounts.lpMint,
+    user,
+  );
+  return {
+    swap: { ...swapAccounts },
+    userLpTokenAccount,
+  };
+};

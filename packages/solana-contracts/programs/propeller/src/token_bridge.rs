@@ -1,8 +1,21 @@
 use {
-    anchor_lang::{prelude::*, solana_program::pubkey},
-    borsh::{BorshDeserialize, BorshSerialize},
+    anchor_lang::{
+        prelude::*,
+        solana_program::{pubkey},
+    },
 };
-
+// mod token_bridge {
+//     use super::*;
+//     #[cfg(all(feature = "localnet", not(feature = "devnet"), not(feature = "mainnet")))]
+//     declare_id!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
+//
+//     // #[cfg(feature = "devnet")]
+//     #[cfg(all(feature = "devnet", not(feature = "localnet"), not(feature = "mainnet")))]
+//     declare_id!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
+//
+//     #[cfg(all(feature = "mainnet", not(feature = "localnet"), not(feature = "devnet")))]
+//     declare_id!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
+// }
 #[derive(Debug, Clone)]
 pub struct TokenBridge;
 
@@ -11,6 +24,7 @@ impl anchor_lang::Id for TokenBridge {
     // #[cfg(feature = "localnet")]
     #[cfg(all(feature = "localnet", not(feature = "devnet"), not(feature = "mainnet")))]
     fn id() -> Pubkey {
+        // declare_id!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE")
         pubkey!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE")
     }
 
@@ -18,11 +32,13 @@ impl anchor_lang::Id for TokenBridge {
 
     #[cfg(all(feature = "devnet", not(feature = "localnet"), not(feature = "mainnet")))]
     fn id() -> Pubkey {
+        // declare_id!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe")
         pubkey!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe")
     }
 
     #[cfg(all(feature = "mainnet", not(feature = "localnet"), not(feature = "devnet")))]
     fn id() -> Pubkey {
+        // declare_id!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb")
         pubkey!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb")
     }
 }
@@ -40,8 +56,6 @@ pub const TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION: u8 = 12;
 mod test {
     use {
         super::*,
-        // crate::TOKEN_BRIDGE_ID,
-        std::str::FromStr,
     };
 
     #[test]

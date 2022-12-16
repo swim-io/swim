@@ -1,5 +1,5 @@
 use {
-    crate::{decimal::DecimalU64, error::PoolError::*, AmpFactor, DecimalU64Anchor, PoolError, PoolFee, TwoPool},
+    crate::{decimal::DecimalU64, AmpFactor, DecimalU64Anchor, PoolError, PoolFee, TwoPool},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{get_associated_token_address, AssociatedToken},
@@ -67,6 +67,7 @@ pub struct Initialize<'info> {
     payer = payer,
     associated_token::mint = lp_mint,
     associated_token::authority = governance_account,
+    address = get_associated_token_address(&governance_account.key(), &lp_mint.key()),
     )]
     pub governance_fee_account: Box<Account<'info, TokenAccount>>,
 
@@ -77,6 +78,7 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
 
     //explicitly needed for initializing associated token accounts
+    // setting it last so it can be removed once version after 0.25.0 is released
     pub rent: Sysvar<'info, Rent>,
 }
 
@@ -148,28 +150,5 @@ pub fn handle_initialize(
     two_pool.prepared_governance_fee = PoolFee::default();
     two_pool.fee_transition_ts = 0;
     two_pool.previous_depth = 0;
-
-    /**
-      &PoolState {
-        nonce,
-        is_paused: false,
-        amp_factor: AmpFactor::new(amp_factor)?,
-        lp_fee: PoolFee::new(lp_fee)?,
-        governance_fee: PoolFee::new(governance_fee)?,
-        lp_mint_key: lp_mint_account.key.clone(),
-        lp_decimal_equalizer: decimal_range_max - lp_mint_state.decimals,
-        token_mint_keys: create_array(|i| token_mint_accounts[i].key.clone()),
-        token_decimal_equalizers: create_array(|i| decimal_range_max - token_decimals[i]),
-        token_keys: create_array(|i| token_accounts[i].key.clone()),
-        governance_key: governance_account.key.clone(),
-        governance_fee_key: governance_fee_account.key.clone(),
-        prepared_governance_key: Pubkey::default(),
-        governance_transition_ts: 0,
-        prepared_lp_fee: PoolFee::default(),
-        prepared_governance_fee: PoolFee::default(),
-        fee_transition_ts: 0,
-        previous_depth: 0,
-    },
-     */
     Ok(())
 }

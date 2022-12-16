@@ -128,80 +128,85 @@ export type TwoPool = {
       "name": "add",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -422,80 +427,85 @@ export type TwoPool = {
       "name": "removeUniform",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -522,80 +532,85 @@ export type TwoPool = {
       "name": "removeExactBurn",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -619,80 +634,85 @@ export type TwoPool = {
       "name": "removeExactOutput",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -777,153 +797,101 @@ export type TwoPool = {
       }
     },
     {
-      "name": "prepareGovernanceTransition",
+      "name": "adjustAmpFactor",
       "docs": [
         "Governance Ixs *"
       ],
       "accounts": [
         {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
               }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": [
         {
-          "name": "upcomingGovernanceKey",
-          "type": "publicKey"
+          "name": "targetTs",
+          "type": "i64"
+        },
+        {
+          "name": "targetValue",
+          "type": {
+            "defined": "DecimalU64Anchor"
+          }
         }
       ]
-    },
-    {
-      "name": "enactGovernanceTransition",
-      "accounts": [
-        {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
-        }
-      ],
-      "args": []
     },
     {
       "name": "prepareFeeChange",
       "accounts": [
         {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
               }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": [
@@ -945,46 +913,41 @@ export type TwoPool = {
       "name": "enactFeeChange",
       "accounts": [
         {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
               }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": []
@@ -993,7 +956,7 @@ export type TwoPool = {
       "name": "changeGovernanceFeeAccount",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -1028,7 +991,7 @@ export type TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
@@ -1048,10 +1011,10 @@ export type TwoPool = {
       ]
     },
     {
-      "name": "adjustAmpFactor",
+      "name": "prepareGovernanceTransition",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -1086,23 +1049,123 @@ export type TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
           ]
+        },
+        {
+          "name": "upcomingGovernanceKey",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "targetTs",
-          "type": "i64"
+          "name": "upcomingGovernanceKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "enactGovernanceTransition",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
+              }
+            ]
+          }
         },
         {
-          "name": "targetValue",
-          "type": {
-            "defined": "DecimalU64Anchor"
-          }
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "changePauseKey",
+      "accounts": [
+        {
+          "name": "governance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governanceKey",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "newPauseKey",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "newPauseKey",
+          "type": "publicKey"
         }
       ]
     },
@@ -1155,63 +1218,10 @@ export type TwoPool = {
       ]
     },
     {
-      "name": "changePauseKey",
-      "accounts": [
-        {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "newPauseKey",
-          "type": "publicKey"
-        }
-      ]
-    },
-    {
       "name": "createLpMetadata",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -1246,7 +1256,7 @@ export type TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
@@ -1319,7 +1329,7 @@ export type TwoPool = {
       "name": "updateLpMetadata",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -1354,7 +1364,7 @@ export type TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
@@ -1573,6 +1583,118 @@ export type TwoPool = {
       }
     },
     {
+      "name": "RemoveExactBurnParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "exactBurnAmount",
+            "type": "u64"
+          },
+          {
+            "name": "outputTokenIndex",
+            "type": "u8"
+          },
+          {
+            "name": "minimumOutputAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoveExactOutputParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maximumBurnAmount",
+            "type": "u64"
+          },
+          {
+            "name": "exactOutputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoveUniformParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "exactBurnAmount",
+            "type": "u64"
+          },
+          {
+            "name": "minimumOutputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapExactInputParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "exactInputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          },
+          {
+            "name": "outputTokenIndex",
+            "type": "u8"
+          },
+          {
+            "name": "minimumOutputAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapExactOutputParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maximumInputAmount",
+            "type": "u64"
+          },
+          {
+            "name": "inputTokenIndex",
+            "type": "u8"
+          },
+          {
+            "name": "exactOutputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "AdjustAmpFactorParams",
       "type": {
         "kind": "struct",
@@ -1583,6 +1705,26 @@ export type TwoPool = {
           },
           {
             "name": "targetValue",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PrepareFeeChangeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lpFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "governanceFee",
             "type": {
               "defined": "DecimalU64Anchor"
             }
@@ -1608,6 +1750,40 @@ export type TwoPool = {
           {
             "name": "updateAuthorityIsSigner",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateLpMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "newUpdateAuthority",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "data",
+            "type": {
+              "option": {
+                "defined": "AnchorDataV2"
+              }
+            }
+          },
+          {
+            "name": "primarySaleHappened",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "isMutable",
+            "type": {
+              "option": "bool"
+            }
           }
         ]
       }
@@ -1742,60 +1918,6 @@ export type TwoPool = {
       }
     },
     {
-      "name": "PrepareFeeChangeParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "lpFee",
-            "type": {
-              "defined": "DecimalU64Anchor"
-            }
-          },
-          {
-            "name": "governanceFee",
-            "type": {
-              "defined": "DecimalU64Anchor"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "UpdateLpMetadataParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "newUpdateAuthority",
-            "type": {
-              "option": "publicKey"
-            }
-          },
-          {
-            "name": "data",
-            "type": {
-              "option": {
-                "defined": "AnchorDataV2"
-              }
-            }
-          },
-          {
-            "name": "primarySaleHappened",
-            "type": {
-              "option": "bool"
-            }
-          },
-          {
-            "name": "isMutable",
-            "type": {
-              "option": "bool"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "InitializeParams",
       "type": {
         "kind": "struct",
@@ -1816,118 +1938,6 @@ export type TwoPool = {
             "name": "governanceFee",
             "type": {
               "defined": "DecimalU64Anchor"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "RemoveExactBurnParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "exactBurnAmount",
-            "type": "u64"
-          },
-          {
-            "name": "outputTokenIndex",
-            "type": "u8"
-          },
-          {
-            "name": "minimumOutputAmount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "RemoveExactOutputParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "maximumBurnAmount",
-            "type": "u64"
-          },
-          {
-            "name": "exactOutputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "RemoveUniformParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "exactBurnAmount",
-            "type": "u64"
-          },
-          {
-            "name": "minimumOutputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "SwapExactInputParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "exactInputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          },
-          {
-            "name": "outputTokenIndex",
-            "type": "u8"
-          },
-          {
-            "name": "minimumOutputAmount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SwapExactOutputParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "maximumInputAmount",
-            "type": "u64"
-          },
-          {
-            "name": "inputTokenIndex",
-            "type": "u8"
-          },
-          {
-            "name": "exactOutputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
             }
           }
         ]
@@ -2158,28 +2168,43 @@ export type TwoPool = {
     },
     {
       "code": 6032,
+      "name": "InvalidNewPauseKey",
+      "msg": "Invalid New Pause Key"
+    },
+    {
+      "code": 6033,
       "name": "InvalidSwitchboardAccount",
       "msg": "Not a valid Switchboard account"
     },
     {
-      "code": 6033,
+      "code": 6034,
       "name": "StaleFeed",
       "msg": "Switchboard feed has not been updated in 5 minutes"
     },
     {
-      "code": 6034,
+      "code": 6035,
       "name": "ConfidenceIntervalExceeded",
       "msg": "Switchboard feed exceeded provided confidence interval"
     },
     {
-      "code": 6035,
+      "code": 6036,
       "name": "MaxDecimalsExceeded",
       "msg": "Maximum decimals exceeded"
     },
     {
-      "code": 6036,
+      "code": 6037,
       "name": "ConversionError",
       "msg": "Conversion error"
+    },
+    {
+      "code": 6038,
+      "name": "BurnAmountExceedsTotalSupply",
+      "msg": "Burn amount exceeds lp total supply"
+    },
+    {
+      "code": 6039,
+      "name": "InvalidUpcomingGovernanceKey",
+      "msg": "Invalid Upcoming Governance Key"
     }
   ]
 };
@@ -2314,80 +2339,85 @@ export const IDL: TwoPool = {
       "name": "add",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -2608,80 +2638,85 @@ export const IDL: TwoPool = {
       "name": "removeUniform",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -2708,80 +2743,85 @@ export const IDL: TwoPool = {
       "name": "removeExactBurn",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -2805,80 +2845,85 @@ export const IDL: TwoPool = {
       "name": "removeExactOutput",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
+          "name": "swap",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
         },
         {
           "name": "userLpTokenAccount",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -2963,153 +3008,101 @@ export const IDL: TwoPool = {
       }
     },
     {
-      "name": "prepareGovernanceTransition",
+      "name": "adjustAmpFactor",
       "docs": [
         "Governance Ixs *"
       ],
       "accounts": [
         {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
               }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": [
         {
-          "name": "upcomingGovernanceKey",
-          "type": "publicKey"
+          "name": "targetTs",
+          "type": "i64"
+        },
+        {
+          "name": "targetValue",
+          "type": {
+            "defined": "DecimalU64Anchor"
+          }
         }
       ]
-    },
-    {
-      "name": "enactGovernanceTransition",
-      "accounts": [
-        {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
-        }
-      ],
-      "args": []
     },
     {
       "name": "prepareFeeChange",
       "accounts": [
         {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
               }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": [
@@ -3131,46 +3124,41 @@ export const IDL: TwoPool = {
       "name": "enactFeeChange",
       "accounts": [
         {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
               }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": []
@@ -3179,7 +3167,7 @@ export const IDL: TwoPool = {
       "name": "changeGovernanceFeeAccount",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -3214,7 +3202,7 @@ export const IDL: TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
@@ -3234,10 +3222,10 @@ export const IDL: TwoPool = {
       ]
     },
     {
-      "name": "adjustAmpFactor",
+      "name": "prepareGovernanceTransition",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -3272,23 +3260,123 @@ export const IDL: TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
           ]
+        },
+        {
+          "name": "upcomingGovernanceKey",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "targetTs",
-          "type": "i64"
+          "name": "upcomingGovernanceKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "enactGovernanceTransition",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
+              }
+            ]
+          }
         },
         {
-          "name": "targetValue",
-          "type": {
-            "defined": "DecimalU64Anchor"
-          }
+          "name": "governanceKey",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "changePauseKey",
+      "accounts": [
+        {
+          "name": "governance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governanceKey",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "newPauseKey",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "newPauseKey",
+          "type": "publicKey"
         }
       ]
     },
@@ -3341,63 +3429,10 @@ export const IDL: TwoPool = {
       ]
     },
     {
-      "name": "changePauseKey",
-      "accounts": [
-        {
-          "name": "commonGovernance",
-          "accounts": [
-            {
-              "name": "pool",
-              "isMut": true,
-              "isSigner": false,
-              "pda": {
-                "seeds": [
-                  {
-                    "kind": "const",
-                    "type": "string",
-                    "value": "two_pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool"
-                  },
-                  {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "account": "TwoPool",
-                    "path": "pool.lp_mint_key"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "governance",
-              "isMut": false,
-              "isSigner": true
-            }
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "newPauseKey",
-          "type": "publicKey"
-        }
-      ]
-    },
-    {
       "name": "createLpMetadata",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -3432,7 +3467,7 @@ export const IDL: TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
@@ -3505,7 +3540,7 @@ export const IDL: TwoPool = {
       "name": "updateLpMetadata",
       "accounts": [
         {
-          "name": "commonGovernance",
+          "name": "governance",
           "accounts": [
             {
               "name": "pool",
@@ -3540,7 +3575,7 @@ export const IDL: TwoPool = {
               }
             },
             {
-              "name": "governance",
+              "name": "governanceKey",
               "isMut": false,
               "isSigner": true
             }
@@ -3759,6 +3794,118 @@ export const IDL: TwoPool = {
       }
     },
     {
+      "name": "RemoveExactBurnParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "exactBurnAmount",
+            "type": "u64"
+          },
+          {
+            "name": "outputTokenIndex",
+            "type": "u8"
+          },
+          {
+            "name": "minimumOutputAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoveExactOutputParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maximumBurnAmount",
+            "type": "u64"
+          },
+          {
+            "name": "exactOutputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoveUniformParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "exactBurnAmount",
+            "type": "u64"
+          },
+          {
+            "name": "minimumOutputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapExactInputParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "exactInputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          },
+          {
+            "name": "outputTokenIndex",
+            "type": "u8"
+          },
+          {
+            "name": "minimumOutputAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapExactOutputParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maximumInputAmount",
+            "type": "u64"
+          },
+          {
+            "name": "inputTokenIndex",
+            "type": "u8"
+          },
+          {
+            "name": "exactOutputAmounts",
+            "type": {
+              "array": [
+                "u64",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "AdjustAmpFactorParams",
       "type": {
         "kind": "struct",
@@ -3769,6 +3916,26 @@ export const IDL: TwoPool = {
           },
           {
             "name": "targetValue",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PrepareFeeChangeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lpFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "governanceFee",
             "type": {
               "defined": "DecimalU64Anchor"
             }
@@ -3794,6 +3961,40 @@ export const IDL: TwoPool = {
           {
             "name": "updateAuthorityIsSigner",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateLpMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "newUpdateAuthority",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "data",
+            "type": {
+              "option": {
+                "defined": "AnchorDataV2"
+              }
+            }
+          },
+          {
+            "name": "primarySaleHappened",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "isMutable",
+            "type": {
+              "option": "bool"
+            }
           }
         ]
       }
@@ -3928,60 +4129,6 @@ export const IDL: TwoPool = {
       }
     },
     {
-      "name": "PrepareFeeChangeParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "lpFee",
-            "type": {
-              "defined": "DecimalU64Anchor"
-            }
-          },
-          {
-            "name": "governanceFee",
-            "type": {
-              "defined": "DecimalU64Anchor"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "UpdateLpMetadataParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "newUpdateAuthority",
-            "type": {
-              "option": "publicKey"
-            }
-          },
-          {
-            "name": "data",
-            "type": {
-              "option": {
-                "defined": "AnchorDataV2"
-              }
-            }
-          },
-          {
-            "name": "primarySaleHappened",
-            "type": {
-              "option": "bool"
-            }
-          },
-          {
-            "name": "isMutable",
-            "type": {
-              "option": "bool"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "InitializeParams",
       "type": {
         "kind": "struct",
@@ -4002,118 +4149,6 @@ export const IDL: TwoPool = {
             "name": "governanceFee",
             "type": {
               "defined": "DecimalU64Anchor"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "RemoveExactBurnParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "exactBurnAmount",
-            "type": "u64"
-          },
-          {
-            "name": "outputTokenIndex",
-            "type": "u8"
-          },
-          {
-            "name": "minimumOutputAmount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "RemoveExactOutputParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "maximumBurnAmount",
-            "type": "u64"
-          },
-          {
-            "name": "exactOutputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "RemoveUniformParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "exactBurnAmount",
-            "type": "u64"
-          },
-          {
-            "name": "minimumOutputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "SwapExactInputParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "exactInputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          },
-          {
-            "name": "outputTokenIndex",
-            "type": "u8"
-          },
-          {
-            "name": "minimumOutputAmount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SwapExactOutputParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "maximumInputAmount",
-            "type": "u64"
-          },
-          {
-            "name": "inputTokenIndex",
-            "type": "u8"
-          },
-          {
-            "name": "exactOutputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
             }
           }
         ]
@@ -4344,28 +4379,43 @@ export const IDL: TwoPool = {
     },
     {
       "code": 6032,
+      "name": "InvalidNewPauseKey",
+      "msg": "Invalid New Pause Key"
+    },
+    {
+      "code": 6033,
       "name": "InvalidSwitchboardAccount",
       "msg": "Not a valid Switchboard account"
     },
     {
-      "code": 6033,
+      "code": 6034,
       "name": "StaleFeed",
       "msg": "Switchboard feed has not been updated in 5 minutes"
     },
     {
-      "code": 6034,
+      "code": 6035,
       "name": "ConfidenceIntervalExceeded",
       "msg": "Switchboard feed exceeded provided confidence interval"
     },
     {
-      "code": 6035,
+      "code": 6036,
       "name": "MaxDecimalsExceeded",
       "msg": "Maximum decimals exceeded"
     },
     {
-      "code": 6036,
+      "code": 6037,
       "name": "ConversionError",
       "msg": "Conversion error"
+    },
+    {
+      "code": 6038,
+      "name": "BurnAmountExceedsTotalSupply",
+      "msg": "Burn amount exceeds lp total supply"
+    },
+    {
+      "code": 6039,
+      "name": "InvalidUpcomingGovernanceKey",
+      "msg": "Invalid Upcoming Governance Key"
     }
   ]
 };

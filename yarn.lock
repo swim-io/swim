@@ -7826,6 +7826,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.38.1
     "@typescript-eslint/parser": ^5.38.1
     bn.js: ^5.2.1
+    byteify: ^2.0.10
     decimal.js: ^10.3.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
@@ -7837,6 +7838,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     ethers: ^5.7.0
     jest: ^28.1.1
+    keccak256: ^1.0.6
     prettier: ^2.7.1
     ts-jest: ^28.0.5
     typescript: ~4.8.4
@@ -7977,7 +7979,7 @@ __metadata:
     "@swim-io/evm": ^0.40.0
     "@swim-io/evm-contracts": ^0.40.0
     "@swim-io/pool-math": ^0.40.0
-    "@swim-io/solana": ^0.40.0
+    "@swim-io/solana": "workspace:^"
     "@swim-io/solana-contracts": ^0.40.0
     "@swim-io/token-projects": ^0.40.0
     "@swim-io/tsconfig": "workspace:^"

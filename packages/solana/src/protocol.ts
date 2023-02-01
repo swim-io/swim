@@ -42,8 +42,11 @@ export enum SolanaTxType {
   PortalRedeem = "portal:redeem",
   WormholeVerifySignatures = "wormhole:verifySignatures",
   WormholePostVaa = "wormhole:postVaa",
+  SplTokenCreateAccount = "splToken:createAccount",
   SwimPropellerAdd = "swimPropeller:add",
   SwimPropellerTransfer = "swimPropeller:transfer",
+  SwimCompleteNativeWithPayload = "swim:completeNativeWithPayload",
+  SwimProcessSwimPayload = "swim:processSwimPayload",
 }
 
 export type SolanaTx = Tx<ParsedTransactionWithMeta, SolanaEcosystemId>;

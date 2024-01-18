@@ -1,12 +1,11 @@
 import { EuiIcon } from "@elastic/eui";
 import type { TokenProject } from "@swim-io/token-projects";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
 
 import type { EcosystemId, TokenConfig } from "../config";
-import { ECOSYSTEMS } from "../config";
+import { ECOSYSTEMS, getTokenProject } from "../config";
 import { useIntlListSeparators } from "../hooks";
 import type { Amount } from "../models/amount";
 
@@ -117,7 +116,7 @@ export const TokenConfigIcon = ({
   ecosystem,
 }: TokenConfigIconProps): ReactElement => (
   <TokenIcon
-    {...TOKEN_PROJECTS_BY_ID[token.projectId]}
+    {...getTokenProject(token.projectId)}
     ecosystemId={ecosystem ?? token.nativeEcosystemId}
   />
 );
@@ -125,5 +124,5 @@ export const TokenConfigIcon = ({
 export const TokenSearchConfigIcon = ({
   token,
 }: Pick<TokenConfigIconProps, "token">): ReactElement => (
-  <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
+  <TokenIcon {...getTokenProject(token.projectId)} />
 );

@@ -17,7 +17,7 @@ import type {
   VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
-import type { WrappedTokenInfo } from "@swim-io/core/types";
+import type { WrappedTokenInfo } from "@swim-io/core";
 
 import { createMemoIx, createTx } from "./utils";
 

@@ -1,9 +1,9 @@
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { findOrThrow } from "@swim-io/utils";
-import type { PoolSpec, TokenConfig } from "config";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
+import type { PoolSpec, TokenConfig } from "../../config";
+import { getTokenProject } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { isSolanaPool } from "../../models";
@@ -29,14 +29,14 @@ export const usePoolUsdValues = (poolSpecs: readonly PoolSpec[]) => {
       if (
         poolTokens.some(
           (tokenConfig) =>
-            !TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin &&
+            !getTokenProject(tokenConfig.projectId).isStablecoin &&
             !prices.get(tokenConfig.id),
         )
       ) {
         return new Decimal(0);
       }
       return poolTokens.reduce((sum, tokenConfig, i) => {
-        const price = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin
+        const price = getTokenProject(tokenConfig.projectId).isStablecoin
           ? new Decimal(1)
           : prices.get(tokenConfig.id) ?? new Decimal(1);
         return sum.add(poolBalances[i].mul(price));

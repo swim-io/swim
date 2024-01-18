@@ -4,10 +4,9 @@ import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TokenProjectId } from "@swim-io/token-projects";
 
 import type { TokenConfig } from "../../config";
-import { CHAINS, Protocol, TOKENS } from "../../config";
+import { CHAINS, Protocol, TOKENS, TokenProjectIdV1 } from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -29,7 +28,7 @@ describe("models - Wormhole utils", () => {
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const token: TokenConfig = {
         id: "test-token",
-        projectId: TokenProjectId.Swim,
+        projectId: TokenProjectIdV1.Swim,
         nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
         nativeDetails: { address: "xxx", decimals: 8 },
         wrappedDetails: new Map([

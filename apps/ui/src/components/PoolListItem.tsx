@@ -8,7 +8,6 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { chunks } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -17,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 import { atomicToCurrencyString } from "../amounts";
 import type { PoolSpec, TokenConfig } from "../config";
+import { getTokenProject } from "../config";
 import { i18next } from "../i18n";
 
 import { TokenIcon } from "./TokenIcon";
@@ -92,7 +92,7 @@ export const PoolListItem = ({
                   style={{ margin: flexItemMargin }}
                 >
                   <TokenIcon
-                    {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
+                    {...getTokenProject(tokenConfig.projectId)}
                     ecosystemId={
                       !isLegacyPool && poolEcosystem !== null
                         ? poolEcosystem

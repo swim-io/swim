@@ -7426,27 +7426,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.40.0":
-  version: 0.40.0
-  resolution: "@swim-io/evm@npm:0.40.0"
-  dependencies:
-    "@swim-io/core": ^0.40.0
-    "@swim-io/evm-contracts": ^0.40.0
-    "@swim-io/token-projects": ^0.40.0
-    "@swim-io/utils": ^0.40.0
-    graphql: ^16.6.0
-    graphql-request: ^4.3.0
-    moralis: ^1.8.0
-  peerDependencies:
-    "@certusone/wormhole-sdk": ^0.6.2
-    decimal.js: ^10.3.1
-    ethers: ^5.6.9
-    eventemitter3: ^4.0.7
-  checksum: ba65ee3dcf51c9a4c1e329a7597b41c4226028f2fc76afd57c9e8185b20e04ef5563d47cdf017ec9aa122e148162408b16d544a167c6953b251a77fc83cebdfb
-  languageName: node
-  linkType: hard
-
-"@swim-io/evm@workspace:packages/evm":
+"@swim-io/evm@workspace:^, @swim-io/evm@workspace:packages/evm":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
@@ -7972,14 +7952,14 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
     "@swim-io/aptos": ^0.40.0
-    "@swim-io/core": ^0.40.0
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.40.0
+    "@swim-io/evm": "workspace:^"
     "@swim-io/evm-contracts": ^0.40.0
     "@swim-io/pool-math": ^0.40.0
-    "@swim-io/solana": ^0.40.0
+    "@swim-io/solana": "workspace:^"
     "@swim-io/solana-contracts": ^0.40.0
-    "@swim-io/token-projects": ^0.40.0
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.40.0
     "@swim-io/wormhole": ^0.40.0

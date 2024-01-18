@@ -1,9 +1,8 @@
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import { useTranslation } from "react-i18next";
 
-import { DISABLED_ECOSYSTEMS, ECOSYSTEMS } from "../../config";
+import { DISABLED_ECOSYSTEMS, ECOSYSTEMS, getTokenProject } from "../../config";
 import type { TokenOption } from "../../models";
 import { isValidSlippageFraction } from "../../models";
 import {
@@ -71,7 +70,7 @@ export const useGetSwapFormErrorsV2 = (
         ...errors,
         `Insufficient funds for ${
           ECOSYSTEMS[fromTokenOption.ecosystemId].displayName
-        } ${TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName}`,
+        } ${getTokenProject(fromToken.projectId).displayName}`,
       ];
     }
 

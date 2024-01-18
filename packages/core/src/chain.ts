@@ -19,7 +19,8 @@ export interface ChainConfig {
 
 export const getTokenDetails = (
   chainConfig: ChainConfig,
-  tokenProjectId: TokenProjectId,
+  /** @todo to be removed: legacy v1 token project id */
+  tokenProjectId: TokenProjectId | `${string}-v1`,
 ): TokenDetails =>
   tokenProjectId === TokenProjectId.SwimUsd
     ? chainConfig.swimUsdDetails

@@ -1,6 +1,5 @@
 import type { TokenDetails } from "@swim-io/core";
-import type { TokenProjectId } from "@swim-io/token-projects";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import type { TokenProject } from "@swim-io/token-projects";
 import { sleep } from "@swim-io/utils";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
@@ -29,7 +28,7 @@ export interface EvmWalletAdapter extends EventEmitter {
   readonly switchNetwork: (chainId: number) => Promise<unknown>;
   readonly registerToken: (
     tokenDetails: TokenDetails,
-    projectId: TokenProjectId,
+    tokenProject: Pick<TokenProject, "symbol" | "icon">,
     chainId: number,
   ) => Promise<unknown>;
   readonly isUnlocked: () => Promise<boolean>;
@@ -190,7 +189,8 @@ export class EvmWeb3WalletAdapter
 
   public async registerToken(
     tokenDetails: TokenDetails,
-    projectId: TokenProjectId,
+    /** compatible with both TokenProjectV1 and TokenProjectV2 */
+    tokenProject: Pick<TokenProject, "symbol" | "icon">,
     chainId: number,
   ): Promise<boolean> {
     if (!this.walletProvider) {
@@ -206,9 +206,9 @@ export class EvmWeb3WalletAdapter
       type: "ERC20", // Initially only supports ERC20, but eventually more!
       options: {
         address: tokenDetails.address, // The address that the token is at.
-        symbol: TOKEN_PROJECTS_BY_ID[projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
+        symbol: tokenProject.symbol, // A ticker symbol or shorthand, up to 5 chars.
         decimals: tokenDetails.decimals, // The number of decimals in the token
-        image: TOKEN_PROJECTS_BY_ID[projectId].icon, // A string url of the token logo
+        image: tokenProject.icon, // A string url of the token logo
       },
     })) as boolean;
     return wasAdded;

@@ -25,7 +25,7 @@ const EMPTY_MAP: TokenConfig["wrappedDetails"] = new Map();
 export const DEVNET_SWIMUSD: TokenConfig = {
   isDisabled: !isPoolRestructureEnabled(),
   id: "devnet-swimusd",
-  projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
+  projectId: TokenProjectId.SwimUsd,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
   nativeDetails: {
     address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr", // TODO: Update
@@ -140,18 +140,6 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-aurora-lp-usdc-usdt",
     projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x1111111111111111111111111111111111111111", // TODO: Update
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
-    isDisabled:
-      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-aurora-lp-usn",
-    projectId: TokenProjectId.SwimLpAuroraUsn,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -368,17 +356,6 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnLp,
-    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
-    nativeDetails: {
-      address: "11111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
     wrappedDetails: EMPTY_MAP,
@@ -639,25 +616,6 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
         {
           address: "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
           decimals: 6,
-        },
-      ],
-    ]),
-  },
-  {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-aurora-usn",
-    projectId: TokenProjectId.Usn,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Update
-      decimals: 18,
-    },
-    wrappedDetails: new Map([
-      [
-        SOLANA_ECOSYSTEM_ID,
-        {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 8,
         },
       ],
     ]),

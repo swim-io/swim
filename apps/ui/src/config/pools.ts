@@ -244,28 +244,6 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     tokens: ["mainnet-aurora-usdt", "mainnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "meta-aurora-usn",
-    ecosystem: SOLANA_ECOSYSTEM_ID,
-    displayName: "Aurora USN",
-    isStakingPool: false,
-    isStableSwap: true,
-    isLegacyPool: true,
-    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "4Cos4Z3DaMa37MpvjfCEH93DqonPmDV3b6GuPvmWugqF",
-    authority: "9dowtd9EbAtC9iKyXWaC5TBmHTivDfdQ6JbeTvHiCK6p",
-    feeDecimals: 6,
-    lpToken: "mainnet-solana-lp-meta-aurora-usn",
-    tokenAccounts: new Map([
-      ["mainnet-aurora-usn", "3dkbc5KuJSJ9ah87uVZRRLZMH1JKMaREQgcAkHSijWpR"],
-      [
-        "mainnet-solana-lp-hexapool",
-        "9Ddfhn9P1BJvxtfCvgvKBfSiKSrwdDBBSUf9SdQkDDW5",
-      ],
-    ]),
-    tokens: ["mainnet-aurora-usn", "mainnet-solana-lp-hexapool"],
-  },
-  {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
     id: "meta-fantom-usdc",
     ecosystem: SOLANA_ECOSYSTEM_ID,
@@ -467,20 +445,6 @@ export const TESTNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     feeDecimals: 6,
     lpToken: "testnet-aurora-lp-usdc-usdt",
     tokens: ["testnet-swimusd", "testnet-aurora-usdc", "testnet-aurora-usdt"],
-  },
-  {
-    isDisabled: true,
-    // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-aurora-usn",
-    ecosystem: EvmEcosystemId.Aurora,
-    displayName: "Aurora USN",
-    isStakingPool: false,
-    isStableSwap: true,
-    isLegacyPool: false,
-    address: "11111111111111111111111111111111", // TODO: Update
-    feeDecimals: 6,
-    lpToken: "testnet-aurora-lp-usn",
-    tokens: ["testnet-swimusd", "testnet-aurora-usn"],
   },
   {
     isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
@@ -735,25 +699,6 @@ export const TESTNET_POOLS: readonly PoolSpec[] = [
       ],
     ]),
     tokens: ["testnet-aurora-usdt", "testnet-solana-lp-hexapool"],
-  },
-  {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN, // TODO: Enable when deployed on testnet
-    id: "meta-aurora-usn",
-    ecosystem: SOLANA_ECOSYSTEM_ID,
-    displayName: "Aurora USN",
-    isStakingPool: false,
-    isStableSwap: true,
-    isLegacyPool: true,
-    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111", // TODO: Update
-    feeDecimals: 6,
-    lpToken: "testnet-solana-lp-meta-aurora-usn",
-    tokenAccounts: new Map([
-      ["testnet-aurora-usn", "11111111111111111111111111111111"], // TODO: Update
-      ["testnet-solana-lp-hexapool", "11111111111111111111111111111111"], // TODO: Update
-    ]),
-    tokens: ["testnet-aurora-usn", "testnet-solana-lp-hexapool"],
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),

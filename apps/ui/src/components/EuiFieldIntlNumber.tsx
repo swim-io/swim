@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 
 import { EuiFieldNumber } from "@elastic/eui";
+import type { Override } from "@swim-io/utils";
 import escapeStringRegexp from "escape-string-regexp";
 import type { ComponentProps } from "react";
 import { forwardRef, useCallback } from "react";
@@ -17,7 +18,6 @@ const MappedEuiFieldNumber = forwardRef<
   return <EuiFieldNumber {...props} inputRef={ref} />;
 });
 
-type Override<T, U> = Omit<T, keyof U> & U;
 type Props = Override<
   Omit<ComponentProps<typeof CurrencyInput>, "customInput" | "onChange">,
   {

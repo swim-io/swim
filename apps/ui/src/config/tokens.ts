@@ -5,28 +5,43 @@ import type {
 } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { TokenProjectId } from "@swim-io/token-projects";
+import { TokenProjectId as TokenProjectIdV2 } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { EcosystemId } from "./ecosystem";
 import { isEcosystemEnabled } from "./ecosystem";
 import { isPoolRestructureEnabled } from "./pools";
+import { TokenProjectIdV1 } from "./tokenProjects";
 
-export interface TokenConfig extends CoreTokenConfig {
+type CommonTokenConfig = Pick<CoreTokenConfig, "id" | "nativeDetails"> & {
   readonly isDisabled?: boolean;
   // TODO: Remove and derive from ChainConfig
   readonly nativeEcosystemId: EcosystemId;
-  /** Required for v1 pool support */
-  readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
-}
+};
+export type TokenConfig = CommonTokenConfig &
+  (
+    | {
+        readonly projectId: TokenProjectIdV1;
+        readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
+      }
+    | {
+        readonly projectId: Exclude<TokenProjectIdV2, TokenProjectIdV2.SwimUsd>;
+        readonly wrappedDetails?: never;
+      }
+    | {
+        readonly projectId: TokenProjectIdV2.SwimUsd;
+        // will be migrate to ChainConfig’s swimUsdDetails
+        readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
+      }
+  );
 
 // NOTE: Use a shared empty map to save memory
-const EMPTY_MAP: TokenConfig["wrappedDetails"] = new Map();
+const EMPTY_MAP: ReadonlyMap<EcosystemId, TokenDetails> = new Map();
 
 const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     id: "mainnet-solana-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
@@ -51,7 +66,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
@@ -76,7 +91,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-gst",
-    projectId: TokenProjectId.Gst,
+    projectId: TokenProjectIdV1.Gst,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB",
@@ -86,7 +101,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-gmt",
-    projectId: TokenProjectId.Gmt,
+    projectId: TokenProjectIdV1.Gmt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
@@ -96,7 +111,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-hexapool",
-    projectId: TokenProjectId.SwimUsd,
+    projectId: TokenProjectIdV1.SwimUsdV1,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1",
@@ -121,7 +136,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdc",
-    projectId: TokenProjectId.SwimAvalancheUsdcLp,
+    projectId: TokenProjectIdV1.SwimAvalancheUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
@@ -131,7 +146,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdt",
-    projectId: TokenProjectId.SwimAvalancheUsdtLp,
+    projectId: TokenProjectIdV1.SwimAvalancheUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
@@ -141,7 +156,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdc",
-    projectId: TokenProjectId.SwimPolygonUsdcLp,
+    projectId: TokenProjectIdV1.SwimPolygonUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
@@ -151,7 +166,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdt",
-    projectId: TokenProjectId.SwimPolygonUsdtLp,
+    projectId: TokenProjectIdV1.SwimPolygonUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
@@ -161,7 +176,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-gst",
-    projectId: TokenProjectId.SwimSolanaGstBinanceGstLp,
+    projectId: TokenProjectIdV1.SwimSolanaGstBinanceGstLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "8YYBkTNhpY9mFdCdZWM6mHNf8J6A9hGfimb33LEiiZ3x",
@@ -171,7 +186,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-gmt",
-    projectId: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
+    projectId: TokenProjectIdV1.SwimSolanaGmtBinanceGmtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "2x7MjgopLXd3qETGLpY19cyZjHvVnGkrwVjTkJnBza4A",
@@ -181,7 +196,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-aurora-usdc",
-    projectId: TokenProjectId.SwimAuroraUsdcLp,
+    projectId: TokenProjectIdV1.SwimAuroraUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "9qRe2nBrR2rTXxRaV1PZN9hZnqq3UXgoFWTbP6NE3MEu",
@@ -191,7 +206,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    projectId: TokenProjectIdV1.SwimAuroraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "4XPDxtGbcM7bAPKZxALd2s862n3WoG4xPPvyCPVULKAb",
@@ -200,19 +215,8 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "mainnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnLp,
-    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
-    nativeDetails: {
-      address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
     id: "mainnet-solana-lp-meta-fantom-usdc",
-    projectId: TokenProjectId.SwimFantomUsdcLp,
+    projectId: TokenProjectIdV1.SwimFantomUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "J5ifGexAQTg76TresJhJSqTPJLT6BNxrV5rwNJTTz4Cx",
@@ -223,7 +227,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-solana-lp-meta-karura-ausd",
-    projectId: TokenProjectId.SwimKaruraAusdLp,
+    projectId: TokenProjectIdV1.SwimKaruraAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
@@ -233,7 +237,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-solana-lp-meta-karura-usdt",
-    projectId: TokenProjectId.SwimKaruraUsdtLp,
+    projectId: TokenProjectIdV1.SwimKaruraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
@@ -244,7 +248,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
     id: "mainnet-solana-lp-meta-acala-ausd",
-    projectId: TokenProjectId.SwimAcalaAusdLp,
+    projectId: TokenProjectIdV1.SwimAcalaAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "11111111111111111111111111111111", // TODO: Update
@@ -254,7 +258,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-ethereum-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -272,7 +276,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-ethereum-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -290,7 +294,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-bnb-busd",
-    projectId: TokenProjectId.Busd,
+    projectId: TokenProjectIdV1.Busd,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
@@ -308,7 +312,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-bnb-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x55d398326f99059ff775485246999027b3197955",
@@ -326,7 +330,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-bnb-gst",
-    projectId: TokenProjectId.Gst,
+    projectId: TokenProjectIdV1.Gst,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x4a2c860cec6471b9f5f5a336eb4f38bb21683c98",
@@ -344,7 +348,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-bnb-gmt",
-    projectId: TokenProjectId.Gmt,
+    projectId: TokenProjectIdV1.Gmt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x3019bf2a2ef8040c242c9a4c5c4bd4c81678b2a1",
@@ -362,7 +366,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-avalanche-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
       address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
@@ -380,7 +384,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-avalanche-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
       address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
@@ -398,7 +402,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-polygon-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
       address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
@@ -416,7 +420,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-polygon-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
       address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
@@ -434,7 +438,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-aurora-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
@@ -452,7 +456,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-aurora-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
@@ -469,27 +473,8 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "mainnet-aurora-usn",
-    projectId: TokenProjectId.Usn,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
-      decimals: 18,
-    },
-    wrappedDetails: new Map([
-      [
-        SOLANA_ECOSYSTEM_ID,
-        {
-          address: "3NDmtc2xKMpm8wCiaALey2y3EGhBkUNuXJ9m3JcjnHMM",
-          decimals: 8,
-        },
-      ],
-    ]),
-  },
-  {
     id: "mainnet-fantom-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
     nativeDetails: {
       address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
@@ -508,7 +493,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-karura-ausd",
-    projectId: TokenProjectId.Ausd,
+    projectId: TokenProjectIdV1.Ausd,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
       address: "0x0000000000000000000100000000000000000081",
@@ -526,7 +511,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "mainnet-karura-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
       address: "0x0000000000000000000500000000000000000007",
@@ -545,7 +530,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
     id: "mainnet-acala-ausd",
-    projectId: TokenProjectId.Ausd,
+    projectId: TokenProjectIdV1.Ausd,
     nativeEcosystemId: EvmEcosystemId.Acala,
     nativeDetails: {
       address: "0x0000000000000000000000000000000000000000", // TODO: Update
@@ -564,7 +549,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: true,
     id: "mainnet-solana-swim",
-    projectId: TokenProjectId.Swim,
+    projectId: TokenProjectIdV1.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
@@ -575,7 +560,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: true,
     id: "mainnet-solana-lp-swimlake",
-    projectId: TokenProjectId.XSwim,
+    projectId: TokenProjectIdV1.XSwim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "SwiMNJ49SxkqMaVWLGGVRH25kE5dBnD2RQoiQUnKtMC",
@@ -588,7 +573,7 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
 export const TESTNET_SWIMUSD: TokenConfig = {
   isDisabled: !isPoolRestructureEnabled(),
   id: "testnet-swimusd",
-  projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
+  projectId: TokenProjectIdV2.SwimUsd,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
   nativeDetails: {
     address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C", // TODO: Update
@@ -658,121 +643,100 @@ export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-ethereum-lp-usdc-usdt",
-    projectId: TokenProjectId.SwimLpEthereumUsdcUsdt,
+    projectId: TokenProjectIdV2.SwimLpEthereumUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0xee525c4cEB776D9e770D2Fd81fc91d6418657955", // TODO: Update
       decimals: 6,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-bnb-lp-busd-usdt",
-    projectId: TokenProjectId.SwimLpBnbBusdUsdt,
+    projectId: TokenProjectIdV2.SwimLpBnbBusdUsdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x976943205ef791A1cf676A880c07458C91F241d7", // TODO: Update
       decimals: 6,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-avalanche-lp-usdc-usdt",
-    projectId: TokenProjectId.SwimLpAvalancheUsdcUsdt,
+    projectId: TokenProjectIdV2.SwimLpAvalancheUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-polygon-lp-usdc-usdt",
-    projectId: TokenProjectId.SwimLpPolygonUsdcUsdt,
+    projectId: TokenProjectIdV2.SwimLpPolygonUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-aurora-lp-usdc-usdt",
-    projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
+    projectId: TokenProjectIdV2.SwimLpAuroraUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
-    isDisabled:
-      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-aurora-lp-usn",
-    projectId: TokenProjectId.SwimLpAuroraUsn,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x1111111111111111111111111111111111111111", // TODO: Update
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-fantom-lp-usdc",
-    projectId: TokenProjectId.SwimLpFantomUsdc,
+    projectId: TokenProjectIdV2.SwimLpFantomUsdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-karura-lp-usdt",
-    projectId: TokenProjectId.SwimLpKaruraUsdt,
+    projectId: TokenProjectIdV2.SwimLpKaruraUsdt,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled:
       !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "testnet-karura-lp-ausd",
-    projectId: TokenProjectId.SwimLpKaruraAusd,
+    projectId: TokenProjectIdV2.SwimLpKaruraAusd,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "testnet-acala-lp-ausd",
-    projectId: TokenProjectId.SwimLpAcalaAusd,
+    projectId: TokenProjectIdV2.SwimLpAcalaAusd,
     nativeEcosystemId: EvmEcosystemId.Acala,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: EMPTY_MAP,
   },
 ];
 
 export const TESTNET_TOKENS: readonly TokenConfig[] = [
   {
     id: "testnet-solana-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc",
@@ -782,7 +746,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
@@ -792,7 +756,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-usdc-v2",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
@@ -802,7 +766,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-usdt-v2",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M",
@@ -812,7 +776,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-gst",
-    projectId: TokenProjectId.Gst,
+    projectId: TokenProjectIdV1.Gst,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "FYxTtPiGxNSDouZQftVRHFqraFJyLvNbTXzZj8X2gKQP",
@@ -822,7 +786,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-gmt",
-    projectId: TokenProjectId.Gmt,
+    projectId: TokenProjectIdV1.Gmt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "3xsNPBpf7UAKpJsLTqiPqHT3ZBKPDndj1rJFM7xaSJcV",
@@ -832,7 +796,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-hexapool",
-    projectId: TokenProjectId.SwimUsd,
+    projectId: TokenProjectIdV1.SwimUsdV1,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
@@ -857,7 +821,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-swim",
-    projectId: TokenProjectId.Swim,
+    projectId: TokenProjectIdV1.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
@@ -867,7 +831,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-swimlake",
-    projectId: TokenProjectId.XSwim,
+    projectId: TokenProjectIdV1.XSwim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
@@ -877,7 +841,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-avalanche-usdc",
-    projectId: TokenProjectId.SwimAvalancheUsdcLp,
+    projectId: TokenProjectIdV1.SwimAvalancheUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
@@ -887,7 +851,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-avalanche-usdt",
-    projectId: TokenProjectId.SwimAvalancheUsdtLp,
+    projectId: TokenProjectIdV1.SwimAvalancheUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
@@ -897,7 +861,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-polygon-usdc",
-    projectId: TokenProjectId.SwimPolygonUsdcLp,
+    projectId: TokenProjectIdV1.SwimPolygonUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
@@ -907,7 +871,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-polygon-usdt",
-    projectId: TokenProjectId.SwimPolygonUsdtLp,
+    projectId: TokenProjectIdV1.SwimPolygonUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
@@ -917,7 +881,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-gst",
-    projectId: TokenProjectId.SwimSolanaGstBinanceGstLp,
+    projectId: TokenProjectIdV1.SwimSolanaGstBinanceGstLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "BM3sXSfRg1yKzf2AbTA5QV76MdnKHi9M8D7VCGzDEYM1",
@@ -927,7 +891,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-gmt",
-    projectId: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
+    projectId: TokenProjectIdV1.SwimSolanaGmtBinanceGmtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "5VUZL2JcvbmjuT1DzDyWJ4mwtEH8unKyuQj3k38j8Ngs",
@@ -937,7 +901,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-aurora-usdc",
-    projectId: TokenProjectId.SwimAuroraUsdcLp,
+    projectId: TokenProjectIdV1.SwimAuroraUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "AQiHPuuBPsq4MLLjLv2WHRFbrNB1JHZeR4mQGVJTwVHn",
@@ -947,7 +911,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    projectId: TokenProjectIdV1.SwimAuroraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
@@ -956,19 +920,8 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnLp,
-    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
-    nativeDetails: {
-      address: "11111111111111111111111111111111", // TODO: Update
-      decimals: 8,
-    },
-    wrappedDetails: EMPTY_MAP,
-  },
-  {
     id: "testnet-solana-lp-meta-fantom-usdc",
-    projectId: TokenProjectId.SwimFantomUsdcLp,
+    projectId: TokenProjectIdV1.SwimFantomUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "4hmRgsk3hSdK1gXV7rg1pStwYtntKmbcFQyKqsZ4USis",
@@ -978,7 +931,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-karura-ausd",
-    projectId: TokenProjectId.SwimKaruraAusdLp,
+    projectId: TokenProjectIdV1.SwimKaruraAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
@@ -988,7 +941,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-solana-lp-meta-karura-usdt",
-    projectId: TokenProjectId.SwimKaruraUsdtLp,
+    projectId: TokenProjectIdV1.SwimKaruraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "882uzB9euTbBQJ6MrGrvxjXSTQi23VBQZcLcTH4E5Xow",
@@ -999,7 +952,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
     id: "testnet-solana-lp-meta-acala-ausd",
-    projectId: TokenProjectId.SwimAcalaAusdLp,
+    projectId: TokenProjectIdV1.SwimAcalaAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "BTbHtbUtDX5WAUSxPgELzy9VsbMbKAVFQ2hykNrD3X7L",
@@ -1009,7 +962,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-ethereum-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
@@ -1027,7 +980,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-ethereum-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
@@ -1045,7 +998,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-bnb-busd",
-    projectId: TokenProjectId.Busd,
+    projectId: TokenProjectIdV1.Busd,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
@@ -1063,7 +1016,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-bnb-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x98529E942FD121d9C470c3d4431A008257E0E714",
@@ -1081,7 +1034,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-bnb-gst",
-    projectId: TokenProjectId.Gst,
+    projectId: TokenProjectIdV1.Gst,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x73160078948280B8680e5F1eB2964698928E8cd7",
@@ -1099,7 +1052,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-bnb-gmt",
-    projectId: TokenProjectId.Gmt,
+    projectId: TokenProjectIdV1.Gmt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x1F65D61D01E3f10b34B855287b32D7bfbEA088D0",
@@ -1117,7 +1070,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-avalanche-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
       address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
@@ -1135,7 +1088,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-avalanche-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
       address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
@@ -1153,7 +1106,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-polygon-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
       address: "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1",
@@ -1171,7 +1124,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-polygon-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
       address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
@@ -1189,7 +1142,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-aurora-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
@@ -1207,7 +1160,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-aurora-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
       address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
@@ -1224,27 +1177,8 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "testnet-aurora-usn",
-    projectId: TokenProjectId.Usn,
-    nativeEcosystemId: EvmEcosystemId.Aurora,
-    nativeDetails: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Update
-      decimals: 18,
-    },
-    wrappedDetails: new Map([
-      [
-        SOLANA_ECOSYSTEM_ID,
-        {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 8,
-        },
-      ],
-    ]),
-  },
-  {
     id: "testnet-fantom-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
     nativeDetails: {
       address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
@@ -1262,7 +1196,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-karura-ausd",
-    projectId: TokenProjectId.Ausd,
+    projectId: TokenProjectIdV1.Ausd,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
       address: "0x074370ca8Fea9e8f1C5eE23f34CBdcD3FB7a66aD",
@@ -1280,7 +1214,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "testnet-karura-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
       address: "0x535d5e3b1ff7de526fe180e654a41350903c328d",
@@ -1299,7 +1233,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
     id: "testnet-acala-ausd",
-    projectId: TokenProjectId.Ausd,
+    projectId: TokenProjectIdV1.Ausd,
     nativeEcosystemId: EvmEcosystemId.Acala,
     nativeDetails: {
       address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
@@ -1322,7 +1256,7 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
 const LOCAL_TOKENS: readonly TokenConfig[] = [
   {
     id: "local-solana-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "USCAD1T3pV246XwC5kBFXpEjuudS1zT1tTNYhxby9vy",
@@ -1347,7 +1281,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-solana-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23",
@@ -1372,7 +1306,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-solana-lp-hexapool",
-    projectId: TokenProjectId.SwimUsd,
+    projectId: TokenProjectIdV1.SwimUsdV1,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
@@ -1397,7 +1331,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-solana-swim",
-    projectId: TokenProjectId.Swim,
+    projectId: TokenProjectIdV1.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "SWMPqjB9AAtpCbatAEEGK67wNBCN1HDW6VypX7E5r9g",
@@ -1407,7 +1341,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-solana-lp-swimlake",
-    projectId: TokenProjectId.XSwim,
+    projectId: TokenProjectIdV1.XSwim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "xSwy12tTsuYwM2Hd7ceNmvDftgxJ2ZSTycjzAfrNwPW",
@@ -1417,7 +1351,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-ethereum-usdc",
-    projectId: TokenProjectId.Usdc,
+    projectId: TokenProjectIdV1.Usdc,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0xFcCeD5E997E7fb1D0594518D3eD57245bB8ed17E",
@@ -1435,7 +1369,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-ethereum-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
       address: "0xdAA71FBBA28C946258DD3d5FcC9001401f72270F",
@@ -1453,7 +1387,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-bnb-busd",
-    projectId: TokenProjectId.Busd,
+    projectId: TokenProjectIdV1.Busd,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0xCeeFD27e0542aFA926B87d23936c79c276A48277",
@@ -1471,7 +1405,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
   },
   {
     id: "local-bnb-usdt",
-    projectId: TokenProjectId.Usdt,
+    projectId: TokenProjectIdV1.Usdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
       address: "0x988B6CFBf3332FF98FFBdED665b1F53a61f92612",

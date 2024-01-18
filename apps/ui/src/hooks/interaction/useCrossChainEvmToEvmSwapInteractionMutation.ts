@@ -9,6 +9,7 @@ import {
   isEvmEcosystemId,
 } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
+import { isTokenProjectId } from "@swim-io/token-projects";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -63,24 +64,35 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
       ) {
         throw new Error(`${fromEcosystem} wallet not found`);
       }
+
       const fromTokenSpec = fromTokenData.tokenConfig;
-      const toTokenSpec = toTokenData.tokenConfig;
       const fromChainConfig = EVM_ECOSYSTEMS[fromEcosystem].chains[env] ?? null;
       if (fromChainConfig === null) {
         throw new Error(`${fromEcosystem} chain config not found`);
       }
-      const toChainConfig = EVM_ECOSYSTEMS[toEcosystem].chains[env] ?? null;
-      if (toChainConfig === null) {
-        throw new Error(`${toEcosystem} chain config not found`);
+      if (!isTokenProjectId(fromTokenSpec.projectId)) {
+        throw new Error(
+          `Unsupported token project: ${fromTokenSpec.projectId}`,
+        );
       }
       const fromTokenDetails = getTokenDetails(
         fromChainConfig,
         fromTokenSpec.projectId,
       );
+
+      const toTokenSpec = toTokenData.tokenConfig;
+      const toChainConfig = EVM_ECOSYSTEMS[toEcosystem].chains[env] ?? null;
+      if (toChainConfig === null) {
+        throw new Error(`${toEcosystem} chain config not found`);
+      }
+      if (!isTokenProjectId(toTokenSpec.projectId)) {
+        throw new Error(`Unsupported token project: ${toTokenSpec.projectId}`);
+      }
       const toTokenDetails = getTokenDetails(
         toChainConfig,
         toTokenSpec.projectId,
       );
+
       await wallet.switchNetwork(fromChainConfig.chainId);
       const fromEvmClient = getEvmClient(fromEcosystem);
       const fromRouting = Routing__factory.connect(

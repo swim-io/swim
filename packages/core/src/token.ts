@@ -13,8 +13,7 @@ export interface TokenDetails {
 export interface TokenConfig {
   readonly id: string;
   /** The ID of the token project to which this token belongs */
-  readonly projectId: TokenProjectId;
+  /** @todo to be removed: legacy v1 token project id */
+  readonly projectId: TokenProjectId | `${string}-v1`;
   readonly nativeDetails: TokenDetails;
-  /** A map from ecosystem ID to token details for a Wormhole-wrapped version of the token */
-  readonly wrappedDetails: ReadonlyMap<string, TokenDetails>;
 }

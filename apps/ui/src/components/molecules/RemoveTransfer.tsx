@@ -1,10 +1,10 @@
 import { EuiLoadingSpinner, EuiText } from "@elastic/eui";
-import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { filterMap } from "@swim-io/utils";
 import type { VFC } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { EcosystemId, TokenConfig } from "../../config";
+import { getTokenProject } from "../../config";
 import { useIntlListFormatter } from "../../hooks";
 import type { Amount } from "../../models";
 
@@ -29,11 +29,11 @@ export const RemoveTransfer: VFC<Props> = ({
   const listFormatter = useIntlListFormatter();
   const nonZeroOutputTokens = filterMap(
     (amount: Amount) => !amount.isZero(),
-    (amount) => TOKEN_PROJECTS_BY_ID[amount.tokenConfig.projectId].symbol,
+    (amount) => getTokenProject(amount.tokenConfig.projectId).symbol,
     toAmounts,
   );
   const outputTokenNames = listFormatter.format(nonZeroOutputTokens);
-  const inputTokenName = TOKEN_PROJECTS_BY_ID[fromToken.projectId].symbol;
+  const inputTokenName = getTokenProject(fromToken.projectId).symbol;
 
   return (
     <EuiText size="m">

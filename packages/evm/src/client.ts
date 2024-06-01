@@ -9,18 +9,23 @@ import type {
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
   InitiatePropellerParams,
+  PoolState,
   TokenDetails,
   TxGeneratorResult,
 } from "@swim-io/core";
 import { ERC20__factory, Routing__factory } from "@swim-io/evm-contracts";
-import { isNotNull } from "@swim-io/utils";
+import { findOrThrow, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ethers, providers } from "ethers";
 import { utils as ethersUtils } from "ethers";
 
 import type { EvmChainConfig, EvmEcosystemId, EvmTx } from "./protocol";
 import { EvmTxType } from "./protocol";
-import { appendHexDataToEvmTx } from "./utils";
+import {
+  appendHexDataToEvmTx,
+  bigNumberToHumanDecimal,
+  decimalStructOutputToDecimal,
+} from "./utils";
 import type { EvmWalletAdapter } from "./walletAdapters";
 
 type BaseProvider = providers.BaseProvider;
@@ -150,6 +155,42 @@ export class EvmClient extends Client<
     return Promise.all(
       tokenDetails.map(this.getTokenBalance.bind(this, owner)),
     );
+  }
+
+  public async getPoolState(poolId: string): Promise<PoolState> {
+    const routingContract = Routing__factory.connect(
+      this.chainConfig.routingContractAddress,
+      this.provider,
+    );
+    const { address, lpTokenId, tokenIds } = findOrThrow(
+      this.chainConfig.pools,
+      (pool) => pool.id === poolId,
+    );
+    const lpToken = findOrThrow(
+      this.chainConfig.tokens,
+      ({ id }) => id === lpTokenId,
+    );
+    const poolTokens = tokenIds.map((tokenId) =>
+      findOrThrow(this.chainConfig.tokens, ({ id }) => id === tokenId),
+    );
+
+    const [state] = await routingContract.getPoolStates([address]);
+    return {
+      isPaused: state.paused,
+      balances: poolTokens.map((token, i) =>
+        bigNumberToHumanDecimal(
+          state.balances[i].balance,
+          token.nativeDetails.decimals,
+        ),
+      ),
+      totalLpSupply: bigNumberToHumanDecimal(
+        state.totalLpSupply.balance,
+        lpToken.nativeDetails.decimals,
+      ),
+      ampFactor: decimalStructOutputToDecimal(state.ampFactor),
+      lpFee: decimalStructOutputToDecimal(state.lpFee),
+      governanceFee: decimalStructOutputToDecimal(state.governanceFee),
+    };
   }
 
   public async *generateInitiatePortalTransferTxs({

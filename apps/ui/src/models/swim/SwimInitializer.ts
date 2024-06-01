@@ -15,13 +15,15 @@ import {
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { createTx, swimPool } from "@swim-io/solana";
+import { createTx } from "@swim-io/solana";
 import type {
   DecimalBN,
   SolanaClient,
   SolanaWalletAdapter,
 } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
+
+import { solanaPool } from "../solana";
 
 import { SwimInstruction, initInstruction } from "./instructions";
 
@@ -148,7 +150,7 @@ export class SwimInitializer {
     if (!this.stateAccount) {
       throw new Error("No state account");
     }
-    const layout = swimPool(this.numberOfTokens);
+    const layout = solanaPool(this.numberOfTokens);
     const lamports =
       await this.solanaClient.connection.getMinimumBalanceForRentExemption(
         layout.span,

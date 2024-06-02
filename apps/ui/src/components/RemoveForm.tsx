@@ -36,6 +36,7 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
+  useCoinGeckoPricesQuery,
   usePool,
   usePoolMath,
   useRemoveFeesEstimationQuery,
@@ -277,6 +278,9 @@ export const RemoveForm = ({
   const { data: feesEstimationV2 = null } = useRemoveFeesEstimationQueryV2(
     lpTokenSourceEcosystem,
   );
+
+  const { data: prices = new Map<TokenConfig["id"], Decimal | null>() } =
+    useCoinGeckoPricesQuery();
 
   const hasPositiveOutputAmount = outputAmounts.some(
     (amount) => amount && !amount.isZero(),
@@ -849,6 +853,7 @@ export const RemoveForm = ({
           feesEstimation={
             poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2
           }
+          prices={prices}
         />
       )}
 

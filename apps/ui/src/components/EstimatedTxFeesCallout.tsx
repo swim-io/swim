@@ -13,15 +13,19 @@ import type { FeesEstimation } from "../models";
 
 interface Props {
   readonly feesEstimation: Partial<FeesEstimation> | null;
+  readonly prices: ReadonlyMap<string, Decimal | null> | null;
 }
 
-export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
+export const EstimatedTxFeesCallout: FC<Props> = ({
+  feesEstimation,
+  prices,
+}) => {
   const { t } = useTranslation();
   const numberFormatter = useIntlNumberFormatter({
     maximumSignificantDigits: 4,
   });
   const config = useEnvironment(selectConfig, shallow);
-  if (feesEstimation === null) {
+  if (feesEstimation === null || prices === null) {
     return (
       <>
         <EuiCallOut iconType="visGauge" size="s" style={{ paddingLeft: 12 }}>
@@ -62,11 +66,17 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
           {txFeeArray.map(({ ecosystemId, txFee }) => {
             const { displayName, nativeTokenSymbol } =
               config.ecosystems[ecosystemId];
+            const maybePrice = prices.get(nativeTokenSymbol);
             return (
               <li key={ecosystemId}>
                 {displayName}
                 {": ~"}
                 {numberFormatter.format(txFee.toNumber())} {nativeTokenSymbol}
+                &nbsp;
+                {maybePrice &&
+                  `($${numberFormatter.format(
+                    txFee.times(maybePrice).toNumber(),
+                  )})`}
               </li>
             );
           })}

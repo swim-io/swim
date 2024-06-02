@@ -34,6 +34,7 @@ import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
   useAddFeesEstimationQueryV2,
+  useCoinGeckoPricesQuery,
   useMultipleUserBalances,
   usePool,
   usePoolMath,
@@ -258,6 +259,9 @@ export const AddForm = ({
     inputAmounts,
     lpTargetEcosystem,
   );
+
+  const { data: prices = new Map<TokenConfig["id"], Decimal | null>() } =
+    useCoinGeckoPricesQuery();
 
   const hasPositiveInputAmount = inputAmounts.some(
     (amount) => amount && !amount.isZero(),
@@ -601,6 +605,7 @@ export const AddForm = ({
           feesEstimation={
             poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2
           }
+          prices={prices}
         />
       )}
 

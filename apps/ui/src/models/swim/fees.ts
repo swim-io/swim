@@ -13,6 +13,7 @@ export type FeesEstimation = ReadonlyRecord<EcosystemId, Decimal>;
 export const APPROVAL_CEILING = 70000;
 export const TRANSFER_CEILING = 120000;
 export const REDEEM_CEILING = 300000;
+// TODO: Include Solana in USD fee estimation once this is not hardcoded.
 export const SOLANA_FEE = new Decimal(0.01);
 const POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT = new Decimal(0.1);
 export const ZERO = new Decimal(0);

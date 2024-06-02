@@ -17,6 +17,13 @@ const COINGECKO_ID_TO_TOKEN_IDS: ReadonlyRecord<string, readonly string[]> = {
   "green-satoshi-token": ["mainnet-solana-gst"],
   "green-satoshi-token-bsc": ["mainnet-bnb-gst"],
   stepn: ["mainnet-solana-gmt", "mainnet-bnb-gmt"], // NOTE: These are fungible via a non-Wormhole route
+  // The following Token IDs are an ecosystem's nativeTokenSymbol.
+  "avalanche-2": ["AVAX"],
+  binancecoin: ["BNB"],
+  ethereum: ["ETH"],
+  fantom: ["FTM"],
+  karura: ["KAR"],
+  "matic-network": ["MATIC"],
 };
 
 export const useCoinGeckoPricesQuery = (): UseQueryResult<
@@ -29,6 +36,7 @@ export const useCoinGeckoPricesQuery = (): UseQueryResult<
       return new Map();
     }
     const coinGeckoIds = Object.keys(COINGECKO_ID_TO_TOKEN_IDS);
+
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoIds.join(
       ",",
     )}&vs_currencies=USD`;

@@ -17,6 +17,7 @@ import MediaPage from "./pages/MediaPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
+import PoolsPage2 from "./pages/PoolsPage2";
 import SecurityPage from "./pages/SecurityPage";
 import SetCustomIpPage from "./pages/SetCustomIpPage";
 import StakePage from "./pages/StakePage";
@@ -54,6 +55,7 @@ function App(): ReactElement {
             <Routes>
               <Route path="set-custom-ip" element={<SetCustomIpPage />} />
               <Route path="pools" element={<PoolsPage />} />
+              <Route path="pools2" element={<PoolsPage2 />} />
               <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />

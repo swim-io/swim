@@ -46,6 +46,9 @@ export const Layout = ({
                 <CustomHeaderLink to={"/pools"}>
                   {t("nav.pools")}
                 </CustomHeaderLink>
+                <CustomHeaderLink to={"/pools2"}>
+                  {`${t("nav.pools")}-2`}
+                </CustomHeaderLink>
                 {/* TODO: Enable when token is launched */}
                 {/* <CustomHeaderLink to={"/stake"}>Stake</CustomHeaderLink> */}
                 <CustomHeaderLink to={"/help"}>

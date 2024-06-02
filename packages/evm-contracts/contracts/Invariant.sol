@@ -5,10 +5,17 @@ import "./Constants.sol";
 import "./CenterAlignment.sol";
 import "./Equalize.sol";
 
+//amp factor for internal respresentation (shifting is efficiently combined with other pool math)
+uint constant AMP_SHIFT = 10; //number of bits ampFactor is shifted to the left
+uint constant MARGINAL_PRICE_DECIMALS = 18;
+
 library Invariant {
   error UnknownBalanceTooLarge(uint unknownBalance);
 
   using CenterAlignment for uint;
+
+  uint private constant MARGINAL_PRICE_MULTIPLIER = 10**MARGINAL_PRICE_DECIMALS;
+  uint private constant ONE_AMP_SHIFTED = 1 << AMP_SHIFT;
 
   // RESTRICTIONS:
   // * Equalizeds use at most 61 bits (= ~18 digits).
@@ -202,6 +209,10 @@ library Invariant {
     return Equalized.wrap(uint64(unknownBalance));
   }}
 
+  //fails with division by zero if pool is empty which is fine for our purposes
+  // adding an additional check would be cleaner but since our pools will always been seeded
+  // immediately after deployment and nothing bad comes of it anyway, implementing said check would
+  // just be an unnecessary gas burden on users
   function calculateDepth(
     Equalized[] memory poolBalances,
     uint32 ampFactor,

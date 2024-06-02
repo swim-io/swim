@@ -2,8 +2,8 @@
 import type { TransactionResponse } from "@ethersproject/abstract-provider";
 import { getContractAddress } from "@ethersproject/address";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import type { BigNumber } from "ethers";
-import { Contract } from "ethers";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 
 import type { Pool } from "../typechain-types/contracts/Pool";
@@ -12,10 +12,27 @@ import type { SwimFactory } from "../typechain-types/contracts/SwimFactory.sol/S
 import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 
 import type { DeployedToken, PoolConfig, RoutingConfig, TestToken } from "./config";
-import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS, TOKEN_NUMBERS } from "./config";
+import {
+  DEFAULTS,
+  GAS_TOKEN_DECIMALS,
+  POOL_PRECISION,
+  ROUTING_PRECISION,
+  SALTS,
+  SWIM_FACTORY_ADDRESS,
+  SWIM_USD_ATTESTATION_ENCODEDVM,
+  SWIM_USD_DECIMALS,
+  SWIM_USD_SOLANA_ADDRESS,
+  WORMHOLE_SOLANA_CHAIN_ID,
+} from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
   "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
+
+//the following should be part of ../typechain-types/contracts/Routing but isn't for whatever reason
+enum RoutingGasTokenPriceMethod {
+  FixedPrice = 0,
+  UniswapOracle = 1,
+}
 
 export const confirm = async (tx: Promise<TransactionResponse>) => (await tx).wait();
 
@@ -48,8 +65,14 @@ export const getRegularAddress = async (name: string, constructorArgs: readonly 
   return swimFactory.determineAddress(bytecodeWithConstructorArgs, DEFAULTS.salt);
 };
 
+const testTokenToConstructorArgs = (token: TestToken) => [
+  TOKEN_PROJECTS_BY_ID[token.id].displayName,
+  TOKEN_PROJECTS_BY_ID[token.id].symbol,
+  token.decimals,
+];
+
 export const getTokenAddress = (token: TestToken) =>
-  getRegularAddress("ERC20Token", [token.name, token.symbol, token.decimals]);
+  getRegularAddress("ERC20Token", testTokenToConstructorArgs(token));
 
 const getDeployedContract = async (name: string, address: string) => {
   if (!(await isDeployed(address)))
@@ -85,22 +108,71 @@ export interface PoolConfigDeployedTokens extends PoolConfig {
   readonly tokens: readonly DeployedToken[];
 }
 
+export async function completeSwimUsdAttestation(tokenBridgeAddress: string) {
+  const tokenBridge = await ethers.getContractAt("ITokenBridge", tokenBridgeAddress);
+  const attestationIsComplete = async () => {
+    const swimUsdAddress = await tokenBridge.wrappedAsset(
+      WORMHOLE_SOLANA_CHAIN_ID,
+      SWIM_USD_SOLANA_ADDRESS
+    );
+    return swimUsdAddress && swimUsdAddress !== ethers.constants.AddressZero;
+  };
+
+  if (!(await attestationIsComplete()))
+    await confirm(tokenBridge.createWrapped(SWIM_USD_ATTESTATION_ENCODEDVM));
+  if (!(await attestationIsComplete()))
+    throw Error(`Could not attest swimUSD using encoded attestation`);
+}
+
 export async function setupPropellerFees(routingConfig: RoutingConfig) {
   const routingProxy = await getRoutingProxy();
   const serviceFee = routingConfig.serviceFee ?? DEFAULTS.serviceFee;
+  const currentFeeConfig = await routingProxy.propellerFeeConfig();
+  if (!currentFeeConfig.serviceFee.eq(serviceFee))
+    await confirm(routingProxy.adjustPropellerServiceFee(serviceFee));
+
   const gasPriceMethod = routingConfig.gasPriceMethod ?? DEFAULTS.gasPriceMethod;
-  if (serviceFee !== 0) await confirm(routingProxy.adjustPropellerServiceFee(serviceFee));
-  if ("uniswapPoolAddress" in gasPriceMethod)
-    await confirm(
-      routingProxy.usePropellerUniswapOracle(
-        gasPriceMethod.intermediateToken,
-        gasPriceMethod.uniswapPoolAddress
-      )
+
+  if ("uniswapPoolAddress" in gasPriceMethod) {
+    const tokenNumber = TOKEN_PROJECTS_BY_ID[gasPriceMethod.intermediateTokenId].tokenNumber;
+    if (tokenNumber === null)
+      throw Error(
+        `Token ${gasPriceMethod.intermediateTokenId} has not been assigned a tokenNumber yet`
+      );
+    const uniswapConfig = currentFeeConfig.uniswap;
+    const tokenInfo = await routingProxy.tokenNumberMapping(tokenNumber);
+    if (
+      currentFeeConfig.method !== RoutingGasTokenPriceMethod.UniswapOracle ||
+      uniswapConfig.swimPool !== tokenInfo.poolAddress ||
+      uniswapConfig.swimIntermediateIndex !== tokenInfo.tokenIndexInPool ||
+      uniswapConfig.uniswapPool !== gasPriceMethod.uniswapPoolAddress
+    )
+      await confirm(
+        routingProxy.usePropellerUniswapOracle(
+          tokenInfo.tokenAddress,
+          gasPriceMethod.uniswapPoolAddress
+        )
+      );
+  } else {
+    //same x swimUSD / gastoken
+    //if same decimals, then x * 10^18
+    //for every decimal that swimUSD has price goes up by 10x because with e.g. 2 decimals 100
+    // means 1 swimUSD whereas with 0 decimals 1 means 1 swimUSD
+    //for every decimal gas token has, price goes down by 10x
+    const fixedSwimUsdPerGasToken = BigNumber.from(gasPriceMethod.fixedSwimUsdPerGasToken).mul(
+      BigNumber.from(10).pow(ROUTING_PRECISION + SWIM_USD_DECIMALS - GAS_TOKEN_DECIMALS)
     );
-  else {
-    const fixedSwimUsdPerGasToken = gasPriceMethod.fixedSwimUsdPerGasToken;
-    if (fixedSwimUsdPerGasToken !== 0)
-      await confirm(routingProxy.usePropellerFixedGasTokenPrice(fixedSwimUsdPerGasToken));
+
+    if (
+      currentFeeConfig.method !== RoutingGasTokenPriceMethod.FixedPrice ||
+      !currentFeeConfig.fixedSwimUsdPerGasToken.eq(fixedSwimUsdPerGasToken)
+    )
+      await confirm(
+        routingProxy.usePropellerFixedGasTokenPrice({
+          value: fixedSwimUsdPerGasToken,
+          decimals: ROUTING_PRECISION,
+        })
+      );
   }
 }
 
@@ -138,14 +210,11 @@ export async function deployPoolAndRegister(
   const routingProxy = await getRoutingProxy();
   for (let i = 0; i < pool.tokens.length; ++i) {
     const poolToken = pool.tokens[i];
-    const tokenNumber = TOKEN_NUMBERS[poolToken.symbol];
-    const filter = routingProxy.filters.TokenRegistered(tokenNumber);
-    const tokenReregisteredEvents = await routingProxy.queryFilter(filter);
-    const currentlyRegisteredPool =
-      tokenReregisteredEvents.length > 0
-        ? tokenReregisteredEvents[tokenReregisteredEvents.length - 1]
-        : "";
-    if (currentlyRegisteredPool !== poolProxy.address)
+    const tokenNumber = TOKEN_PROJECTS_BY_ID[poolToken.id].tokenNumber;
+    if (tokenNumber === null)
+      throw Error(`Token ${poolToken.id} has not been assigned a tokenNumber yet`);
+
+    if ((await routingProxy.tokenNumberMapping(tokenNumber)).poolAddress !== poolProxy.address)
       await confirm(routingProxy.registerToken(tokenNumber, poolToken.address, poolProxy.address));
   }
 
@@ -172,25 +241,31 @@ export async function deployProxy(
           `expected: ${logic.address} but found ${actualLogic}`
       );
 
-    const filter = swimFactory.filters.ContractCreated(proxyAddress);
-    const [deployEvent] = await swimFactory.queryFilter(filter);
-    const deployData = (await deployEvent.getTransaction()).data;
-    const index = deployData.lastIndexOf(initializeEncoded.slice(2));
-    const suffixIndex = index === -1 ? -1 : index + initializeEncoded.length - 2;
-    if (
-      index === -1 ||
-      deployData.slice(suffixIndex) !== "0".repeat(deployData.length - suffixIndex)
-    )
+    try {
+      //this tends to fail on various networks for various reasons, e.g. on BNB testnet you get
+      const filter = swimFactory.filters.ContractCreated(proxyAddress);
+      const deployEvents = await swimFactory.queryFilter(filter);
+      if (deployEvents.length === 0) throw Error(`RPC Provider failed to return deploy event`);
+      const [deployEvent] = deployEvents;
+      const deployData = (await deployEvent.getTransaction()).data;
+      const index = deployData.lastIndexOf(initializeEncoded.slice(2));
+      const suffixIndex = index === -1 ? -1 : index + initializeEncoded.length - 2;
+      if (
+        index === -1 ||
+        deployData.slice(suffixIndex) !== "0".repeat(deployData.length - suffixIndex)
+      )
+        console.warn(
+          `Warning: Deployment transaction of proxy ${proxyAddress} for logic contract` +
+            `${logic.address}$ was already deployed with different initialize arguments\n` +
+            `expected:\n${initializeEncoded}\nbut full original calldata was:\n${deployData}`
+        );
+    } catch (e: any) {
       console.warn(
-        "Deployment transaction of proxy",
-        proxyAddress,
-        "for logic contract",
-        logic.address,
-        "was already deployed with different initialize arguments - expected:",
-        initializeEncoded,
-        "but full original calldata was:",
-        deployData
+        `Warning: Couldn't compare initialize arguments from previous deploy transaction:\n` +
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
+          `${e.message ?? e}`
       );
+    }
   } else await confirm(swimFactory.createProxy(logic.address, salt, initializeEncoded));
 
   return new Contract(proxyAddress, logic.interface, logic.provider);
@@ -247,7 +322,7 @@ export async function deployRegular(
 }
 
 export const deployToken = async (token: TestToken): Promise<ERC20Token> =>
-  deployRegular("ERC20Token", [token.name, token.symbol, token.decimals]) as Promise<ERC20Token>;
+  deployRegular("ERC20Token", testTokenToConstructorArgs(token)) as Promise<ERC20Token>;
 
 export async function deploySwimFactory(
   owner: SignerWithAddress,
@@ -295,24 +370,34 @@ export async function deploySwimFactory(
           `expected: ${SWIM_FACTORY_ADDRESS} but got: ${precalculatedAddress}`
       );
 
-    const swimFactoryFactory = (await ethers.getContractFactory("SwimFactory")).connect(
-      factoryDeployer
-    );
+    const swimFactoryDeployTx = (await ethers.getContractFactory("SwimFactory"))
+      .connect(factoryDeployer)
+      .getDeployTransaction(owner.address);
 
-    const gasEstimate = await factoryDeployer.estimateGas(
-      swimFactoryFactory.getDeployTransaction(owner.address)
-    );
-
-    const { maxFeePerGas } = await ethers.getDefaultProvider().getFeeData();
+    const gasEstimate = await factoryDeployer.estimateGas(swimFactoryDeployTx);
+    const { maxFeePerGas } = await ethers.provider.getFeeData();
     const maxCost = gasEstimate.mul(maxFeePerGas!);
+
     await topUpGasOfFactoryDeployer(factoryDeployer.address, maxCost);
 
-    const swimFactory = await (await swimFactoryFactory.deploy(owner.address)).deployed();
+    const receipt = await confirm(
+      factoryDeployer.sendTransaction({ ...swimFactoryDeployTx, gasLimit: gasEstimate })
+    );
 
-    if (swimFactory.address !== SWIM_FACTORY_ADDRESS)
+    if (receipt.contractAddress !== SWIM_FACTORY_ADDRESS)
       throw Error(
         `Unexpected deployed SwimFactory address - ` +
-          `expected: ${SWIM_FACTORY_ADDRESS} but got: ${swimFactory.address}`
+          `expected: ${SWIM_FACTORY_ADDRESS} but got: ${receipt.contractAddress}`
+      );
+
+    const leftoverBalance = await ethers.provider.getBalance(factoryDeployer.address);
+    const refundCost = maxFeePerGas!.mul(21000);
+    if (leftoverBalance.gt(refundCost))
+      await confirm(
+        factoryDeployer.sendTransaction({
+          to: owner.address,
+          value: leftoverBalance.sub(refundCost),
+        })
       );
   } else if (presigned) {
     //deploy SwimFactory via presigned tx

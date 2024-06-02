@@ -1,31 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
+import "./Decimal.sol";
+import "./PoolState.sol";
 import "./IMemoInteractor.sol";
-
-struct TokenBalance {
-  address tokenAddress;
-  uint balance;
-}
-
-struct Decimal {
-  uint value;
-  uint8 decimals;
-}
-
-struct PoolState {
-  bool paused;
-  TokenBalance[] balances;
-  TokenBalance totalLpSupply;
-  Decimal ampFactor;
-  Decimal lpFee;
-  Decimal governanceFee;
-}
 
 interface IPool is IMemoInteractor {
   event Paused(bool paused);
-  event TransferGovernance(address indexed from, address indexed to);
-  event ChangeGovernanceFeeRecipient(address indexed governanceFeeRecepient);
+  event GovernanceChanged(address indexed from, address indexed to);
+  event GovernanceFeeRecipientChanged(address indexed governanceFeeRecepient);
+  event FeesChanged(Decimal lpFee, Decimal governanceFee);
 
   //governance errors:
   error LpTokenInitializationFailed(bytes lowLevelData);

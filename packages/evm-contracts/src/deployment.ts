@@ -1,18 +1,21 @@
 import { readFile } from "fs/promises";
 
+import { TokenProjectId } from "@swim-io/token-projects";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 import type { ChainConfig } from "./config";
 import {
-  DEFAULTS,
+  POOL_PRECISION,
   ROUTING_CONTRACT_SOLANA_ADDRESS,
+  ROUTING_PRECISION,
   SWIM_FACTORY_ADDRESS,
   SWIM_USD_DECIMALS,
   SWIM_USD_SOLANA_ADDRESS,
   WORMHOLE_SOLANA_CHAIN_ID,
 } from "./config";
 import {
+  completeSwimUsdAttestation,
   deployLogic,
   deployPoolAndRegister,
   deployProxy,
@@ -52,7 +55,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
   // eslint-disable-next-line no-console
   const log = options.print ? console.log : () => {};
   const logAddress = (name: string, contract: Contract) =>
-    log(name.padStart(18) + ":", contract.address);
+    log(name.padStart(24) + ":", contract.address);
   log("executing deployment script for", chainConfig.name);
 
   const [deployer, governanceFeeRecipient] = await ethers.getSigners();
@@ -63,6 +66,8 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
   await checkConstant("ROUTING_CONTRACT_SOLANA_ADDRESS", ROUTING_CONTRACT_SOLANA_ADDRESS);
   await checkConstant("WORMHOLE_SOLANA_CHAIN_ID", WORMHOLE_SOLANA_CHAIN_ID.toString());
   await checkConstant("SWIM_USD_DECIMALS", SWIM_USD_DECIMALS.toString());
+  await checkConstant("POOL_PRECISION", POOL_PRECISION.toString());
+  await checkConstant("ROUTING_PRECISION", ROUTING_PRECISION.toString());
   await checkConstant("SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
 
   logAddress(
@@ -78,13 +83,16 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
 
   const routingConfig = chainConfig.routing;
   if (routingConfig === "MOCK") {
-    const swimUsd = await deployToken(DEFAULTS.swimUsd);
+    const swimUsd = await deployToken({ id: TokenProjectId.SwimUsd, decimals: SWIM_USD_DECIMALS });
     logAddress("SwimUSD", swimUsd);
     logAddress("RoutingLogic", await deployLogic("MockRoutingForPoolTests"));
     logAddress("RoutingProxy", await deployProxy("MockRoutingForPoolTests", [swimUsd.address]));
   } else {
     const wormholeTokenBridgeAddress = await (async () => {
-      if (routingConfig.wormholeTokenBridge !== "MOCK") return routingConfig.wormholeTokenBridge;
+      if (routingConfig.wormholeTokenBridge !== "MOCK") {
+        await completeSwimUsdAttestation(routingConfig.wormholeTokenBridge);
+        return routingConfig.wormholeTokenBridge;
+      }
 
       const coreBridge = await deployRegular("MockWormhole", []);
       logAddress("CoreBridge", coreBridge);
@@ -105,10 +113,10 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
         "address" in token
           ? token
           : {
-              symbol: token.symbol,
+              id: token.id,
               address: await (async () => {
                 const tokenContract = await deployToken(token);
-                logAddress(token.symbol, tokenContract);
+                logAddress(token.id, tokenContract);
                 return tokenContract.address;
               })(),
             }
@@ -119,7 +127,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
       deployer,
       governanceFeeRecipient
     );
-    logAddress("Pool" + JSON.stringify(poolTokens.map((t) => t.symbol)), pool);
+    logAddress("Pool" + JSON.stringify(poolTokens.map((t) => t.id)), pool);
   }
 
   if (routingConfig !== "MOCK") await setupPropellerFees(routingConfig);
